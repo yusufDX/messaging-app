@@ -233,8 +233,10 @@
             display: inline-flex;
             align-items: center;
             gap: 2px;
-            margin-left: 5px;
-            font-size: 10px;
+            margin-left: 8px;
+            font-size: 12px;
+            float: right;
+            margin-top: 5px;
         }
         
         .read-receipt .sent {
@@ -249,9 +251,8 @@
             color: #0088cc;
         }
         
-        .message.sent .read-receipt {
-            float: right;
-            margin-top: 5px;
+        .dark-mode .read-receipt .read {
+            color: #4dabf7;
         }
         
         /* Seen By Tooltip */
@@ -271,6 +272,11 @@
         
         .message:hover .seen-by {
             display: block;
+        }
+        
+        .dark-mode .seen-by {
+            background: #2d2d2d;
+            color: #e4e6eb;
         }
         
         .message-reactions {
@@ -791,10 +797,6 @@
         .dark-mode .voice-message:hover {
             background: rgba(255,255,255,0.2);
         }
-        
-        .dark-mode .read-receipt .read {
-            color: #4dabf7;
-        }
     </style>
 </head>
 <body>
@@ -1071,7 +1073,6 @@
             socket.on('new-message', (message) => {
                 if (currentChat.type === 'group') {
                     displayMessage(message, 'group');
-                    // Mark as read
                     socket.emit('mark-read', { messageId: message.id, chatType: 'group' });
                 }
             });
@@ -1240,7 +1241,19 @@
                 seenByDiv.className = 'seen-by';
                 messageDiv.appendChild(seenByDiv);
             }
-            seenByDiv.innerHTML = `Seen by ${reader}`;
+            
+            let readers = [];
+            const existingText = seenByDiv.innerHTML;
+            if (existingText && existingText !== '' && existingText !== 'Seen by ') {
+                const match = existingText.match(/Seen by (.+)/);
+                if (match && match[1]) {
+                    readers = match[1].split(', ');
+                }
+            }
+            if (!readers.includes(reader)) {
+                readers.push(reader);
+            }
+            seenByDiv.innerHTML = `Seen by ${readers.join(', ')}`;
         }
         
         function displayMessage(message, type) {
@@ -1280,18 +1293,15 @@
             
             contentHtml += `</div>`;
             
-            // Add read receipt for sent messages
+            // Add read receipt for sent messages (FIXED)
             if (isSent) {
-                if (message.read) {
-                    contentHtml += `<div class="read-receipt" title="Read by ${message.readBy || 'someone'}"><span class="read">✓✓</span></div>`;
-                } else if (message.delivered) {
+                if (message.readBy && message.readBy.length > 0) {
+                    contentHtml += `<div class="read-receipt" title="Read by ${message.readBy.join(', ')}"><span class="read">✓✓</span></div>`;
+                    contentHtml += `<div class="seen-by">Seen by ${message.readBy.join(', ')}</div>`;
+                } else if (message.delivered === true || message.status === 'delivered') {
                     contentHtml += `<div class="read-receipt"><span class="delivered">✓✓</span></div>`;
                 } else {
                     contentHtml += `<div class="read-receipt"><span class="sent">✓</span></div>`;
-                }
-                
-                if (message.readBy) {
-                    contentHtml += `<div class="seen-by">Seen by ${message.readBy}</div>`;
                 }
             }
             
