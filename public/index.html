@@ -95,16 +95,52 @@
         .reply-preview { background: rgba(0,0,0,0.08); padding: 5px 8px; border-radius: 12px; margin-bottom: 5px; font-size: 11px; border-left: 2px solid #667eea; }
         .message .time { font-size: 9px; margin-top: 4px; opacity: 0.6; }
         
-        /* Polls - Professional */
-        .poll-container { background: rgba(0,0,0,0.05); border-radius: 16px; padding: 12px; margin-top: 5px; }
-        .poll-question { font-weight: bold; margin-bottom: 10px; }
-        .poll-option { padding: 10px; margin: 6px 0; background: rgba(0,0,0,0.05); border-radius: 12px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .poll-option:hover { background: rgba(0,0,0,0.1); }
+        /* Professional Poll */
+        .poll-container {
+            background: rgba(0,0,0,0.05);
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 5px;
+            min-width: 200px;
+        }
+        .poll-question {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .poll-option {
+            padding: 10px 12px;
+            margin: 6px 0;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .poll-option:hover { background: rgba(0,0,0,0.1); transform: scale(1.01); }
         .poll-option.voted { background: #667eea20; border-left: 3px solid #667eea; }
-        .poll-percentage { font-size: 12px; color: #667eea; font-weight: bold; }
+        .poll-percentage {
+            font-size: 12px;
+            font-weight: bold;
+            color: #667eea;
+            background: rgba(102,126,234,0.1);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .poll-total {
+            font-size: 10px;
+            margin-top: 8px;
+            text-align: right;
+            opacity: 0.6;
+        }
         
         /* Location */
         .location-share { display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 16px; cursor: pointer; }
+        
+        /* GIF */
+        .gif-message { max-width: 200px; border-radius: 12px; cursor: pointer; }
         
         /* Read Receipts */
         .read-receipt { display: inline-flex; margin-left: 5px; font-size: 10px; }
@@ -134,16 +170,16 @@
         .forward-btn { color: #666; }
         .edited-badge { font-size: 9px; opacity: 0.6; margin-left: 4px; }
         
-        /* Input Area - Professional & Clean */
+        /* Input Area */
         .input-area { padding: 12px; background: white; border-top: 1px solid #e4e6eb; }
         
-        /* Main Action Bar - Only essential buttons */
         .action-bar {
             display: flex;
             gap: 12px;
             margin-bottom: 10px;
             padding: 4px 0;
             border-bottom: 1px solid #e4e6eb;
+            flex-wrap: wrap;
         }
         .action-btn {
             background: none;
@@ -161,7 +197,6 @@
         .action-btn:hover { background: #f0f2f5; }
         .action-btn.active { color: #667eea; background: #667eea10; }
         
-        /* Plus Menu - Hidden by default, shows when clicking + */
         .plus-menu {
             display: none;
             position: absolute;
@@ -172,9 +207,9 @@
             padding: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             z-index: 1000;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            min-width: 280px;
+            min-width: 200px;
         }
         .plus-menu.show { display: grid; }
         .plus-item {
@@ -190,7 +225,7 @@
             color: #65676b;
         }
         .plus-item:hover { background: #f0f2f5; }
-        .plus-item .icon { font-size: 28px; }
+        .plus-item .icon { font-size: 24px; }
         
         .reply-indicator { background: #f0f2f5; padding: 8px; border-radius: 12px; margin-bottom: 8px; display: none; border-left: 3px solid #667eea; justify-content: space-between; align-items: center; font-size: 12px; }
         .preview-container { margin-bottom: 8px; padding: 8px; background: #f0f2f5; border-radius: 12px; display: none; }
@@ -202,17 +237,50 @@
         #send-button { padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
         .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; }
         
-        /* Emoji Picker */
         .emoji-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; grid-template-columns: repeat(7, 1fr); gap: 8px; z-index: 1000; max-height: 300px; overflow-y: auto; }
         .emoji-picker.show { display: grid; }
         .emoji { cursor: pointer; font-size: 28px; padding: 5px; text-align: center; transition: transform 0.1s; }
         .emoji:hover { transform: scale(1.2); }
         
-        /* GIF Picker */
         .gif-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; grid-template-columns: repeat(3, 1fr); gap: 8px; z-index: 1000; max-height: 300px; overflow-y: auto; }
         .gif-picker.show { display: grid; }
-        .gif-item { cursor: pointer; text-align: center; padding: 8px; border-radius: 12px; transition: transform 0.1s; font-size: 48px; }
-        .gif-item:hover { transform: scale(1.05); background: #f0f2f5; }
+        .gif-item {
+            cursor: pointer;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            background: #f0f2f5;
+            font-size: 14px;
+        }
+        .gif-item:hover { transform: scale(1.05); background: #e4e6eb; }
+        .gif-upload {
+            grid-column: span 3;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        .schedule-picker {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            right: 10px;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+        .schedule-picker.show { display: block; }
+        .schedule-picker input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px; }
+        .schedule-picker button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 12px; border: none; cursor: pointer; }
+        .schedule-picker .schedule-btn { background: #667eea; color: white; }
+        .schedule-picker .cancel-btn { background: #666; color: white; }
         
         .recording-indicator { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #ff4444; color: white; padding: 8px 16px; border-radius: 30px; display: none; z-index: 2000; font-size: 14px; }
         .profile-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 3000; }
@@ -242,9 +310,9 @@
         .dark-mode .login-card, .dark-mode .sidebar, .dark-mode .preview-container, .dark-mode .emoji-picker,
         .dark-mode .reaction-picker, .dark-mode .profile-modal-content, .dark-mode .incoming-call, .dark-mode .search-results,
         .dark-mode .reply-indicator, .dark-mode .message-actions, .dark-mode .seen-by, .dark-mode .gif-picker,
-        .dark-mode .plus-menu { background: #2d2d2d; color: #e4e6eb; }
+        .dark-mode .plus-menu, .dark-mode .schedule-picker { background: #2d2d2d; color: #e4e6eb; }
         .dark-mode .login-card input, .dark-mode #message-input, .dark-mode .search-box input,
-        .dark-mode .action-btn, .dark-mode .plus-item { background: #3e3e3e; color: #e4e6eb; }
+        .dark-mode .action-btn, .dark-mode .plus-item, .dark-mode .gif-item { background: #3e3e3e; color: #e4e6eb; }
         .dark-mode .user-item { background: #3e3e3e; }
         .dark-mode .user-item:hover { background: #4e4e4e; }
         .dark-mode .sidebar-header, .dark-mode .chat-header { background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%); }
@@ -304,7 +372,6 @@
             <div id="typing-indicator" class="typing-indicator"></div>
             
             <div class="input-area">
-                <!-- Professional Action Bar - Only essential buttons -->
                 <div class="action-bar">
                     <button class="action-btn" id="plus-btn">➕</button>
                     <button class="action-btn" id="emoji-btn">😊</button>
@@ -314,12 +381,24 @@
                     <button class="action-btn" id="call-btn">📞</button>
                 </div>
                 
-                <!-- Plus Menu - Hidden by default -->
                 <div class="plus-menu" id="plus-menu">
-                    <div class="plus-item" onclick="createPoll()"><span class="icon">📊</span><span>Poll</span></div>
+                    <div class="plus-item" onclick="openPollCreator()"><span class="icon">📊</span><span>Poll</span></div>
                     <div class="plus-item" onclick="shareLocation()"><span class="icon">📍</span><span>Location</span></div>
                     <div class="plus-item" onclick="openSchedulePicker()"><span class="icon">⏰</span><span>Schedule</span></div>
                     <div class="plus-item" onclick="sendFile()"><span class="icon">📎</span><span>File</span></div>
+                </div>
+                
+                <!-- Poll Creator Modal -->
+                <div id="poll-creator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; padding: 20px; width: 90%; max-width: 350px; z-index: 5000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <h3 style="margin-bottom: 15px;">Create a Poll</h3>
+                    <input type="text" id="poll-question" placeholder="Question" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px;">
+                    <div id="poll-options-container">
+                        <input type="text" placeholder="Option 1" class="poll-option-input" style="width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 12px;">
+                        <input type="text" placeholder="Option 2" class="poll-option-input" style="width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 12px;">
+                    </div>
+                    <button onclick="addPollOption()" style="margin: 5px 0; padding: 8px; background: #e4e6eb; border: none; border-radius: 12px; cursor: pointer;">+ Add Option</button>
+                    <button onclick="sendPoll()" style="margin-top: 15px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 12px; width: 100%; cursor: pointer;">Create Poll</button>
+                    <button onclick="closePollCreator()" style="margin-top: 8px; padding: 10px; background: #666; color: white; border: none; border-radius: 12px; width: 100%; cursor: pointer;">Cancel</button>
                 </div>
                 
                 <div class="reply-indicator" id="reply-indicator">
@@ -358,18 +437,39 @@
     </div>
     
     <div class="gif-picker" id="gif-picker">
-        <div class="gif-item">😀</div><div class="gif-item">😂</div><div class="gif-item">🥳</div>
-        <div class="gif-item">🎉</div><div class="gif-item">🔥</div><div class="gif-item">❤️</div>
-        <div class="gif-item">👍</div><div class="gif-item">🙏</div><div class="gif-item">🤣</div>
-        <div class="gif-item">😎</div><div class="gif-item">🥺</div><div class="gif-item">😱</div>
+        <div class="gif-item" data-gif="https://media.tenor.com/images/5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e/tenor.gif">😂 Laughing</div>
+        <div class="gif-item" data-gif="https://media.tenor.com/images/6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f/tenor.gif">🎉 Celebration</div>
+        <div class="gif-item" data-gif="https://media.tenor.com/images/7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f/tenor.gif">❤️ Love</div>
+        <div class="gif-item" data-gif="https://media.tenor.com/images/8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f/tenor.gif">🔥 Fire</div>
+        <div class="gif-upload" id="upload-gif-btn">📤 Upload Your Own GIF</div>
     </div>
     
-    <div class="schedule-picker" id="schedule-picker" style="position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; z-index: 1000;">
+    <div class="schedule-picker" id="schedule-picker">
         <h4>Schedule Message</h4>
-        <input type="datetime-local" id="schedule-time" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px;">
-        <input type="text" id="schedule-text" placeholder="Message to send later" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px;">
-        <button onclick="scheduleMessage()" style="margin-top: 10px; padding: 10px; background: #667eea; color: white; border: none; border-radius: 12px; width: 100%;">Schedule</button>
-        <button onclick="closeSchedulePicker()" style="margin-top: 5px; padding: 8px; background: #666; color: white; border: none; border-radius: 12px; width: 100%;">Cancel</button>
+        <input type="datetime-local" id="schedule-time">
+        <input type="text" id="schedule-text" placeholder="Message to send later">
+        <button class="schedule-btn" onclick="scheduleMessage()">Schedule</button>
+        <button class="cancel-btn" onclick="closeSchedulePicker()">Cancel</button>
+    </div>
+    
+    <!-- Translation Language Selector -->
+    <div class="schedule-picker" id="translation-picker" style="display: none;">
+        <h4>Translate To</h4>
+        <select id="translate-language" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px;">
+            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="pt">Portuguese</option>
+            <option value="ru">Russian</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="zh">Chinese</option>
+            <option value="ar">Arabic</option>
+        </select>
+        <button onclick="confirmTranslation()" style="margin-top: 10px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 12px; width: 100%;">Translate</button>
+        <button onclick="closeTranslationPicker()" style="margin-top: 8px; padding: 10px; background: #666; color: white; border: none; border-radius: 12px; width: 100%;">Cancel</button>
     </div>
     
     <div class="video-call-container" id="video-call-container">
@@ -400,6 +500,7 @@
     </div>
     
     <input type="file" id="file-input" style="display: none;">
+    <input type="file" id="gif-upload-input" accept="image/gif" style="display: none;">
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -417,6 +518,7 @@
         let userAvatars = {};
         let allMessages = [];
         let scheduledMessages = [];
+        let currentMessageToTranslate = null;
         
         // Video call vars
         let localStream = null;
@@ -455,7 +557,9 @@
         const gifPicker = document.getElementById('gif-picker');
         const plusMenu = document.getElementById('plus-menu');
         const schedulePicker = document.getElementById('schedule-picker');
+        const translationPicker = document.getElementById('translation-picker');
         const fileInput = document.getElementById('file-input');
+        const gifUploadInput = document.getElementById('gif-upload-input');
         const previewContainer = document.getElementById('preview-container');
         const previewContent = document.getElementById('preview-content');
         const searchInput = document.getElementById('search-input');
@@ -469,6 +573,7 @@
         const replyPreview = document.getElementById('reply-preview');
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menu-btn');
+        const pollCreator = document.getElementById('poll-creator');
         
         // Video call elements
         const videoCallContainer = document.getElementById('video-call-container');
@@ -486,6 +591,7 @@
         let typingTimeout = null;
         let searchTimeout = null;
         let scheduleInterval = null;
+        let voiceStartTime = null;
         
         const recordingIndicator = document.createElement('div');
         recordingIndicator.className = 'recording-indicator';
@@ -508,7 +614,54 @@
             } catch(e) {}
         }
         
-        // ============ GIF (Real GIFs from Tenor) ============
+        // ============ PROFESSIONAL POLL ============
+        function openPollCreator() {
+            pollCreator.style.display = 'block';
+            plusMenu.classList.remove('show');
+        }
+        
+        function closePollCreator() {
+            pollCreator.style.display = 'none';
+            document.getElementById('poll-question').value = '';
+            document.getElementById('poll-options-container').innerHTML = `
+                <input type="text" placeholder="Option 1" class="poll-option-input" style="width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 12px;">
+                <input type="text" placeholder="Option 2" class="poll-option-input" style="width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 12px;">
+            `;
+        }
+        
+        function addPollOption() {
+            const container = document.getElementById('poll-options-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `Option ${container.children.length + 1}`;
+            input.className = 'poll-option-input';
+            input.style.cssText = 'width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 12px;';
+            container.appendChild(input);
+        }
+        
+        function sendPoll() {
+            const question = document.getElementById('poll-question').value.trim();
+            const optionInputs = document.querySelectorAll('.poll-option-input');
+            const options = [];
+            optionInputs.forEach(input => {
+                if (input.value.trim()) options.push(input.value.trim());
+            });
+            
+            if (!question) { alert('Please enter a question'); return; }
+            if (options.length < 2) { alert('Please add at least 2 options'); return; }
+            
+            const pollData = { type: 'poll', question, options, votes: {} };
+            if (currentChat.type === 'group') socket.emit('send-message', pollData);
+            else socket.emit('send-private-message', { to: currentChat.username, ...pollData });
+            
+            closePollCreator();
+        }
+        
+        function votePoll(pollId, optionIndex) {
+            socket.emit('vote-poll', { pollId, optionIndex, chatType: currentChat.type, otherUser: currentChat.username });
+        }
+        
+        // ============ GIF ============
         function sendGif(gifUrl) {
             const msgData = { type: 'gif', gifUrl: gifUrl };
             if (currentChat.type === 'group') socket.emit('send-message', msgData);
@@ -516,28 +669,24 @@
             gifPicker.classList.remove('show');
         }
         
-        // Popular GIFs
-        const popularGifs = [
-            'https://media.tenor.com/images/5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e/tenor.gif',
-            'https://media.tenor.com/images/6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f/tenor.gif'
-        ];
-        
-        // ============ POLLS - Professional ============
-        function createPoll() {
-            const question = prompt('Poll question:');
-            if (!question) return;
-            const optionsInput = prompt('Options (comma separated):');
-            if (!optionsInput) return;
-            const options = optionsInput.split(',').map(o => o.trim());
-            const pollData = { type: 'poll', question, options, votes: {} };
-            if (currentChat.type === 'group') socket.emit('send-message', pollData);
-            else socket.emit('send-private-message', { to: currentChat.username, ...pollData });
-            plusMenu.classList.remove('show');
+        function uploadOwnGif() {
+            gifUploadInput.click();
         }
         
-        function votePoll(pollId, optionIndex) {
-            socket.emit('vote-poll', { pollId, optionIndex, chatType: currentChat.type, otherUser: currentChat.username });
-        }
+        gifUploadInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === 'image/gif') {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const gifUrl = ev.target.result;
+                    sendGif(gifUrl);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a GIF file');
+            }
+            gifUploadInput.value = '';
+        };
         
         // ============ LOCATION ============
         function shareLocation() {
@@ -556,27 +705,40 @@
             } else alert('Geolocation not supported');
         }
         
-        // ============ TRANSLATION - Real API ============
-        async function translateMessage(text, targetLang = 'en') {
+        // ============ TRANSLATION ============
+        let pendingTranslationMessageId = null;
+        let pendingTranslationText = null;
+        
+        function openTranslationPicker(messageId, text) {
+            pendingTranslationMessageId = messageId;
+            pendingTranslationText = text;
+            translationPicker.style.display = 'block';
+        }
+        
+        function closeTranslationPicker() {
+            translationPicker.style.display = 'none';
+            pendingTranslationMessageId = null;
+            pendingTranslationText = null;
+        }
+        
+        async function confirmTranslation() {
+            const targetLang = document.getElementById('translate-language').value;
+            if (!pendingTranslationText) return;
+            
             try {
-                // Using free translation API
-                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`);
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(pendingTranslationText)}&langpair=en|${targetLang}`);
                 const data = await response.json();
-                return data.responseData.translatedText || text;
-            } catch (error) {
-                console.log('Translation error, using fallback');
-                // Fallback translation
-                const translations = {
-                    'hello': 'bonjour', 'how are you': 'comment allez-vous', 'good morning': 'bonjour',
-                    'thank you': 'merci', 'goodbye': 'au revoir', 'yes': 'oui', 'no': 'non',
-                    'love': 'amour', 'friend': 'ami', 'help': 'aide'
-                };
-                const lowerText = text.toLowerCase();
-                for (const [key, value] of Object.entries(translations)) {
-                    if (lowerText.includes(key)) return value;
+                const translated = data.responseData.translatedText || pendingTranslationText;
+                
+                const textDiv = document.getElementById(`text-${pendingTranslationMessageId}`);
+                if (textDiv) {
+                    const original = textDiv.innerHTML;
+                    textDiv.innerHTML = `${original}<br><small style="opacity:0.7">🌐 ${translated}</small>`;
                 }
-                return `[Translated] ${text}`;
+            } catch (error) {
+                alert('Translation failed');
             }
+            closeTranslationPicker();
         }
         
         // ============ SCHEDULED MESSAGES ============
@@ -592,16 +754,15 @@
         function scheduleMessage() {
             const time = document.getElementById('schedule-time').value;
             const text = document.getElementById('schedule-text').value.trim();
-            if (!time || !text) return;
+            if (!time || !text) { alert('Please fill all fields'); return; }
             const scheduledTime = new Date(time).getTime();
             const now = Date.now();
-            if (scheduledTime <= now) {
-                alert('Please select a future time');
-                return;
-            }
+            if (scheduledTime <= now) { alert('Please select a future time'); return; }
             scheduledMessages.push({ time: scheduledTime, text, chat: currentChat });
             alert(`Message scheduled for ${new Date(scheduledTime).toLocaleString()}`);
             closeSchedulePicker();
+            document.getElementById('schedule-time').value = '';
+            document.getElementById('schedule-text').value = '';
             startScheduleChecker();
         }
         
@@ -760,9 +921,9 @@
             }
             html += `<span>${escapeHtml(username)}</span>`;
             
-            // Add translate button for received messages
-            if (!isSent && msg.text && msg.text.length > 0) {
-                html += `<span class="translate-btn" onclick="translateAndShow('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
+            // Add translate button for received text messages
+            if (!isSent && msg.text && msg.text.length > 0 && msg.type === 'text') {
+                html += `<span class="translate-btn" onclick="openTranslationPicker('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
             }
             html += `</div>`;
             html += `<div class="message-content" id="content-${msg.id}">`;
@@ -779,10 +940,11 @@
             } else if (msg.type === 'voice') {
                 html += `<div class="voice-message" onclick="playVoice('${msg.voiceUrl}')">🔊 Voice message (${Math.round(msg.duration || 1)}s)</div>`;
             } else if (msg.type === 'gif') {
-                html += `<img class="message-image" src="${msg.gifUrl}" style="max-width: 200px; border-radius: 12px;" onclick="window.open('${msg.gifUrl}')">`;
+                html += `<img class="gif-message" src="${msg.gifUrl}" onclick="window.open('${msg.gifUrl}')" style="max-width: 200px; border-radius: 12px;">`;
             } else if (msg.type === 'poll') {
                 const totalVotes = msg.votes ? Object.values(msg.votes).length : 0;
-                html += `<div class="poll-container"><div class="poll-question">📊 ${escapeHtml(msg.question)}</div>`;
+                html += `<div class="poll-container">`;
+                html += `<div class="poll-question">📊 ${escapeHtml(msg.question)}</div>`;
                 msg.options.forEach((opt, idx) => {
                     const votesForOption = msg.votes ? Object.values(msg.votes).filter(v => v === idx).length : 0;
                     const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0;
@@ -792,7 +954,7 @@
                         <span class="poll-percentage">${percentage}% (${votesForOption})</span>
                     </div>`;
                 });
-                html += `<div class="poll-results" style="font-size: 10px; margin-top: 8px;">${totalVotes} votes total</div>`;
+                html += `<div class="poll-total">${totalVotes} votes total</div>`;
                 html += `</div>`;
             } else if (msg.type === 'location') {
                 html += `<div class="location-share" onclick="window.open('${msg.mapUrl}')">📍 ${msg.lat.toFixed(4)}, ${msg.lng.toFixed(4)}</div>`;
@@ -851,15 +1013,6 @@
             }
             
             if (!isSent && document.hidden) showNotification(username, msg.text || 'New message');
-        }
-        
-        async function translateAndShow(messageId, text) {
-            const translated = await translateMessage(text);
-            const textDiv = document.getElementById(`text-${messageId}`);
-            if (textDiv) {
-                const original = textDiv.innerHTML;
-                textDiv.innerHTML = `${original}<br><small style="opacity:0.7">🌐 ${translated}</small>`;
-            }
         }
         
         function addSystemMessage(text) {
@@ -1033,7 +1186,8 @@
             try {
                 const res = await fetch('/upload', { method: 'POST', body: fd });
                 const data = await res.json();
-                const msgData = { type: 'voice', voiceUrl: data.fileUrl, duration: audioChunks.length * 0.02 };
+                const duration = Math.round((Date.now() - voiceStartTime) / 1000);
+                const msgData = { type: 'voice', voiceUrl: data.fileUrl, duration: duration };
                 if (replyToMessage) msgData.replyTo = replyToMessage;
                 if (currentChat.type === 'group') socket.emit('send-message', msgData);
                 else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
@@ -1077,6 +1231,7 @@
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
+                voiceStartTime = Date.now();
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 mediaRecorder.onstop = () => {
                     pendingVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -1085,7 +1240,8 @@
                     voiceBtn.innerHTML = '🎤';
                     voiceBtn.style.background = '';
                     previewContainer.style.display = 'block';
-                    previewContent.innerHTML = `<span>🎤 Voice (${Math.round(audioChunks.length * 0.02)}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
+                    const duration = Math.round((Date.now() - voiceStartTime) / 1000);
+                    previewContent.innerHTML = `<span>🎤 Voice (${duration}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
                 };
                 mediaRecorder.start();
                 isRecording = true;
@@ -1110,7 +1266,11 @@
             if (!gifBtn.contains(e.target) && !gifPicker.contains(e.target)) gifPicker.classList.remove('show');
             if (!plusBtn.contains(e.target) && !plusMenu.contains(e.target)) plusMenu.classList.remove('show');
             if (!schedulePicker.contains(e.target) && !document.getElementById('schedule-btn')?.contains(e.target)) schedulePicker.classList.remove('show');
+            if (!translationPicker.contains(e.target)) translationPicker.style.display = 'none';
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.style.display = 'none';
+            if (!pollCreator.contains(e.target) && !document.querySelector('.plus-item')?.contains(e.target)) {
+                if (pollCreator.style.display === 'block') closePollCreator();
+            }
         });
         
         // ============ CONNECT TO SERVER ============
@@ -1152,19 +1312,18 @@
                 if (msg) {
                     const pollContainer = msg.querySelector('.poll-container');
                     if (pollContainer) {
-                        const options = pollContainer.querySelectorAll('.poll-option');
                         const votes = JSON.parse(msg.getAttribute('data-votes') || '{}');
                         votes[voter] = optionIndex;
                         msg.setAttribute('data-votes', JSON.stringify(votes));
-                        // Refresh poll display
                         const totalVotes = Object.keys(votes).length;
+                        const options = pollContainer.querySelectorAll('.poll-option');
                         options.forEach((opt, idx) => {
                             const votesForOption = Object.values(votes).filter(v => v === idx).length;
                             const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0;
                             const percentSpan = opt.querySelector('.poll-percentage');
                             if (percentSpan) percentSpan.textContent = `${percentage}% (${votesForOption})`;
                         });
-                        const resultDiv = pollContainer.querySelector('.poll-results');
+                        const resultDiv = pollContainer.querySelector('.poll-total');
                         if (resultDiv) resultDiv.innerHTML = `${totalVotes} votes total`;
                     }
                 }
@@ -1225,8 +1384,14 @@
         });
         
         document.querySelectorAll('.gif-item').forEach(g => {
-            g.onclick = () => sendGif(g.textContent);
+            g.onclick = () => {
+                const gifUrl = g.getAttribute('data-gif');
+                if (gifUrl) sendGif(gifUrl);
+                else sendGif(g.textContent);
+            };
         });
+        
+        document.getElementById('upload-gif-btn').onclick = uploadOwnGif;
         
         // Dark mode
         const darkToggle = document.getElementById('dark-mode-toggle');
@@ -1262,13 +1427,18 @@
         window.toggleReactionPicker = toggleReactionPicker;
         window.scrollToMessage = scrollToMessage;
         window.votePoll = votePoll;
-        window.translateAndShow = translateAndShow;
         window.scheduleMessage = scheduleMessage;
         window.closeSchedulePicker = closeSchedulePicker;
-        window.createPoll = createPoll;
+        window.openPollCreator = openPollCreator;
+        window.closePollCreator = closePollCreator;
+        window.addPollOption = addPollOption;
+        window.sendPoll = sendPoll;
         window.shareLocation = shareLocation;
         window.sendFile = sendFile;
         window.openSchedulePicker = openSchedulePicker;
+        window.openTranslationPicker = openTranslationPicker;
+        window.closeTranslationPicker = closeTranslationPicker;
+        window.confirmTranslation = confirmTranslation;
     </script>
 </body>
 </html>
