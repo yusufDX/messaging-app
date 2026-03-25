@@ -13,6 +13,7 @@
         body {
             font-family: Arial, sans-serif;
             background: #f0f2f5;
+            transition: background 0.3s ease;
         }
         
         .login-container {
@@ -23,6 +24,7 @@
             padding: 30px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
         }
         
         .login-container h2 {
@@ -66,6 +68,7 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
         }
         
         .sidebar-header {
@@ -73,6 +76,7 @@
             color: white;
             padding: 15px;
             font-weight: bold;
+            transition: background 0.3s ease;
         }
         
         .online-users {
@@ -90,6 +94,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.3s ease;
         }
         
         .user-item:hover {
@@ -123,6 +128,7 @@
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
         }
         
         .chat-header {
@@ -132,6 +138,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.3s ease;
         }
         
         .back-to-group {
@@ -156,6 +163,7 @@
             max-width: 70%;
             word-wrap: break-word;
             position: relative;
+            transition: background 0.3s ease;
         }
         
         .message.sent {
@@ -259,6 +267,7 @@
             font-size: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             z-index: 10;
+            transition: background 0.3s ease;
         }
         
         .message:hover .reaction-btn {
@@ -276,6 +285,7 @@
             gap: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             z-index: 100;
+            transition: background 0.3s ease;
         }
         
         .reaction-picker.show {
@@ -293,10 +303,91 @@
             transform: scale(1.2);
         }
         
+        /* Message Actions */
+        .message-actions {
+            position: absolute;
+            top: -10px;
+            right: 30px;
+            background: white;
+            border-radius: 20px;
+            padding: 3px 8px;
+            display: none;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .message:hover .message-actions {
+            display: flex;
+        }
+        
+        .message-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        
+        .message-action-btn:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .edit-btn {
+            color: #0088cc;
+        }
+        
+        .delete-btn {
+            color: #ff4444;
+        }
+        
+        .edited-badge {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-left: 5px;
+            font-style: italic;
+        }
+        
+        /* Edit Message Input */
+        .edit-input-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .edit-input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .edit-save-btn {
+            padding: 5px 10px;
+            background: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .edit-cancel-btn {
+            padding: 5px 10px;
+            background: #666;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
         .input-area {
             padding: 20px;
             background: white;
             border-top: 1px solid #ddd;
+            transition: background 0.3s ease;
         }
         
         .input-buttons {
@@ -313,6 +404,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            transition: background 0.3s ease;
         }
         
         .file-btn:hover, .emoji-btn:hover {
@@ -325,6 +417,7 @@
             background: #f0f2f5;
             border-radius: 5px;
             display: none;
+            transition: background 0.3s ease;
         }
         
         .preview-content {
@@ -357,6 +450,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         #send-button {
@@ -373,6 +467,7 @@
             color: #666;
             font-size: 12px;
             font-style: italic;
+            transition: color 0.3s ease;
         }
         
         .emoji-picker {
@@ -387,6 +482,7 @@
             grid-template-columns: repeat(8, 1fr);
             gap: 5px;
             z-index: 1000;
+            transition: background 0.3s ease;
         }
         
         .emoji-picker.show {
@@ -518,6 +614,7 @@
             z-index: 2000;
             align-items: center;
             gap: 15px;
+            transition: background 0.3s ease;
         }
         
         .incoming-call button {
@@ -547,6 +644,107 @@
             color: red;
             margin-top: 10px;
         }
+        
+        /* Dark Mode Styles */
+        .dark-mode {
+            background: #1a1a1a;
+        }
+
+        .dark-mode .login-container,
+        .dark-mode .sidebar,
+        .dark-mode .chat-area,
+        .dark-mode .message.received,
+        .dark-mode .preview-container,
+        .dark-mode .emoji-picker,
+        .dark-mode .reaction-picker,
+        .dark-mode .incoming-call,
+        .dark-mode .message-actions {
+            background: #2d2d2d;
+            color: #e4e6eb;
+            border-color: #3e3e3e;
+        }
+
+        .dark-mode .login-container input,
+        .dark-mode #message-input,
+        .dark-mode .file-btn,
+        .dark-mode .emoji-btn,
+        .dark-mode .edit-input {
+            background: #3e3e3e;
+            color: #e4e6eb;
+            border-color: #4e4e4e;
+        }
+
+        .dark-mode .user-item {
+            background: #3e3e3e;
+            color: #e4e6eb;
+        }
+
+        .dark-mode .user-item:hover {
+            background: #4e4e4e;
+        }
+
+        .dark-mode .message.sent {
+            background: #0088cc;
+            color: white;
+        }
+
+        .dark-mode .message.received {
+            background: #3e3e3e;
+            color: #e4e6eb;
+        }
+
+        .dark-mode .sidebar-header,
+        .dark-mode .chat-header {
+            background: #1e1e1e;
+        }
+
+        .dark-mode .recording-indicator {
+            background: #ff4444;
+        }
+
+        .dark-mode .call-btn-small {
+            background: #0088cc;
+        }
+
+        .dark-mode .call-btn-small:hover {
+            background: #006699;
+        }
+
+        .dark-mode .emoji-picker,
+        .dark-mode .reaction-picker {
+            background: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .dark-mode .emoji:hover {
+            background: #3e3e3e;
+        }
+
+        .dark-mode .reaction-btn {
+            background: #2d2d2d;
+        }
+
+        .dark-mode .reaction {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .dark-mode .reaction:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .dark-mode .typing-indicator {
+            color: #999;
+        }
+
+        .dark-mode .message-file,
+        .dark-mode .voice-message {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .dark-mode .message-file:hover,
+        .dark-mode .voice-message:hover {
+            background: rgba(255,255,255,0.2);
+        }
     </style>
 </head>
 <body>
@@ -571,7 +769,10 @@
                 <div>
                     <div id="chat-title">💬 Group Chat</div>
                 </div>
-                <button class="back-to-group" id="back-to-group">← Back</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="back-to-group" id="dark-mode-toggle">🌙 Dark</button>
+                    <button class="back-to-group" id="back-to-group">← Back</button>
+                </div>
             </div>
             
             <div class="messages" id="messages"></div>
@@ -839,6 +1040,19 @@
                 updateMessageReaction(messageId, reaction, username);
             });
             
+            socket.on('message-edited', ({ messageId, newText, chatType }) => {
+                if (chatType === 'group' || (chatType === 'private' && currentChat.type === 'private')) {
+                    updateMessageContent(messageId, newText);
+                }
+            });
+            
+            socket.on('message-deleted', ({ messageId, chatType }) => {
+                if (chatType === 'group' || (chatType === 'private' && currentChat.type === 'private')) {
+                    removeMessage(messageId);
+                    addSystemMessage('A message was deleted');
+                }
+            });
+            
             socket.on('user-joined', (msg) => addSystemMessage(msg));
             socket.on('user-left', (msg) => addSystemMessage(msg));
             
@@ -964,6 +1178,7 @@
             else username = isSent ? 'You' : message.from;
             
             let contentHtml = `<div class="user">${escapeHtml(username)}</div>`;
+            contentHtml += `<div class="message-content" id="content-${message.id}">`;
             
             if (message.type === 'image') {
                 if (message.text) contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
@@ -981,6 +1196,13 @@
                 contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
             }
             
+            if (message.edited) {
+                contentHtml += `<span class="edited-badge">(edited)</span>`;
+            }
+            
+            contentHtml += `</div>`;
+            
+            // Add reactions
             if (message.reactions && Object.keys(message.reactions).length > 0) {
                 contentHtml += `<div class="message-reactions">`;
                 for (const [emoji, users] of Object.entries(message.reactions)) {
@@ -989,17 +1211,104 @@
                 contentHtml += `</div>`;
             }
             
+            // Add reaction button
             contentHtml += `<div class="reaction-btn" onclick="toggleReactionPicker('${message.id}')">😊</div>`;
             contentHtml += `<div class="reaction-picker" id="picker-${message.id}">`;
             reactionEmojis.forEach(emoji => {
                 contentHtml += `<div class="reaction-emoji" onclick="addReaction('${message.id}', '${emoji}')">${emoji}</div>`;
             });
             contentHtml += `</div>`;
+            
+            // Add edit/delete actions (only for messages sent by current user)
+            if (isSent) {
+                contentHtml += `<div class="message-actions">
+                    <button class="message-action-btn edit-btn" onclick="editMessage('${message.id}', '${type}', '${currentChat.username || ''}')">✏️</button>
+                    <button class="message-action-btn delete-btn" onclick="deleteMessage('${message.id}', '${type}', '${currentChat.username || ''}')">🗑️</button>
+                </div>`;
+            }
+            
             contentHtml += `<div class="time">${message.timestamp}</div>`;
             
             messageDiv.innerHTML = contentHtml;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function updateMessageContent(messageId, newText) {
+            const contentDiv = document.getElementById(`content-${messageId}`);
+            if (!contentDiv) return;
+            
+            const textDiv = contentDiv.querySelector('.text');
+            if (textDiv) {
+                textDiv.innerHTML = escapeHtml(newText);
+            }
+            
+            if (!contentDiv.querySelector('.edited-badge')) {
+                const editedBadge = document.createElement('span');
+                editedBadge.className = 'edited-badge';
+                editedBadge.textContent = '(edited)';
+                contentDiv.appendChild(editedBadge);
+            }
+        }
+        
+        function removeMessage(messageId) {
+            const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageDiv) {
+                messageDiv.remove();
+            }
+        }
+        
+        function editMessage(messageId, chatType, otherUser) {
+            const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+            const contentDiv = document.getElementById(`content-${messageId}`);
+            const textDiv = contentDiv.querySelector('.text');
+            const oldText = textDiv ? textDiv.innerHTML : '';
+            
+            // Hide original content
+            contentDiv.style.display = 'none';
+            
+            // Create edit input
+            const editContainer = document.createElement('div');
+            editContainer.id = `edit-container-${messageId}`;
+            editContainer.className = 'edit-input-container';
+            editContainer.innerHTML = `
+                <input type="text" class="edit-input" id="edit-input-${messageId}" value="${escapeHtml(oldText)}">
+                <button class="edit-save-btn" onclick="saveEditMessage('${messageId}', '${chatType}', '${otherUser}')">Save</button>
+                <button class="edit-cancel-btn" onclick="cancelEditMessage('${messageId}')">Cancel</button>
+            `;
+            
+            messageDiv.insertBefore(editContainer, contentDiv.nextSibling);
+        }
+        
+        function cancelEditMessage(messageId) {
+            const contentDiv = document.getElementById(`content-${messageId}`);
+            const editContainer = document.getElementById(`edit-container-${messageId}`);
+            if (contentDiv) contentDiv.style.display = 'block';
+            if (editContainer) editContainer.remove();
+        }
+        
+        function saveEditMessage(messageId, chatType, otherUser) {
+            const newText = document.getElementById(`edit-input-${messageId}`).value.trim();
+            if (!newText) return;
+            
+            socket.emit('edit-message', {
+                messageId: parseInt(messageId),
+                newText: newText,
+                chatType: chatType,
+                otherUser: otherUser
+            });
+            
+            cancelEditMessage(messageId);
+        }
+        
+        function deleteMessage(messageId, chatType, otherUser) {
+            if (confirm('Are you sure you want to delete this message?')) {
+                socket.emit('delete-message', {
+                    messageId: parseInt(messageId),
+                    chatType: chatType,
+                    otherUser: otherUser
+                });
+            }
         }
         
         function updateMessageReaction(messageId, reaction, username) {
@@ -1115,7 +1424,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                const messageData = { type, text: caption || '' };
+                const messageData = { type, text: caption || '', edited: false };
                 if (type === 'image') messageData.imageUrl = result.fileUrl;
                 else {
                     messageData.fileUrl = result.fileUrl;
@@ -1142,7 +1451,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                const messageData = { type: 'voice', voiceUrl: result.fileUrl, duration: audioChunks.length * 0.02 };
+                const messageData = { type: 'voice', voiceUrl: result.fileUrl, duration: audioChunks.length * 0.02, edited: false };
                 if (currentChat.type === 'group') socket.emit('send-message', messageData);
                 else socket.emit('send-private-message', { to: currentChat.username, ...messageData });
                 
@@ -1164,8 +1473,9 @@
                 sendVoiceMessage();
                 messageInput.value = '';
             } else if (text) {
-                if (currentChat.type === 'group') socket.emit('send-message', { type: 'text', text });
-                else socket.emit('send-private-message', { to: currentChat.username, type: 'text', text });
+                const messageData = { type: 'text', text: text, edited: false };
+                if (currentChat.type === 'group') socket.emit('send-message', messageData);
+                else socket.emit('send-private-message', { to: currentChat.username, ...messageData });
                 messageInput.value = '';
             }
         }
@@ -1272,6 +1582,10 @@
         window.clearPreview = clearPreview;
         window.playVoice = playVoice;
         window.callUser = callUser;
+        window.editMessage = editMessage;
+        window.deleteMessage = deleteMessage;
+        window.saveEditMessage = saveEditMessage;
+        window.cancelEditMessage = cancelEditMessage;
         
         joinButton.onclick = () => {
             const username = usernameInput.value.trim();
@@ -1320,6 +1634,29 @@
                 emojiPicker.classList.remove('show');
             }
         });
+        
+        // Dark Mode
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        function applyDarkMode() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = '☀️ Light';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeToggle.textContent = '🌙 Dark';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+
+        darkModeToggle.onclick = () => {
+            isDarkMode = !isDarkMode;
+            applyDarkMode();
+        };
+
+        applyDarkMode();
     </script>
 </body>
 </html>

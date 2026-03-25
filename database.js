@@ -5,6 +5,7 @@ const dbPath = path.join(__dirname, 'chat.db');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
+    // Table for group messages
     db.run(`
         CREATE TABLE IF NOT EXISTS group_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,11 +18,13 @@ db.serialize(() => {
             file_size INTEGER,
             voice_url TEXT,
             voice_duration INTEGER,
+            edited BOOLEAN DEFAULT 0,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
     
+    // Table for private messages
     db.run(`
         CREATE TABLE IF NOT EXISTS private_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +38,7 @@ db.serialize(() => {
             file_size INTEGER,
             voice_url TEXT,
             voice_duration INTEGER,
+            edited BOOLEAN DEFAULT 0,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -43,10 +47,11 @@ db.serialize(() => {
     console.log('✅ Database initialized!');
 });
 
+// Save group message
 function saveGroupMessage(message, callback) {
     const sql = `
-        INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, message_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, edited, message_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -59,6 +64,7 @@ function saveGroupMessage(message, callback) {
         message.fileSize || null,
         message.voiceUrl || null,
         message.duration || null,
+        message.edited ? 1 : 0,
         message.type
     ], function(err) {
         if (err) {
@@ -70,8 +76,12 @@ function saveGroupMessage(message, callback) {
     });
 }
 
+// Get recent group messages (last 100)
 function getRecentGroupMessages(callback) {
-    const sql = `SELECT * FROM group_messages ORDER BY timestamp DESC LIMIT 100`;
+    const sql = `
+        SELECT * FROM group_messages 
+        ORDER BY timestamp DESC LIMIT 100
+    `;
     
     db.all(sql, [], (err, rows) => {
         if (err) {
@@ -90,6 +100,7 @@ function getRecentGroupMessages(callback) {
                 voiceUrl: row.voice_url,
                 duration: row.voice_duration,
                 type: row.message_type,
+                edited: row.edited === 1,
                 reactions: {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
@@ -98,10 +109,11 @@ function getRecentGroupMessages(callback) {
     });
 }
 
+// Save private message
 function savePrivateMessage(message, callback) {
     const sql = `
-        INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, message_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, edited, message_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -115,6 +127,7 @@ function savePrivateMessage(message, callback) {
         message.fileSize || null,
         message.voiceUrl || null,
         message.duration || null,
+        message.edited ? 1 : 0,
         message.type
     ], function(err) {
         if (err) {
@@ -126,6 +139,7 @@ function savePrivateMessage(message, callback) {
     });
 }
 
+// Get private message history between two users
 function getPrivateMessages(user1, user2, callback) {
     const sql = `
         SELECT * FROM private_messages 
@@ -151,6 +165,7 @@ function getPrivateMessages(user1, user2, callback) {
                 voiceUrl: row.voice_url,
                 duration: row.voice_duration,
                 type: row.message_type,
+                edited: row.edited === 1,
                 reactions: {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
