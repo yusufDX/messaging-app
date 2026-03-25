@@ -25,6 +25,7 @@ db.serialize(() => {
             forwarded_from TEXT,
             edited BOOLEAN DEFAULT 0,
             read_by TEXT,
+            reactions TEXT,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -51,6 +52,7 @@ db.serialize(() => {
             forwarded_from TEXT,
             edited BOOLEAN DEFAULT 0,
             read_by TEXT,
+            reactions TEXT,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -74,8 +76,8 @@ function saveGroupMessage(message, callback) {
         INSERT INTO group_messages (
             username, text, image_url, file_url, file_name, file_type, file_size,
             voice_url, voice_duration, reply_to_id, reply_to_text, reply_to_username,
-            forwarded, forwarded_from, edited, read_by, message_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            forwarded, forwarded_from, edited, read_by, reactions, message_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -95,6 +97,7 @@ function saveGroupMessage(message, callback) {
         message.forwardedFrom || null,
         message.edited ? 1 : 0,
         message.readBy ? JSON.stringify(message.readBy) : null,
+        message.reactions ? JSON.stringify(message.reactions) : null,
         message.type
     ], function(err) {
         if (err) {
@@ -139,7 +142,7 @@ function getRecentGroupMessages(callback) {
                 forwardedFrom: row.forwarded_from,
                 edited: row.edited === 1,
                 readBy: row.read_by ? JSON.parse(row.read_by) : [],
-                reactions: {},
+                reactions: row.reactions ? JSON.parse(row.reactions) : {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
             callback(messages);
@@ -153,8 +156,8 @@ function savePrivateMessage(message, callback) {
         INSERT INTO private_messages (
             from_user, to_user, text, image_url, file_url, file_name, file_type, file_size,
             voice_url, voice_duration, reply_to_id, reply_to_text, reply_to_username,
-            forwarded, forwarded_from, edited, read_by, message_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            forwarded, forwarded_from, edited, read_by, reactions, message_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -175,6 +178,7 @@ function savePrivateMessage(message, callback) {
         message.forwardedFrom || null,
         message.edited ? 1 : 0,
         message.readBy ? JSON.stringify(message.readBy) : null,
+        message.reactions ? JSON.stringify(message.reactions) : null,
         message.type
     ], function(err) {
         if (err) {
@@ -221,7 +225,7 @@ function getPrivateMessages(user1, user2, callback) {
                 forwardedFrom: row.forwarded_from,
                 edited: row.edited === 1,
                 readBy: row.read_by ? JSON.parse(row.read_by) : [],
-                reactions: {},
+                reactions: row.reactions ? JSON.parse(row.reactions) : {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
             callback(messages);
@@ -262,11 +266,30 @@ function getUserAvatar(username, callback) {
     });
 }
 
+// Get all user avatars
+function getAllUserAvatars(callback) {
+    const sql = `SELECT username, avatar_url FROM user_avatars`;
+    
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error('❌ Error loading avatars:', err);
+            callback({});
+        } else {
+            const avatars = {};
+            rows.forEach(row => {
+                avatars[row.username] = row.avatar_url;
+            });
+            callback(avatars);
+        }
+    });
+}
+
 module.exports = {
     saveGroupMessage,
     getRecentGroupMessages,
     savePrivateMessage,
     getPrivateMessages,
     saveUserAvatar,
-    getUserAvatar
+    getUserAvatar,
+    getAllUserAvatars
 };

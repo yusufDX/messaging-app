@@ -116,6 +116,7 @@ io.on('connection', (socket) => {
     socket.on('update-avatar', ({ username, avatarUrl }) => {
         userAvatars[username] = avatarUrl;
         io.emit('avatar-update', { username, avatarUrl });
+        console.log(`📸 ${username} updated avatar`);
     });
     
     // Group chat messages
@@ -337,6 +338,7 @@ io.on('connection', (socket) => {
                 if (!message.reactions[reaction].includes(username)) {
                     message.reactions[reaction].push(username);
                     io.emit('message-reaction', { messageId, reaction, username });
+                    console.log(`👍 ${username} reacted with ${reaction}`);
                 }
             }
         } else if (chatType === 'private' && otherUser) {
@@ -353,6 +355,7 @@ io.on('connection', (socket) => {
                         io.to(recipientId).emit('message-reaction', { messageId, reaction, username });
                     }
                     socket.emit('message-reaction', { messageId, reaction, username });
+                    console.log(`👍 ${username} reacted to private message with ${reaction}`);
                 }
             }
         }
@@ -376,6 +379,7 @@ io.on('connection', (socket) => {
             messages.push(forwardedMessage);
             if (messages.length > 100) messages.shift();
             io.emit('new-message', forwardedMessage);
+            console.log(`↪️ ${fromUser} forwarded a message to group`);
         } else {
             const key = getPrivateRoomKey(fromUser, to);
             if (!privateMessages[key]) privateMessages[key] = [];
@@ -387,6 +391,7 @@ io.on('connection', (socket) => {
                 io.to(toSocketId).emit('private-message', forwardedMessage);
             }
             socket.emit('private-message', forwardedMessage);
+            console.log(`↪️ ${fromUser} forwarded a message to ${to}`);
         }
     });
     
@@ -401,7 +406,7 @@ io.on('connection', (socket) => {
             });
         } else {
             const currentUser = users[socket.id];
-            const key = getPrivateRoomKey(currentUser, currentChat?.username || '');
+            const key = getPrivateRoomKey(currentUser, currentUser);
             (privateMessages[key] || []).forEach(msg => {
                 if (msg.text && msg.text.toLowerCase().includes(query.toLowerCase())) {
                     results.push(msg);
@@ -412,13 +417,15 @@ io.on('connection', (socket) => {
     });
     
     // Video Call Events
-    socket.on('call-user', ({ to, offer }) => {
+    socket.on('call-user', ({ to, offer, audioOnly }) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('incoming-call', {
                 from: users[socket.id],
-                offer: offer
+                offer: offer,
+                audioOnly: audioOnly || false
             });
+            console.log(`📞 ${users[socket.id]} calling ${to}`);
         } else {
             socket.emit('call-error', { message: 'User not online' });
         }
@@ -428,6 +435,7 @@ io.on('connection', (socket) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('call-accepted', { answer });
+            console.log(`✅ Call accepted between ${users[toSocketId]} and ${to}`);
         }
     });
     
@@ -435,6 +443,7 @@ io.on('connection', (socket) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('call-rejected');
+            console.log(`❌ Call rejected by ${users[socket.id]}`);
         }
     });
     
@@ -442,6 +451,7 @@ io.on('connection', (socket) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('call-busy');
+            console.log(`📞 ${users[socket.id]} is busy`);
         }
     });
     
@@ -456,6 +466,7 @@ io.on('connection', (socket) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('end-call');
+            console.log(`📞 Call ended between ${users[socket.id]} and ${to}`);
         }
     });
     
@@ -464,6 +475,7 @@ io.on('connection', (socket) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('screen-shared', { from: users[socket.id], stream });
+            console.log(`🖥️ ${users[socket.id]} started screen sharing`);
         }
     });
     
