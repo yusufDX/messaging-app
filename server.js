@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const db = require('./database'); // Import our database functions
+const db = require('./database');
 
 // Create uploads folder if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -61,6 +61,13 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 // Store online users
 let users = {};
+let messages = []; // Group messages cache
+let privateMessages = {}; // Private messages cache
+
+// Helper to create a unique room key for private chats
+function getPrivateRoomKey(user1, user2) {
+    return [user1, user2].sort().join('_');
+}
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
@@ -78,7 +85,8 @@ io.on('connection', (socket) => {
         socket.username = username;
         
         // Load messages from database
-        db.getRecentGroupMessages((messages) => {
+        db.getRecentGroupMessages((dbMessages) => {
+            messages = dbMessages;
             socket.emit('previous-messages', messages);
         });
         
@@ -100,9 +108,11 @@ io.on('connection', (socket) => {
         if (!username) return;
         
         const message = {
+            id: Date.now() + Math.random(),
             username: username,
             timestamp: new Date().toLocaleTimeString(),
-            type: messageData.type || 'text'
+            type: messageData.type || 'text',
+            reactions: {}
         };
         
         if (messageData.type === 'image') {
@@ -120,6 +130,9 @@ io.on('connection', (socket) => {
         
         // Save to database
         db.saveGroupMessage(message, (savedMessage) => {
+            messages.push(message);
+            // Keep only last 100 messages
+            if (messages.length > 100) messages.shift();
             // Broadcast to all users
             io.emit('new-message', message);
             console.log(`[GROUP] ${username}: ${message.text || 'file'}`);
@@ -134,10 +147,12 @@ io.on('connection', (socket) => {
         const recipientSocketId = Object.keys(users).find(id => users[id] === to);
         
         const message = {
+            id: Date.now() + Math.random(),
             from: fromUsername,
             to: to,
             timestamp: new Date().toLocaleTimeString(),
-            type: type || 'text'
+            type: type || 'text',
+            reactions: {}
         };
         
         if (type === 'image') {
@@ -155,11 +170,19 @@ io.on('connection', (socket) => {
         
         // Save to database
         db.savePrivateMessage(message, () => {
+            const roomKey = getPrivateRoomKey(fromUsername, to);
+            if (!privateMessages[roomKey]) {
+                privateMessages[roomKey] = [];
+            }
+            privateMessages[roomKey].push(message);
+            
+            // Keep only last 50 messages per private chat
+            if (privateMessages[roomKey].length > 50) privateMessages[roomKey].shift();
+            
             if (recipientSocketId) {
                 io.to(recipientSocketId).emit('private-message', message);
                 socket.emit('private-message', { ...message, sent: true });
             } else {
-                // User offline - still saved but no real-time delivery
                 socket.emit('private-message', { ...message, sent: true, offline: true });
             }
             console.log(`[PRIVATE] ${fromUsername} -> ${to}: ${message.text || 'file'}`);
@@ -171,9 +194,57 @@ io.on('connection', (socket) => {
         const currentUsername = users[socket.id];
         if (!currentUsername) return;
         
-        db.getPrivateMessages(currentUsername, otherUsername, (messages) => {
-            socket.emit('private-history', { otherUsername, messages });
+        db.getPrivateMessages(currentUsername, otherUsername, (dbMessages) => {
+            const roomKey = getPrivateRoomKey(currentUsername, otherUsername);
+            privateMessages[roomKey] = dbMessages;
+            socket.emit('private-history', { otherUsername, messages: dbMessages });
         });
+    });
+    
+    // Add reaction to message
+    socket.on('add-reaction', ({ messageId, reaction, chatType, otherUser }) => {
+        const username = users[socket.id];
+        if (!username) return;
+        
+        if (chatType === 'group') {
+            // Find message in group messages
+            const message = messages.find(m => m.id == messageId);
+            if (message) {
+                if (!message.reactions) message.reactions = {};
+                if (!message.reactions[reaction]) message.reactions[reaction] = [];
+                if (!message.reactions[reaction].includes(username)) {
+                    message.reactions[reaction].push(username);
+                    io.emit('message-reaction', { messageId, reaction, username });
+                    
+                    // Update in database
+                    db.saveGroupMessage(message, () => {});
+                }
+            }
+        } else if (chatType === 'private' && otherUser) {
+            // Handle private message reactions
+            const currentUsername = users[socket.id];
+            const roomKey = getPrivateRoomKey(currentUsername, otherUser);
+            const messagesList = privateMessages[roomKey] || [];
+            const message = messagesList.find(m => m.id == messageId);
+            
+            if (message) {
+                if (!message.reactions) message.reactions = {};
+                if (!message.reactions[reaction]) message.reactions[reaction] = [];
+                if (!message.reactions[reaction].includes(username)) {
+                    message.reactions[reaction].push(username);
+                    
+                    // Send to both users
+                    const recipientSocketId = Object.keys(users).find(id => users[id] === otherUser);
+                    if (recipientSocketId) {
+                        io.to(recipientSocketId).emit('message-reaction', { messageId, reaction, username });
+                    }
+                    socket.emit('message-reaction', { messageId, reaction, username });
+                    
+                    // Update in database
+                    db.savePrivateMessage(message, () => {});
+                }
+            }
+        }
     });
     
     // Typing indicators

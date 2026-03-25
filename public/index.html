@@ -103,17 +103,6 @@
             border-left: 3px solid #0088cc;
         }
         
-        .user-name {
-            font-weight: 500;
-        }
-        
-        .user-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #31a24c;
-        }
-        
         /* Chat Area */
         .chat-area {
             flex: 1;
@@ -154,6 +143,7 @@
             padding: 10px;
             border-radius: 10px;
             max-width: 70%;
+            position: relative;
         }
         
         .message.sent {
@@ -196,38 +186,77 @@
             cursor: pointer;
         }
         
-        .message-file:hover {
-            background: rgba(0,0,0,0.1);
-        }
-        
-        .file-icon {
-            font-size: 24px;
-        }
-        
-        .file-info {
-            flex: 1;
-        }
-        
-        .file-name {
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .file-size {
-            font-size: 10px;
-            opacity: 0.7;
-        }
-        
-        .message .time {
-            font-size: 10px;
+        .message-reactions {
+            display: flex;
+            gap: 5px;
             margin-top: 5px;
-            opacity: 0.7;
+            font-size: 14px;
         }
         
-        .private-badge {
-            font-size: 10px;
-            margin-left: 5px;
-            opacity: 0.8;
+        .reaction {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .reaction:hover {
+            transform: scale(1.1);
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .reaction-count {
+            font-size: 11px;
+            margin-left: 2px;
+        }
+        
+        .reaction-picker {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            gap: 5px;
+            z-index: 1000;
+        }
+        
+        .reaction-picker.show {
+            display: flex;
+        }
+        
+        .reaction-emoji {
+            cursor: pointer;
+            padding: 5px;
+            font-size: 20px;
+            transition: transform 0.1s;
+        }
+        
+        .reaction-emoji:hover {
+            transform: scale(1.2);
+        }
+        
+        .message:hover .reaction-btn {
+            display: block;
+        }
+        
+        .reaction-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: white;
+            border-radius: 20px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         
         .input-area {
@@ -242,17 +271,13 @@
             margin-bottom: 10px;
         }
         
-        .file-btn {
+        .file-btn, .emoji-btn {
             padding: 8px 15px;
             background: #e4e6eb;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-        }
-        
-        .file-btn:hover {
-            background: #d0d2d6;
         }
         
         .message-input-wrapper {
@@ -284,35 +309,38 @@
             font-style: italic;
         }
         
-        .preview-container {
-            margin-bottom: 10px;
+        .emoji-picker {
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            background: white;
+            border-radius: 10px;
             padding: 10px;
-            background: #f0f2f5;
-            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             display: none;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            z-index: 1000;
         }
         
-        .preview-image {
-            max-width: 100px;
-            max-height: 100px;
-            border-radius: 5px;
+        .emoji-picker.show {
+            display: grid;
         }
         
-        .preview-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .cancel-preview {
+        .emoji {
             cursor: pointer;
-            color: red;
-            font-weight: bold;
+            font-size: 24px;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .emoji:hover {
+            background: #e4e6eb;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div class="login-container" id="login-screen">
         <h2>Welcome to My Messaging App</h2>
         <input type="text" id="username-input" placeholder="Enter your username" maxlength="20">
@@ -320,7 +348,6 @@
         <div id="error-message" style="color: red; margin-top: 10px;"></div>
     </div>
     
-    <!-- Main App -->
     <div class="app-container" id="app-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -346,13 +373,7 @@
                 <div class="input-buttons">
                     <button class="file-btn" id="image-btn">📷 Send Image</button>
                     <button class="file-btn" id="file-btn">📎 Send File</button>
-                </div>
-                
-                <div class="preview-container" id="preview-container">
-                    <div class="preview-info">
-                        <div id="preview-content"></div>
-                        <span class="cancel-preview" id="cancel-preview">✖ Cancel</span>
-                    </div>
+                    <button class="emoji-btn" id="emoji-btn">😊 Emoji</button>
                 </div>
                 
                 <div class="message-input-wrapper">
@@ -363,7 +384,16 @@
         </div>
     </div>
     
-    <input type="file" id="file-input" style="display: none;" accept="image/*, application/pdf, .txt, .doc, .docx, .zip">
+    <div class="emoji-picker" id="emoji-picker">
+        <div class="emoji">😊</div><div class="emoji">😂</div><div class="emoji">❤️</div>
+        <div class="emoji">😍</div><div class="emoji">👍</div><div class="emoji">🎉</div>
+        <div class="emoji">🔥</div><div class="emoji">💯</div><div class="emoji">🙏</div>
+        <div class="emoji">😭</div><div class="emoji">😎</div><div class="emoji">🤔</div>
+        <div class="emoji">😴</div><div class="emoji">🤣</div><div class="emoji">🥰</div>
+        <div class="emoji">😘</div><div class="emoji">😁</div><div class="emoji">🤗</div>
+    </div>
+    
+    <input type="file" id="file-input" style="display: none;">
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -373,14 +403,10 @@
         let onlineUsers = [];
         let pendingFile = null;
         
-        // DOM elements
         const loginScreen = document.getElementById('login-screen');
         const appContainer = document.getElementById('app-container');
         const usernameInput = document.getElementById('username-input');
         const joinButton = document.getElementById('join-button');
-        const errorMessage = document.getElementById('error-message');
-        const onlineUsersList = document.getElementById('online-users-list');
-        const onlineCount = document.getElementById('online-count');
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
@@ -390,12 +416,14 @@
         const backToGroupBtn = document.getElementById('back-to-group');
         const imageBtn = document.getElementById('image-btn');
         const fileBtn = document.getElementById('file-btn');
+        const emojiBtn = document.getElementById('emoji-btn');
+        const emojiPicker = document.getElementById('emoji-picker');
         const fileInput = document.getElementById('file-input');
-        const previewContainer = document.getElementById('preview-container');
-        const previewContent = document.getElementById('preview-content');
-        const cancelPreview = document.getElementById('cancel-preview');
         
         let typingTimeout = null;
+        
+        // Emojis for reactions
+        const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
         
         function connectToChat(username) {
             socket = io();
@@ -409,6 +437,10 @@
                 if (currentChat.type === 'group') {
                     displayMessage(message, 'group');
                 }
+            });
+            
+            socket.on('message-reaction', ({ messageId, reaction, username }) => {
+                updateMessageReaction(messageId, reaction, username);
             });
             
             socket.on('private-message', (message) => {
@@ -431,7 +463,7 @@
             socket.on('online-users', (users) => {
                 onlineUsers = users.filter(u => u !== currentUsername);
                 updateOnlineUsersList();
-                onlineCount.textContent = `${onlineUsers.length} online`;
+                document.getElementById('online-count').textContent = `${onlineUsers.length} online`;
             });
             
             socket.on('user-typing', (data) => {
@@ -441,22 +473,6 @@
                     typingTimeout = setTimeout(() => typingIndicator.textContent = '', 1000);
                 }
             });
-            
-            socket.on('private-typing-indicator', ({ from }) => {
-                if (currentChat.type === 'private' && currentChat.username === from) {
-                    typingIndicator.textContent = `${from} is typing...`;
-                    clearTimeout(typingTimeout);
-                    typingTimeout = setTimeout(() => typingIndicator.textContent = '', 1000);
-                }
-            });
-            
-            socket.on('username-taken', () => {
-                alert('Username already taken!');
-                loginScreen.style.display = 'block';
-                appContainer.style.display = 'none';
-            });
-            
-            socket.on('error-message', (msg) => alert(msg));
         }
         
         function displayMessage(message, type) {
@@ -465,6 +481,7 @@
                           (type === 'group' && message.username === currentUsername);
             
             messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageDiv.setAttribute('data-message-id', message.id);
             
             let username = '';
             if (type === 'group') {
@@ -473,31 +490,79 @@
                 username = isSent ? 'You' : message.from;
             }
             
-            let contentHtml = `<div class="user">${username}${type === 'private' ? '<span class="private-badge">(Private)</span>' : ''}</div>`;
+            let contentHtml = `<div class="user">${username}</div>`;
             
             if (message.type === 'image') {
                 contentHtml += `<div class="text">${escapeHtml(message.text || '')}</div>`;
                 contentHtml += `<img class="message-image" src="${message.imageUrl}" alt="Image" onclick="window.open('${message.imageUrl}')">`;
             } else if (message.type === 'file') {
                 contentHtml += `<div class="text">${escapeHtml(message.text || '')}</div>`;
-                contentHtml += `
-                    <div class="message-file" onclick="window.open('${message.fileUrl}')">
-                        <div class="file-icon">📄</div>
-                        <div class="file-info">
-                            <div class="file-name">${escapeHtml(message.fileName)}</div>
-                            <div class="file-size">${formatFileSize(message.fileSize)}</div>
-                        </div>
-                    </div>
-                `;
+                contentHtml += `<div class="message-file" onclick="window.open('${message.fileUrl}')">
+                    <div>📄</div>
+                    <div><strong>${escapeHtml(message.fileName)}</strong><br><small>${formatFileSize(message.fileSize)}</small></div>
+                </div>`;
             } else {
                 contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
             }
             
-            contentHtml += `<div class="time">${message.timestamp}</div>`;
-            messageDiv.innerHTML = contentHtml;
+            // Add reactions
+            if (message.reactions) {
+                contentHtml += `<div class="message-reactions" id="reactions-${message.id}">`;
+                for (const [emoji, users] of Object.entries(message.reactions)) {
+                    contentHtml += `<span class="reaction" onclick="addReaction('${message.id}', '${emoji}')">${emoji} ${users.length}</span>`;
+                }
+                contentHtml += `</div>`;
+            }
             
+            contentHtml += `<div class="reaction-btn" onclick="toggleReactionPicker('${message.id}')">😊</div>`;
+            contentHtml += `<div class="reaction-picker" id="picker-${message.id}">`;
+            reactionEmojis.forEach(emoji => {
+                contentHtml += `<div class="reaction-emoji" onclick="addReaction('${message.id}', '${emoji}')">${emoji}</div>`;
+            });
+            contentHtml += `</div>`;
+            contentHtml += `<div class="time">${message.timestamp}</div>`;
+            
+            messageDiv.innerHTML = contentHtml;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function updateMessageReaction(messageId, reaction, username) {
+            const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageDiv) {
+                let reactionsDiv = messageDiv.querySelector('.message-reactions');
+                if (!reactionsDiv) {
+                    reactionsDiv = document.createElement('div');
+                    reactionsDiv.className = 'message-reactions';
+                    messageDiv.appendChild(reactionsDiv);
+                }
+                
+                // Update reactions display
+                const reactionSpan = reactionsDiv.querySelector(`.reaction[data-emoji="${reaction}"]`);
+                if (reactionSpan) {
+                    const count = parseInt(reactionSpan.textContent.split(' ')[1]) + 1;
+                    reactionSpan.textContent = `${reaction} ${count}`;
+                } else {
+                    const newReaction = document.createElement('span');
+                    newReaction.className = 'reaction';
+                    newReaction.setAttribute('data-emoji', reaction);
+                    newReaction.textContent = `${reaction} 1`;
+                    newReaction.onclick = () => addReaction(messageId, reaction);
+                    reactionsDiv.appendChild(newReaction);
+                }
+            }
+        }
+        
+        function addReaction(messageId, reaction) {
+            socket.emit('add-reaction', { messageId, reaction, chatType: currentChat.type, otherUser: currentChat.username });
+        }
+        
+        function toggleReactionPicker(messageId) {
+            const picker = document.getElementById(`picker-${messageId}`);
+            document.querySelectorAll('.reaction-picker').forEach(p => {
+                if (p.id !== `picker-${messageId}`) p.classList.remove('show');
+            });
+            picker.classList.toggle('show');
         }
         
         function formatFileSize(bytes) {
@@ -519,16 +584,17 @@
         }
         
         function updateOnlineUsersList() {
-            onlineUsersList.innerHTML = '';
+            const list = document.getElementById('online-users-list');
+            list.innerHTML = '';
             onlineUsers.forEach(user => {
                 const userDiv = document.createElement('div');
                 userDiv.className = 'user-item';
                 if (currentChat.type === 'private' && currentChat.username === user) {
                     userDiv.classList.add('active');
                 }
-                userDiv.innerHTML = `<span class="user-name">${escapeHtml(user)}</span><span class="user-status"></span>`;
+                userDiv.innerHTML = `<span>${escapeHtml(user)}</span><span style="color: #31a24c;">●</span>`;
                 userDiv.onclick = () => startPrivateChat(user);
-                onlineUsersList.appendChild(userDiv);
+                list.appendChild(userDiv);
             });
         }
         
@@ -550,107 +616,16 @@
             updateOnlineUsersList();
         }
         
-        async function uploadFile(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            return result;
-        }
-        
-        async function sendMessageWithFile(file, type) {
-            try {
-                const uploadResult = await uploadFile(file);
-                
-                const messageData = {
-                    type: type,
-                    text: messageInput.value.trim()
-                };
-                
-                if (type === 'image') {
-                    messageData.imageUrl = uploadResult.fileUrl;
-                } else {
-                    messageData.fileUrl = uploadResult.fileUrl;
-                    messageData.fileName = uploadResult.fileName;
-                    messageData.fileType = uploadResult.fileType;
-                    messageData.fileSize = uploadResult.fileSize;
-                }
-                
-                if (currentChat.type === 'group') {
-                    socket.emit('send-message', messageData);
-                } else {
-                    socket.emit('send-private-message', {
-                        to: currentChat.username,
-                        ...messageData
-                    });
-                }
-                
-                messageInput.value = '';
-                clearPreview();
-            } catch (error) {
-                alert('Error uploading file: ' + error.message);
-            }
-        }
-        
-        function sendTextMessage() {
+        function sendMessage() {
             const text = messageInput.value.trim();
-            if (!text) return;
+            if (!text && !pendingFile) return;
             
             if (currentChat.type === 'group') {
                 socket.emit('send-message', { type: 'text', text: text });
             } else {
                 socket.emit('send-private-message', { to: currentChat.username, type: 'text', text: text });
             }
-            
             messageInput.value = '';
-        }
-        
-        function sendMessage() {
-            if (pendingFile) {
-                sendMessageWithFile(pendingFile.file, pendingFile.type);
-            } else {
-                sendTextMessage();
-            }
-        }
-        
-        function onTyping() {
-            if (!socket) return;
-            if (currentChat.type === 'group') {
-                socket.emit('typing');
-            } else {
-                socket.emit('private-typing', { to: currentChat.username });
-            }
-        }
-        
-        function showPreview(file, type) {
-            pendingFile = { file: file, type: type };
-            previewContainer.style.display = 'block';
-            
-            if (type === 'image') {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewContent.innerHTML = `<img class="preview-image" src="${e.target.result}" alt="Preview">`;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewContent.innerHTML = `
-                    <div>
-                        <div>📄 ${escapeHtml(file.name)}</div>
-                        <div style="font-size: 12px; color: #666;">${formatFileSize(file.size)}</div>
-                    </div>
-                `;
-            }
-        }
-        
-        function clearPreview() {
-            pendingFile = null;
-            previewContainer.style.display = 'none';
-            previewContent.innerHTML = '';
         }
         
         function escapeHtml(text) {
@@ -660,52 +635,41 @@
         }
         
         // Event listeners
-        joinButton.addEventListener('click', () => {
+        joinButton.onclick = () => {
             const username = usernameInput.value.trim();
             if (!username) {
-                errorMessage.textContent = 'Please enter a username!';
+                document.getElementById('error-message').textContent = 'Enter a username!';
                 return;
             }
-            if (username.length > 20) {
-                errorMessage.textContent = 'Username must be 20 characters or less!';
-                return;
-            }
-            
             currentUsername = username;
             connectToChat(username);
             loginScreen.style.display = 'none';
             appContainer.style.display = 'flex';
-            errorMessage.textContent = '';
-        });
+        };
         
-        sendButton.addEventListener('click', sendMessage);
-        backToGroupBtn.addEventListener('click', switchToGroupChat);
-        cancelPreview.addEventListener('click', clearPreview);
-        
-        imageBtn.addEventListener('click', () => {
-            fileInput.accept = 'image/*';
-            fileInput.click();
-        });
-        
-        fileBtn.addEventListener('click', () => {
-            fileInput.accept = '*/*';
-            fileInput.click();
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const isImage = file.type.startsWith('image/');
-                showPreview(file, isImage ? 'image' : 'file');
-            }
-            fileInput.value = '';
-        });
+        sendButton.onclick = sendMessage;
+        backToGroupBtn.onclick = switchToGroupChat;
         
         messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            } else {
-                onTyping();
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        emojiBtn.onclick = () => {
+            emojiPicker.classList.toggle('show');
+        };
+        
+        document.querySelectorAll('.emoji').forEach(emoji => {
+            emoji.onclick = () => {
+                messageInput.value += emoji.textContent;
+                emojiPicker.classList.remove('show');
+                messageInput.focus();
+            };
+        });
+        
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+                emojiPicker.classList.remove('show');
             }
         });
         
