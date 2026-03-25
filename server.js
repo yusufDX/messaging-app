@@ -7,14 +7,18 @@ const fs = require('fs');
 
 // Create uploads folder if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-}
+const avatarsDir = path.join(__dirname, 'uploads/avatars');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+if (!fs.existsSync(avatarsDir)) fs.mkdirSync(avatarsDir);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        if (file.fieldname === 'avatar') {
+            cb(null, 'uploads/avatars/');
+        } else {
+            cb(null, 'uploads/');
+        }
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -24,15 +28,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { 
-        fileSize: 10 * 1024 * 1024 // 10MB limit
-    }
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
 // Create app and server
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Serve static files
 app.use(express.static('public'));
@@ -53,11 +60,23 @@ app.post('/upload', upload.single('file'), (req, res) => {
     });
 });
 
+// Avatar upload endpoint
+app.post('/upload-avatar', upload.single('avatar'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    res.json({
+        success: true,
+        avatarUrl: `/uploads/avatars/${req.file.filename}`
+    });
+});
+
 // Store data
 let users = {};
 let messages = [];
 let privateMessages = {};
-let messageReads = {}; // Track who read which messages
+let userAvatars = {};
 
 // Helper function for private message room keys
 function getPrivateRoomKey(user1, user2) {
@@ -77,12 +96,26 @@ io.on('connection', (socket) => {
         users[socket.id] = username;
         socket.username = username;
         
+        // Load user avatar
+        if (userAvatars[username]) {
+            socket.emit('avatar-update', { username, avatarUrl: userAvatars[username] });
+        }
+        
+        // Send existing messages
         socket.emit('previous-messages', messages);
+        
+        // Update online users list
         io.emit('online-users', Object.values(users));
         io.emit('user-joined', `${username} joined the chat`);
         
         console.log(`✅ ${username} joined`);
         console.log('👥 Active users:', Object.values(users));
+    });
+    
+    // Avatar update
+    socket.on('update-avatar', ({ username, avatarUrl }) => {
+        userAvatars[username] = avatarUrl;
+        io.emit('avatar-update', { username, avatarUrl });
     });
     
     // Group chat messages
@@ -102,6 +135,16 @@ io.on('connection', (socket) => {
             readBy: []
         };
         
+        // Handle reply
+        if (data.replyTo) {
+            message.replyTo = {
+                id: data.replyTo.id,
+                text: data.replyTo.text,
+                username: data.replyTo.username
+            };
+        }
+        
+        // Handle different message types
         if (data.type === 'image') {
             message.imageUrl = data.imageUrl;
         } else if (data.type === 'file') {
@@ -119,7 +162,7 @@ io.on('connection', (socket) => {
         io.emit('new-message', message);
         console.log(`💬 [GROUP] ${username}: ${data.text || data.type}`);
         
-        // Mark as delivered
+        // Mark as delivered after short delay
         setTimeout(() => {
             message.status = 'delivered';
             io.emit('message-delivered', { messageId: message.id });
@@ -146,6 +189,15 @@ io.on('connection', (socket) => {
             readBy: []
         };
         
+        // Handle reply
+        if (data.replyTo) {
+            message.replyTo = {
+                id: data.replyTo.id,
+                text: data.replyTo.text,
+                username: data.replyTo.username
+            };
+        }
+        
         if (data.type === 'image') {
             message.imageUrl = data.imageUrl;
         } else if (data.type === 'file') {
@@ -170,6 +222,16 @@ io.on('connection', (socket) => {
         socket.emit('private-message', message);
         
         console.log(`🔒 [PRIVATE] ${fromUser} -> ${data.to}: ${data.text || data.type}`);
+    });
+    
+    // Get private message history
+    socket.on('get-private-history', (otherUser) => {
+        const currentUser = users[socket.id];
+        if (!currentUser) return;
+        
+        const key = getPrivateRoomKey(currentUser, otherUser);
+        const history = privateMessages[key] || [];
+        socket.emit('private-history', { otherUsername: otherUser, messages: history });
     });
     
     // Mark message as read
@@ -202,16 +264,6 @@ io.on('connection', (socket) => {
                 }
             }
         }
-    });
-    
-    // Get private message history
-    socket.on('get-private-history', (otherUser) => {
-        const currentUser = users[socket.id];
-        if (!currentUser) return;
-        
-        const key = getPrivateRoomKey(currentUser, otherUser);
-        const history = privateMessages[key] || [];
-        socket.emit('private-history', { otherUsername: otherUser, messages: history });
     });
     
     // Edit message
@@ -306,6 +358,59 @@ io.on('connection', (socket) => {
         }
     });
     
+    // Forward message
+    socket.on('forward-message', ({ messageId, to, chatType, originalMessage }) => {
+        const fromUser = users[socket.id];
+        if (!fromUser) return;
+        
+        const forwardedMessage = {
+            ...originalMessage,
+            id: Date.now(),
+            forwarded: true,
+            forwardedFrom: fromUser,
+            timestamp: new Date().toLocaleTimeString()
+        };
+        
+        if (chatType === 'group') {
+            forwardedMessage.username = fromUser;
+            messages.push(forwardedMessage);
+            if (messages.length > 100) messages.shift();
+            io.emit('new-message', forwardedMessage);
+        } else {
+            const key = getPrivateRoomKey(fromUser, to);
+            if (!privateMessages[key]) privateMessages[key] = [];
+            privateMessages[key].push(forwardedMessage);
+            if (privateMessages[key].length > 50) privateMessages[key].shift();
+            
+            const toSocketId = Object.keys(users).find(id => users[id] === to);
+            if (toSocketId) {
+                io.to(toSocketId).emit('private-message', forwardedMessage);
+            }
+            socket.emit('private-message', forwardedMessage);
+        }
+    });
+    
+    // Search messages
+    socket.on('search-messages', ({ query, chatType }) => {
+        const results = [];
+        if (chatType === 'group') {
+            messages.forEach(msg => {
+                if (msg.text && msg.text.toLowerCase().includes(query.toLowerCase())) {
+                    results.push(msg);
+                }
+            });
+        } else {
+            const currentUser = users[socket.id];
+            const key = getPrivateRoomKey(currentUser, currentChat?.username || '');
+            (privateMessages[key] || []).forEach(msg => {
+                if (msg.text && msg.text.toLowerCase().includes(query.toLowerCase())) {
+                    results.push(msg);
+                }
+            });
+        }
+        socket.emit('search-results', results.slice(0, 20));
+    });
+    
     // Video Call Events
     socket.on('call-user', ({ to, offer }) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
@@ -351,6 +456,14 @@ io.on('connection', (socket) => {
         const toSocketId = Object.keys(users).find(id => users[id] === to);
         if (toSocketId) {
             io.to(toSocketId).emit('end-call');
+        }
+    });
+    
+    // Screen sharing
+    socket.on('share-screen', ({ to, stream }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('screen-shared', { from: users[socket.id], stream });
         }
     });
     
