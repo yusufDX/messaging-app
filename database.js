@@ -18,6 +18,8 @@ db.serialize(() => {
             file_name TEXT,
             file_type TEXT,
             file_size INTEGER,
+            voice_url TEXT,
+            voice_duration INTEGER,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -35,19 +37,21 @@ db.serialize(() => {
             file_name TEXT,
             file_type TEXT,
             file_size INTEGER,
+            voice_url TEXT,
+            voice_duration INTEGER,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
     
-    console.log('Database initialized!');
+    console.log('✅ Database initialized!');
 });
 
 // Save group message
 function saveGroupMessage(message, callback) {
     const sql = `
-        INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, message_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, message_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -58,10 +62,12 @@ function saveGroupMessage(message, callback) {
         message.fileName || null,
         message.fileType || null,
         message.fileSize || null,
+        message.voiceUrl || null,
+        message.duration || null,
         message.type
     ], function(err) {
         if (err) {
-            console.error('Error saving group message:', err);
+            console.error('❌ Error saving group message:', err);
         } else {
             message.id = this.lastID;
             if (callback) callback(message);
@@ -78,7 +84,7 @@ function getRecentGroupMessages(callback) {
     
     db.all(sql, [], (err, rows) => {
         if (err) {
-            console.error('Error loading group messages:', err);
+            console.error('❌ Error loading group messages:', err);
             callback([]);
         } else {
             // Convert back to message format
@@ -91,7 +97,10 @@ function getRecentGroupMessages(callback) {
                 fileName: row.file_name,
                 fileType: row.file_type,
                 fileSize: row.file_size,
+                voiceUrl: row.voice_url,
+                duration: row.voice_duration,
                 type: row.message_type,
+                reactions: {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
             callback(messages);
@@ -102,8 +111,8 @@ function getRecentGroupMessages(callback) {
 // Save private message
 function savePrivateMessage(message, callback) {
     const sql = `
-        INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, message_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, message_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -115,10 +124,12 @@ function savePrivateMessage(message, callback) {
         message.fileName || null,
         message.fileType || null,
         message.fileSize || null,
+        message.voiceUrl || null,
+        message.duration || null,
         message.type
     ], function(err) {
         if (err) {
-            console.error('Error saving private message:', err);
+            console.error('❌ Error saving private message:', err);
         } else {
             message.id = this.lastID;
             if (callback) callback(message);
@@ -136,7 +147,7 @@ function getPrivateMessages(user1, user2, callback) {
     
     db.all(sql, [user1, user2, user2, user1], (err, rows) => {
         if (err) {
-            console.error('Error loading private messages:', err);
+            console.error('❌ Error loading private messages:', err);
             callback([]);
         } else {
             const messages = rows.map(row => ({
@@ -149,7 +160,10 @@ function getPrivateMessages(user1, user2, callback) {
                 fileName: row.file_name,
                 fileType: row.file_type,
                 fileSize: row.file_size,
+                voiceUrl: row.voice_url,
+                duration: row.voice_duration,
                 type: row.message_type,
+                reactions: {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
             callback(messages);

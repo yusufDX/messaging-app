@@ -70,7 +70,7 @@ function getPrivateRoomKey(user1, user2) {
 }
 
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    console.log('🔌 User connected:', socket.id);
     
     // User sets their username
     socket.on('set-username', (username) => {
@@ -93,8 +93,8 @@ io.on('connection', (socket) => {
         updateOnlineUsers();
         io.emit('user-joined', `${username} joined the chat`);
         
-        console.log(`${username} joined the chat`);
-        console.log('Active users:', Object.values(users));
+        console.log(`✅ ${username} joined the chat`);
+        console.log('👥 Active users:', Object.values(users));
     });
     
     function updateOnlineUsers() {
@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
         io.emit('online-users', onlineUsers);
     }
     
-    // Group chat messages (text and files)
+    // Group chat messages (text, images, files, voice)
     socket.on('send-message', (messageData) => {
         const username = users[socket.id];
         if (!username) return;
@@ -124,6 +124,9 @@ io.on('connection', (socket) => {
             message.fileType = messageData.fileType;
             message.fileSize = messageData.fileSize;
             message.text = messageData.text || '';
+        } else if (messageData.type === 'voice') {
+            message.voiceUrl = messageData.voiceUrl;
+            message.duration = messageData.duration;
         } else {
             message.text = messageData.text;
         }
@@ -135,12 +138,12 @@ io.on('connection', (socket) => {
             if (messages.length > 100) messages.shift();
             // Broadcast to all users
             io.emit('new-message', message);
-            console.log(`[GROUP] ${username}: ${message.text || 'file'}`);
+            console.log(`💬 [GROUP] ${username}: ${message.text || message.type || 'message'}`);
         });
     });
     
-    // Private messages with files
-    socket.on('send-private-message', ({ to, text, type, imageUrl, fileUrl, fileName, fileType, fileSize }) => {
+    // Private messages with files and voice
+    socket.on('send-private-message', ({ to, text, type, imageUrl, fileUrl, fileName, fileType, fileSize, voiceUrl, duration }) => {
         const fromUsername = users[socket.id];
         if (!fromUsername) return;
         
@@ -164,6 +167,9 @@ io.on('connection', (socket) => {
             message.fileType = fileType;
             message.fileSize = fileSize;
             message.text = text || '';
+        } else if (type === 'voice') {
+            message.voiceUrl = voiceUrl;
+            message.duration = duration;
         } else {
             message.text = text;
         }
@@ -185,7 +191,7 @@ io.on('connection', (socket) => {
             } else {
                 socket.emit('private-message', { ...message, sent: true, offline: true });
             }
-            console.log(`[PRIVATE] ${fromUsername} -> ${to}: ${message.text || 'file'}`);
+            console.log(`🔒 [PRIVATE] ${fromUsername} -> ${to}: ${message.text || message.type || 'message'}`);
         });
     });
     
@@ -273,13 +279,14 @@ io.on('connection', (socket) => {
             delete users[socket.id];
             updateOnlineUsers();
             io.emit('user-left', `${username} left the chat`);
-            console.log(`${username} disconnected`);
-            console.log('Active users:', Object.values(users));
+            console.log(`👋 ${username} disconnected`);
+            console.log('👥 Active users:', Object.values(users));
         }
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📱 Open http://localhost:${PORT} in your browser`);
 });
