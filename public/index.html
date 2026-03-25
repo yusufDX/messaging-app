@@ -203,6 +203,80 @@
             opacity: 0.7;
         }
         
+        /* Reactions */
+        .message-reactions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .reaction {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .reaction:hover {
+            transform: scale(1.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .reaction-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .message:hover .reaction-btn {
+            display: flex;
+        }
+        
+        .reaction-picker {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 30px;
+            padding: 8px;
+            display: none;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        
+        .reaction-picker.show {
+            display: flex;
+        }
+        
+        .reaction-emoji {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.1s;
+        }
+        
+        .reaction-emoji:hover {
+            transform: scale(1.2);
+        }
+        
         .input-area {
             padding: 20px;
             background: white;
@@ -407,13 +481,14 @@
         let currentUsername = null;
         let currentChat = { type: 'group', username: null };
         let onlineUsers = [];
-        let pendingFile = null; // Store file to send when user clicks Send
+        let pendingFile = null;
         
-        // Voice recording variables
         let mediaRecorder = null;
         let audioChunks = [];
         let isRecording = false;
         let pendingVoiceBlob = null;
+        
+        const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
         
         const loginScreen = document.getElementById('login-screen');
         const appContainer = document.getElementById('app-container');
@@ -439,7 +514,6 @@
         
         let typingTimeout = null;
         
-        // Create recording indicator
         const recordingIndicator = document.createElement('div');
         recordingIndicator.className = 'recording-indicator';
         recordingIndicator.innerHTML = '🔴 Recording... Click 🎤 to stop';
@@ -450,14 +524,11 @@
             socket.emit('set-username', username);
             
             socket.on('previous-messages', (messages) => {
-                console.log('Loaded messages:', messages.length);
                 messages.forEach(msg => displayMessage(msg, 'group'));
             });
             
             socket.on('new-message', (message) => {
-                if (currentChat.type === 'group') {
-                    displayMessage(message, 'group');
-                }
+                if (currentChat.type === 'group') displayMessage(message, 'group');
             });
             
             socket.on('private-message', (message) => {
@@ -472,6 +543,10 @@
                     messagesDiv.innerHTML = '';
                     messages.forEach(msg => displayMessage(msg, 'private'));
                 }
+            });
+            
+            socket.on('message-reaction', ({ messageId, reaction, username }) => {
+                updateMessageReaction(messageId, reaction, username);
             });
             
             socket.on('user-joined', (msg) => addSystemMessage(msg));
@@ -512,13 +587,11 @@
                           (type === 'group' && message.username === currentUsername);
             
             messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageDiv.setAttribute('data-message-id', message.id);
             
             let username = '';
-            if (type === 'group') {
-                username = message.username;
-            } else {
-                username = isSent ? 'You' : message.from;
-            }
+            if (type === 'group') username = message.username;
+            else username = isSent ? 'You' : message.from;
             
             let contentHtml = `<div class="user">${escapeHtml(username)}</div>`;
             
@@ -538,16 +611,79 @@
                 contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
             }
             
-            contentHtml += `<div class="time">${message.timestamp}</div>`;
-            messageDiv.innerHTML = contentHtml;
+            if (message.reactions && Object.keys(message.reactions).length > 0) {
+                contentHtml += `<div class="message-reactions">`;
+                for (const [emoji, users] of Object.entries(message.reactions)) {
+                    contentHtml += `<span class="reaction" onclick="addReaction('${message.id}', '${emoji}')">${emoji} ${users.length}</span>`;
+                }
+                contentHtml += `</div>`;
+            }
             
+            contentHtml += `<div class="reaction-btn" onclick="toggleReactionPicker('${message.id}')">😊</div>`;
+            contentHtml += `<div class="reaction-picker" id="picker-${message.id}">`;
+            reactionEmojis.forEach(emoji => {
+                contentHtml += `<div class="reaction-emoji" onclick="addReaction('${message.id}', '${emoji}')">${emoji}</div>`;
+            });
+            contentHtml += `</div>`;
+            contentHtml += `<div class="time">${message.timestamp}</div>`;
+            
+            messageDiv.innerHTML = contentHtml;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
         
+        function updateMessageReaction(messageId, reaction, username) {
+            const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageDiv) return;
+            
+            let reactionsDiv = messageDiv.querySelector('.message-reactions');
+            if (!reactionsDiv) {
+                reactionsDiv = document.createElement('div');
+                reactionsDiv.className = 'message-reactions';
+                messageDiv.appendChild(reactionsDiv);
+            }
+            
+            const existingReaction = Array.from(reactionsDiv.children).find(
+                span => span.textContent.startsWith(reaction)
+            );
+            
+            if (existingReaction) {
+                const count = parseInt(existingReaction.textContent.split(' ')[1]) + 1;
+                existingReaction.textContent = `${reaction} ${count}`;
+            } else {
+                const newReaction = document.createElement('span');
+                newReaction.className = 'reaction';
+                newReaction.textContent = `${reaction} 1`;
+                newReaction.onclick = () => addReaction(messageId, reaction);
+                reactionsDiv.appendChild(newReaction);
+            }
+        }
+        
+        function addReaction(messageId, reaction) {
+            socket.emit('add-reaction', { 
+                messageId, reaction, 
+                chatType: currentChat.type, 
+                otherUser: currentChat.username 
+            });
+        }
+        
+        function toggleReactionPicker(messageId) {
+            const picker = document.getElementById(`picker-${messageId}`);
+            if (picker) {
+                picker.classList.toggle('show');
+                setTimeout(() => {
+                    document.addEventListener('click', function closePicker(e) {
+                        if (!picker.contains(e.target) && !e.target.classList.contains('reaction-btn')) {
+                            picker.classList.remove('show');
+                            document.removeEventListener('click', closePicker);
+                        }
+                    });
+                }, 0);
+            }
+        }
+        
         function playVoice(url) {
-            const audio = new Audio(url);
-            audio.play();
+            new Audio(url).play();
         }
         
         function addSystemMessage(text) {
@@ -599,38 +735,22 @@
             formData.append('file', file);
             
             try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const response = await fetch('/upload', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                const messageData = {
-                    type: type,
-                    text: caption || ''
-                };
-                
-                if (type === 'image') {
-                    messageData.imageUrl = result.fileUrl;
-                } else {
+                const messageData = { type, text: caption || '' };
+                if (type === 'image') messageData.imageUrl = result.fileUrl;
+                else {
                     messageData.fileUrl = result.fileUrl;
                     messageData.fileName = result.fileName;
                     messageData.fileSize = result.fileSize;
                 }
                 
-                if (currentChat.type === 'group') {
-                    socket.emit('send-message', messageData);
-                } else {
-                    socket.emit('send-private-message', {
-                        to: currentChat.username,
-                        ...messageData
-                    });
-                }
+                if (currentChat.type === 'group') socket.emit('send-message', messageData);
+                else socket.emit('send-private-message', { to: currentChat.username, ...messageData });
                 
                 clearPreview();
             } catch (error) {
-                console.error('Upload error:', error);
                 alert('Error uploading file');
             }
         }
@@ -642,31 +762,15 @@
             formData.append('file', pendingVoiceBlob, 'voice.webm');
             
             try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const response = await fetch('/upload', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                const messageData = {
-                    type: 'voice',
-                    voiceUrl: result.fileUrl,
-                    duration: audioChunks.length * 0.02
-                };
-                
-                if (currentChat.type === 'group') {
-                    socket.emit('send-message', messageData);
-                } else {
-                    socket.emit('send-private-message', {
-                        to: currentChat.username,
-                        ...messageData
-                    });
-                }
+                const messageData = { type: 'voice', voiceUrl: result.fileUrl, duration: audioChunks.length * 0.02 };
+                if (currentChat.type === 'group') socket.emit('send-message', messageData);
+                else socket.emit('send-private-message', { to: currentChat.username, ...messageData });
                 
                 pendingVoiceBlob = null;
             } catch (error) {
-                console.error('Error sending voice message:', error);
                 alert('Error sending voice message');
             }
         }
@@ -682,17 +786,14 @@
                 sendVoiceMessage();
                 messageInput.value = '';
             } else if (text) {
-                if (currentChat.type === 'group') {
-                    socket.emit('send-message', { type: 'text', text: text });
-                } else {
-                    socket.emit('send-private-message', { to: currentChat.username, type: 'text', text: text });
-                }
+                if (currentChat.type === 'group') socket.emit('send-message', { type: 'text', text });
+                else socket.emit('send-private-message', { to: currentChat.username, type: 'text', text });
                 messageInput.value = '';
             }
         }
         
         function showFilePreview(file, type) {
-            pendingFile = { file: file, type: type };
+            pendingFile = { file, type };
             previewContainer.style.display = 'block';
             
             if (type === 'image') {
@@ -720,20 +821,22 @@
             previewContent.innerHTML = '';
         }
         
+        function clearVoicePreview() {
+            pendingVoiceBlob = null;
+            clearPreview();
+        }
+        
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
         
-        // Voice Recording Functions
         async function initMicrophone() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                return stream;
+                return await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
-                console.error('Microphone error:', err);
-                alert('Please allow microphone access to record voice messages');
+                alert('Please allow microphone access');
                 return null;
             }
         }
@@ -745,18 +848,15 @@
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
             
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
-            
+            mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
             mediaRecorder.onstop = async () => {
                 pendingVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 stream.getTracks().forEach(track => track.stop());
                 recordingIndicator.style.display = 'none';
                 voiceBtn.textContent = '🎤 Voice';
                 voiceBtn.style.background = '#e4e6eb';
+                voiceBtn.style.color = 'black';
                 
-                // Show preview for voice message
                 previewContainer.style.display = 'block';
                 previewContent.innerHTML = `
                     <span>🎤 Voice Message</span>
@@ -772,12 +872,7 @@
             voiceBtn.style.background = '#ff4444';
             voiceBtn.style.color = 'white';
             
-            // Auto-stop after 60 seconds
-            setTimeout(() => {
-                if (isRecording) {
-                    stopRecording();
-                }
-            }, 60000);
+            setTimeout(() => { if (isRecording) stopRecording(); }, 60000);
         }
         
         function stopRecording() {
@@ -787,18 +882,10 @@
             }
         }
         
-        function clearVoicePreview() {
-            pendingVoiceBlob = null;
-            clearPreview();
-        }
-        
         function onTyping() {
             if (!socket) return;
-            if (currentChat.type === 'group') {
-                socket.emit('typing');
-            } else {
-                socket.emit('private-typing', { to: currentChat.username });
-            }
+            if (currentChat.type === 'group') socket.emit('typing');
+            else socket.emit('private-typing', { to: currentChat.username });
         }
         
         function escapeHtml(text) {
@@ -808,12 +895,10 @@
             return div.innerHTML;
         }
         
-        // Make functions global for onclick
         window.clearPreview = clearPreview;
         window.clearVoicePreview = clearVoicePreview;
         window.playVoice = playVoice;
         
-        // Event listeners
         joinButton.onclick = () => {
             const username = usernameInput.value.trim();
             if (!username) {
@@ -829,44 +914,22 @@
         sendButton.onclick = sendTextMessage;
         backToGroupBtn.onclick = switchToGroupChat;
         
-        imageBtn.onclick = () => {
-            fileInput.accept = 'image/*';
-            fileInput.click();
-        };
-        
-        fileBtn.onclick = () => {
-            fileInput.accept = '*/*';
-            fileInput.click();
-        };
-        
-        voiceBtn.onclick = () => {
-            if (!isRecording) {
-                startRecording();
-            } else {
-                stopRecording();
-            }
-        };
+        imageBtn.onclick = () => { fileInput.accept = 'image/*'; fileInput.click(); };
+        fileBtn.onclick = () => { fileInput.accept = '*/*'; fileInput.click(); };
+        voiceBtn.onclick = () => { if (!isRecording) startRecording(); else stopRecording(); };
         
         fileInput.onchange = (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const isImage = file.type.startsWith('image/');
-                showFilePreview(file, isImage ? 'image' : 'file');
-            }
+            if (file) showFilePreview(file, file.type.startsWith('image/') ? 'image' : 'file');
             fileInput.value = '';
         };
         
         messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendTextMessage();
-            } else {
-                onTyping();
-            }
+            if (e.key === 'Enter') sendTextMessage();
+            else onTyping();
         });
         
-        emojiBtn.onclick = () => {
-            emojiPicker.classList.toggle('show');
-        };
+        emojiBtn.onclick = () => emojiPicker.classList.toggle('show');
         
         document.querySelectorAll('.emoji').forEach(emoji => {
             emoji.onclick = () => {
@@ -876,11 +939,8 @@
             };
         });
         
-        usernameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') joinButton.click();
-        });
+        usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') joinButton.click(); });
         
-        // Close emoji picker when clicking outside
         document.addEventListener('click', (e) => {
             if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
                 emojiPicker.classList.remove('show');

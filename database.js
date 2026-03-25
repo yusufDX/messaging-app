@@ -1,13 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Create database file
 const dbPath = path.join(__dirname, 'chat.db');
 const db = new sqlite3.Database(dbPath);
 
-// Create tables if they don't exist
 db.serialize(() => {
-    // Table for group messages
     db.run(`
         CREATE TABLE IF NOT EXISTS group_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +22,6 @@ db.serialize(() => {
         )
     `);
     
-    // Table for private messages
     db.run(`
         CREATE TABLE IF NOT EXISTS private_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +43,6 @@ db.serialize(() => {
     console.log('✅ Database initialized!');
 });
 
-// Save group message
 function saveGroupMessage(message, callback) {
     const sql = `
         INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, message_type)
@@ -75,19 +70,14 @@ function saveGroupMessage(message, callback) {
     });
 }
 
-// Get recent group messages (last 100)
 function getRecentGroupMessages(callback) {
-    const sql = `
-        SELECT * FROM group_messages 
-        ORDER BY timestamp DESC LIMIT 100
-    `;
+    const sql = `SELECT * FROM group_messages ORDER BY timestamp DESC LIMIT 100`;
     
     db.all(sql, [], (err, rows) => {
         if (err) {
             console.error('❌ Error loading group messages:', err);
             callback([]);
         } else {
-            // Convert back to message format
             const messages = rows.reverse().map(row => ({
                 id: row.id,
                 username: row.username,
@@ -108,7 +98,6 @@ function getRecentGroupMessages(callback) {
     });
 }
 
-// Save private message
 function savePrivateMessage(message, callback) {
     const sql = `
         INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, message_type)
@@ -137,7 +126,6 @@ function savePrivateMessage(message, callback) {
     });
 }
 
-// Get private message history between two users
 function getPrivateMessages(user1, user2, callback) {
     const sql = `
         SELECT * FROM private_messages 
