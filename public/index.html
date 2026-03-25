@@ -103,11 +103,7 @@
             margin-top: 5px;
             min-width: 200px;
         }
-        .poll-question {
-            font-weight: bold;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
+        .poll-question { font-weight: bold; margin-bottom: 12px; font-size: 14px; }
         .poll-option {
             padding: 10px 12px;
             margin: 6px 0;
@@ -121,20 +117,8 @@
         }
         .poll-option:hover { background: rgba(0,0,0,0.1); transform: scale(1.01); }
         .poll-option.voted { background: #667eea20; border-left: 3px solid #667eea; }
-        .poll-percentage {
-            font-size: 12px;
-            font-weight: bold;
-            color: #667eea;
-            background: rgba(102,126,234,0.1);
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-        .poll-total {
-            font-size: 10px;
-            margin-top: 8px;
-            text-align: right;
-            opacity: 0.6;
-        }
+        .poll-percentage { font-size: 12px; font-weight: bold; color: #667eea; background: rgba(102,126,234,0.1); padding: 2px 8px; border-radius: 20px; }
+        .poll-total { font-size: 10px; margin-top: 8px; text-align: right; opacity: 0.6; }
         
         /* Location */
         .location-share { display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 16px; cursor: pointer; }
@@ -437,11 +421,13 @@
     </div>
     
     <div class="gif-picker" id="gif-picker">
-        <div class="gif-item" data-gif="https://media.tenor.com/images/5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e/tenor.gif">😂 Laughing</div>
-        <div class="gif-item" data-gif="https://media.tenor.com/images/6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f/tenor.gif">🎉 Celebration</div>
-        <div class="gif-item" data-gif="https://media.tenor.com/images/7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f/tenor.gif">❤️ Love</div>
-        <div class="gif-item" data-gif="https://media.tenor.com/images/8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f/tenor.gif">🔥 Fire</div>
-        <div class="gif-upload" id="upload-gif-btn">📤 Upload Your Own GIF</div>
+        <div class="gif-item" data-gif="😂">😂 Laughing</div>
+        <div class="gif-item" data-gif="🎉">🎉 Celebration</div>
+        <div class="gif-item" data-gif="❤️">❤️ Love</div>
+        <div class="gif-item" data-gif="🔥">🔥 Fire</div>
+        <div class="gif-item" data-gif="👍">👍 Thumbs Up</div>
+        <div class="gif-item" data-gif="🙏">🙏 Pray</div>
+        <div class="gif-upload" id="upload-gif-btn">📤 Upload Your Own GIF/Sticker</div>
     </div>
     
     <div class="schedule-picker" id="schedule-picker">
@@ -453,9 +439,9 @@
     </div>
     
     <!-- Translation Language Selector -->
-    <div class="schedule-picker" id="translation-picker" style="display: none;">
-        <h4>Translate To</h4>
-        <select id="translate-language" style="width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px;">
+    <div id="translation-picker" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 24px; padding: 20px; width: 90%; max-width: 300px; z-index: 5000; display: none; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <h4 style="margin-bottom: 15px;">Translate To</h4>
+        <select id="translate-language" style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px;">
             <option value="en">English</option>
             <option value="fr">French</option>
             <option value="es">Spanish</option>
@@ -468,8 +454,8 @@
             <option value="zh">Chinese</option>
             <option value="ar">Arabic</option>
         </select>
-        <button onclick="confirmTranslation()" style="margin-top: 10px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 12px; width: 100%;">Translate</button>
-        <button onclick="closeTranslationPicker()" style="margin-top: 8px; padding: 10px; background: #666; color: white; border: none; border-radius: 12px; width: 100%;">Cancel</button>
+        <button onclick="confirmTranslation()" style="margin-top: 10px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 12px; width: 100%; cursor: pointer;">Translate</button>
+        <button onclick="closeTranslationPicker()" style="margin-top: 8px; padding: 10px; background: #666; color: white; border: none; border-radius: 12px; width: 100%; cursor: pointer;">Cancel</button>
     </div>
     
     <div class="video-call-container" id="video-call-container">
@@ -500,7 +486,7 @@
     </div>
     
     <input type="file" id="file-input" style="display: none;">
-    <input type="file" id="gif-upload-input" accept="image/gif" style="display: none;">
+    <input type="file" id="gif-upload-input" accept="image/*" style="display: none;">
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -519,6 +505,7 @@
         let allMessages = [];
         let scheduledMessages = [];
         let currentMessageToTranslate = null;
+        let voiceStartTime = null;
         
         // Video call vars
         let localStream = null;
@@ -591,7 +578,6 @@
         let typingTimeout = null;
         let searchTimeout = null;
         let scheduleInterval = null;
-        let voiceStartTime = null;
         
         const recordingIndicator = document.createElement('div');
         recordingIndicator.className = 'recording-indicator';
@@ -662,8 +648,8 @@
         }
         
         // ============ GIF ============
-        function sendGif(gifUrl) {
-            const msgData = { type: 'gif', gifUrl: gifUrl };
+        function sendGif(gifEmoji) {
+            const msgData = { type: 'gif', gifUrl: gifEmoji, text: gifEmoji };
             if (currentChat.type === 'group') socket.emit('send-message', msgData);
             else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
             gifPicker.classList.remove('show');
@@ -675,15 +661,18 @@
         
         gifUploadInput.onchange = (e) => {
             const file = e.target.files[0];
-            if (file && file.type === 'image/gif') {
+            if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const gifUrl = ev.target.result;
-                    sendGif(gifUrl);
+                    const msgData = { type: 'gif', gifUrl: gifUrl, text: '📸 Custom GIF' };
+                    if (currentChat.type === 'group') socket.emit('send-message', msgData);
+                    else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
+                    gifPicker.classList.remove('show');
                 };
                 reader.readAsDataURL(file);
             } else {
-                alert('Please select a GIF file');
+                alert('Please select an image file');
             }
             gifUploadInput.value = '';
         };
@@ -749,6 +738,8 @@
         
         function closeSchedulePicker() {
             schedulePicker.classList.remove('show');
+            document.getElementById('schedule-time').value = '';
+            document.getElementById('schedule-text').value = '';
         }
         
         function scheduleMessage() {
@@ -758,11 +749,9 @@
             const scheduledTime = new Date(time).getTime();
             const now = Date.now();
             if (scheduledTime <= now) { alert('Please select a future time'); return; }
-            scheduledMessages.push({ time: scheduledTime, text, chat: currentChat });
-            alert(`Message scheduled for ${new Date(scheduledTime).toLocaleString()}`);
+            scheduledMessages.push({ time: scheduledTime, text, chat: { type: currentChat.type, username: currentChat.username } });
+            alert(`✅ Message scheduled for ${new Date(scheduledTime).toLocaleString()}`);
             closeSchedulePicker();
-            document.getElementById('schedule-time').value = '';
-            document.getElementById('schedule-text').value = '';
             startScheduleChecker();
         }
         
@@ -904,6 +893,21 @@
             }
         }
         
+        function updateUserAvatarInMessage(username, avatarUrl) {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(msg => {
+                const userSpan = msg.querySelector('.user span');
+                if (userSpan && userSpan.textContent === username) {
+                    const avatarDiv = msg.querySelector('.message-avatar');
+                    if (avatarDiv) {
+                        avatarDiv.style.backgroundImage = `url(${avatarUrl})`;
+                        avatarDiv.style.backgroundSize = 'cover';
+                        avatarDiv.textContent = '';
+                    }
+                }
+            });
+        }
+        
         async function displayMessage(msg, type) {
             const div = document.createElement('div');
             const isSent = msg.from === currentUsername || (type === 'group' && msg.username === currentUsername);
@@ -917,13 +921,13 @@
             if (avatar) {
                 html += `<div class="message-avatar" style="background-image: url(${avatar}); background-size: cover;"></div>`;
             } else {
-                html += `<div class="message-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">${username.charAt(0).toUpperCase()}</div>`;
+                html += `<div class="message-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center;">${username.charAt(0).toUpperCase()}</div>`;
             }
             html += `<span>${escapeHtml(username)}</span>`;
             
             // Add translate button for received text messages
             if (!isSent && msg.text && msg.text.length > 0 && msg.type === 'text') {
-                html += `<span class="translate-btn" onclick="openTranslationPicker('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
+                html += `<span onclick="openTranslationPicker('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
             }
             html += `</div>`;
             html += `<div class="message-content" id="content-${msg.id}">`;
@@ -940,7 +944,11 @@
             } else if (msg.type === 'voice') {
                 html += `<div class="voice-message" onclick="playVoice('${msg.voiceUrl}')">🔊 Voice message (${Math.round(msg.duration || 1)}s)</div>`;
             } else if (msg.type === 'gif') {
-                html += `<img class="gif-message" src="${msg.gifUrl}" onclick="window.open('${msg.gifUrl}')" style="max-width: 200px; border-radius: 12px;">`;
+                if (msg.gifUrl && msg.gifUrl.startsWith('data:image')) {
+                    html += `<img class="gif-message" src="${msg.gifUrl}" onclick="window.open('${msg.gifUrl}')" style="max-width: 150px; border-radius: 12px;">`;
+                } else {
+                    html += `<div class="text" style="font-size: 48px;">${escapeHtml(msg.gifUrl || msg.text)}</div>`;
+                }
             } else if (msg.type === 'poll') {
                 const totalVotes = msg.votes ? Object.values(msg.votes).length : 0;
                 html += `<div class="poll-container">`;
@@ -1295,7 +1303,11 @@
             socket.on('message-edited', ({ messageId, newText }) => { const c = document.getElementById(`content-${messageId}`); if (c) { const t = c.querySelector('.text'); if (t) t.innerHTML = escapeHtml(newText); if (!c.querySelector('.edited-badge')) { const b = document.createElement('span'); b.className = 'edited-badge'; b.textContent = '(edited)'; c.appendChild(b); } } });
             socket.on('message-deleted', ({ messageId }) => { const m = document.querySelector(`[data-message-id="${messageId}"]`); if (m) m.remove(); addSystemMessage('A message was deleted'); });
             socket.on('message-read', ({ messageId, reader }) => updateMessageReadReceipt(messageId, reader));
-            socket.on('avatar-update', ({ username, avatarUrl }) => { userAvatars[username] = avatarUrl; updateOnlineUsersList(); });
+            socket.on('avatar-update', ({ username, avatarUrl }) => { 
+                userAvatars[username] = avatarUrl; 
+                updateOnlineUsersList();
+                updateUserAvatarInMessage(username, avatarUrl);
+            });
             socket.on('user-joined', msg => addSystemMessage(msg));
             socket.on('user-left', msg => addSystemMessage(msg));
             socket.on('online-users', users => { onlineUsers = users.filter(u => u !== currentUsername); updateOnlineUsersList(); });
@@ -1385,9 +1397,8 @@
         
         document.querySelectorAll('.gif-item').forEach(g => {
             g.onclick = () => {
-                const gifUrl = g.getAttribute('data-gif');
-                if (gifUrl) sendGif(gifUrl);
-                else sendGif(g.textContent);
+                const gifEmoji = g.getAttribute('data-gif') || g.textContent.trim();
+                sendGif(gifEmoji);
             };
         });
         
