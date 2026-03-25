@@ -13,6 +13,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f0f2f5;
+            transition: background 0.3s ease;
         }
         
         /* Login Screen */
@@ -25,6 +26,7 @@
             padding: 30px 20px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
         }
         
         .login-container h2 {
@@ -40,6 +42,7 @@
             border: 1px solid #ddd;
             border-radius: 12px;
             font-size: 16px;
+            transition: background 0.3s ease;
         }
         
         .login-container button {
@@ -67,7 +70,7 @@
             overflow: hidden;
         }
         
-        /* Mobile Layout - Sidebar hidden by default, shown when menu clicked */
+        /* Sidebar */
         .sidebar {
             position: fixed;
             left: -280px;
@@ -80,6 +83,7 @@
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            transition: background 0.3s ease;
         }
         
         .sidebar.open {
@@ -94,6 +98,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.3s ease;
         }
         
         .profile-pic {
@@ -107,11 +112,13 @@
             cursor: pointer;
             font-size: 20px;
             background-size: cover;
+            background-position: center;
         }
         
         .search-box {
             padding: 10px;
             background: #f0f2f5;
+            transition: background 0.3s ease;
         }
         
         .search-box input {
@@ -121,6 +128,7 @@
             border-radius: 20px;
             background: white;
             font-size: 14px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         .online-users {
@@ -138,6 +146,11 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .user-item:hover {
+            background: #e4e6eb;
         }
         
         .user-item.active {
@@ -157,6 +170,8 @@
             font-weight: bold;
             font-size: 18px;
             background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
         }
         
         .user-info {
@@ -171,6 +186,7 @@
         .user-status {
             font-size: 11px;
             color: #666;
+            transition: color 0.3s ease;
         }
         
         .call-btn-small {
@@ -181,6 +197,7 @@
             border: none;
             border-radius: 20px;
             cursor: pointer;
+            margin-left: 4px;
         }
         
         /* Chat Area */
@@ -190,6 +207,7 @@
             flex-direction: column;
             background: white;
             height: 100%;
+            transition: background 0.3s ease;
         }
         
         .chat-header {
@@ -202,6 +220,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background 0.3s ease;
         }
         
         .menu-btn {
@@ -230,6 +249,8 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
+            background-size: cover;
+            background-position: center;
         }
         
         .chat-title {
@@ -252,6 +273,7 @@
             overflow-y: auto;
             padding: 15px;
             background: #f0f2f5;
+            transition: background 0.3s ease;
         }
         
         .message {
@@ -275,6 +297,7 @@
             color: black;
             border-bottom-left-radius: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
         }
         
         .message .user {
@@ -283,21 +306,27 @@
             margin-bottom: 4px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
         
         .message-avatar {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: rgba(0,0,0,0.2);
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
             background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
         }
         
         .message .text {
             font-size: 14px;
             line-height: 1.4;
+            word-break: break-word;
         }
         
         .message-image {
@@ -339,6 +368,12 @@
             border-left: 2px solid #0088cc;
         }
         
+        .forward-indicator {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-bottom: 3px;
+        }
+        
         .message .time {
             font-size: 9px;
             margin-top: 4px;
@@ -367,6 +402,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             display: none;
             white-space: nowrap;
+            z-index: 200;
+            transition: background 0.3s ease;
         }
         
         .message:hover .seen-by { display: block; }
@@ -401,6 +438,7 @@
             cursor: pointer;
             font-size: 11px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: background 0.3s ease;
         }
         
         .message:hover .reaction-btn { display: flex; }
@@ -415,6 +453,7 @@
             display: none;
             gap: 6px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s ease;
         }
         
         .reaction-picker.show { display: flex; }
@@ -436,6 +475,7 @@
             display: none;
             gap: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: background 0.3s ease;
         }
         
         .message:hover .message-actions { display: flex; }
@@ -465,6 +505,7 @@
             padding: 12px;
             background: white;
             border-top: 1px solid #e4e6eb;
+            transition: background 0.3s ease;
         }
         
         .input-buttons {
@@ -481,6 +522,7 @@
             border-radius: 25px;
             cursor: pointer;
             font-size: 13px;
+            transition: background 0.3s ease;
         }
         
         .reply-indicator {
@@ -493,6 +535,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 12px;
+            transition: background 0.3s ease;
         }
         
         .preview-container {
@@ -501,6 +544,7 @@
             background: #f0f2f5;
             border-radius: 12px;
             display: none;
+            transition: background 0.3s ease;
         }
         
         .preview-content {
@@ -535,6 +579,7 @@
             border-radius: 25px;
             font-size: 15px;
             background: #f0f2f5;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
         
         #send-button {
@@ -552,6 +597,7 @@
             color: #666;
             font-size: 11px;
             font-style: italic;
+            transition: color 0.3s ease;
         }
         
         .emoji-picker {
@@ -567,6 +613,7 @@
             grid-template-columns: repeat(7, 1fr);
             gap: 8px;
             z-index: 1000;
+            transition: background 0.3s ease;
         }
         
         .emoji-picker.show { display: grid; }
@@ -611,6 +658,7 @@
             padding: 25px;
             text-align: center;
             width: 280px;
+            transition: background 0.3s ease;
         }
         
         .profile-pic-large {
@@ -624,6 +672,8 @@
             margin: 0 auto 15px;
             font-size: 40px;
             background-size: cover;
+            background-position: center;
+            cursor: pointer;
         }
         
         .search-results {
@@ -638,6 +688,7 @@
             width: 90%;
             left: 5%;
             top: 60px;
+            transition: background 0.3s ease;
         }
         
         /* Video Call */
@@ -719,6 +770,7 @@
             justify-content: space-between;
             z-index: 4000;
             box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            transition: background 0.3s ease;
         }
         
         .accept-call { background: #31a24c; color: white; padding: 8px 20px; border: none; border-radius: 25px; }
@@ -726,18 +778,146 @@
         
         .error { color: red; margin-top: 10px; font-size: 14px; }
         
-        /* Dark Mode */
-        .dark-mode { background: #1a1a1a; }
-        .dark-mode .login-container, .dark-mode .sidebar, .dark-mode .message.received,
-        .dark-mode .preview-container, .dark-mode .emoji-picker, .dark-mode .profile-modal-content,
-        .dark-mode .incoming-call, .dark-mode .search-results {
+        /* Dark Mode - FIXED */
+        .dark-mode {
+            background: #1a1a1a;
+        }
+        
+        .dark-mode .login-container,
+        .dark-mode .sidebar,
+        .dark-mode .chat-area,
+        .dark-mode .message.received,
+        .dark-mode .preview-container,
+        .dark-mode .emoji-picker,
+        .dark-mode .reaction-picker,
+        .dark-mode .profile-modal-content,
+        .dark-mode .incoming-call,
+        .dark-mode .search-results,
+        .dark-mode .reply-indicator {
             background: #2d2d2d;
             color: #e4e6eb;
         }
-        .dark-mode .user-item { background: #3e3e3e; }
-        .dark-mode .message.received { background: #3e3e3e; }
-        .dark-mode .sidebar-header, .dark-mode .chat-header { background: #1e1e1e; }
-        .dark-mode #message-input { background: #3e3e3e; color: white; }
+        
+        .dark-mode .login-container input,
+        .dark-mode #message-input,
+        .dark-mode .file-btn,
+        .dark-mode .emoji-btn,
+        .dark-mode .search-box input {
+            background: #3e3e3e;
+            color: #e4e6eb;
+            border-color: #4e4e4e;
+        }
+        
+        .dark-mode .user-item {
+            background: #3e3e3e;
+            color: #e4e6eb;
+        }
+        
+        .dark-mode .user-item:hover {
+            background: #4e4e4e;
+        }
+        
+        .dark-mode .message.sent {
+            background: #0088cc;
+            color: white;
+        }
+        
+        .dark-mode .message.received {
+            background: #3e3e3e;
+            color: #e4e6eb;
+        }
+        
+        .dark-mode .sidebar-header,
+        .dark-mode .chat-header {
+            background: #1e1e1e;
+        }
+        
+        .dark-mode .recording-indicator {
+            background: #ff4444;
+        }
+        
+        .dark-mode .call-btn-small {
+            background: #0088cc;
+        }
+        
+        .dark-mode .call-btn-small:hover {
+            background: #006699;
+        }
+        
+        .dark-mode .emoji-picker,
+        .dark-mode .reaction-picker {
+            background: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .dark-mode .emoji:hover {
+            background: #3e3e3e;
+        }
+        
+        .dark-mode .reaction-btn {
+            background: #2d2d2d;
+        }
+        
+        .dark-mode .reaction {
+            background: rgba(255,255,255,0.2);
+            color: #e4e6eb;
+        }
+        
+        .dark-mode .reaction:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .dark-mode .typing-indicator {
+            color: #999;
+        }
+        
+        .dark-mode .message-file,
+        .dark-mode .voice-message {
+            background: rgba(255,255,255,0.1);
+            color: #e4e6eb;
+        }
+        
+        .dark-mode .read-receipt .read {
+            color: #4dabf7;
+        }
+        
+        .dark-mode .message-actions {
+            background: #3e3e3e;
+        }
+        
+        .dark-mode .message-action-btn {
+            color: #e4e6eb;
+        }
+        
+        .dark-mode .edit-btn {
+            color: #4dabf7;
+        }
+        
+        .dark-mode .delete-btn {
+            color: #ff8888;
+        }
+        
+        .dark-mode .reply-btn,
+        .dark-mode .forward-btn {
+            color: #ccc;
+        }
+        
+        .dark-mode .seen-by {
+            background: #3e3e3e;
+            color: #e4e6eb;
+        }
+        
+        .dark-mode .user-status {
+            color: #aaa;
+        }
+        
+        .dark-mode .message .time {
+            color: #aaa;
+        }
+        
+        .dark-mode .reply-preview {
+            background: rgba(255,255,255,0.1);
+        }
         
         /* Desktop Layout */
         @media (min-width: 768px) {
@@ -1104,6 +1284,10 @@
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
         
+        function getUserAvatar(username) {
+            return userAvatars[username] || localStorage.getItem(`avatar_${username}`);
+        }
+        
         function displayMessage(msg, type) {
             const div = document.createElement('div');
             const isSent = msg.from === currentUsername || (type === 'group' && msg.username === currentUsername);
@@ -1111,12 +1295,15 @@
             div.setAttribute('data-message-id', msg.id);
             
             const username = type === 'group' ? msg.username : (isSent ? 'You' : msg.from);
-            const avatar = userAvatars[username];
+            const avatar = getUserAvatar(username);
             
             let html = `<div class="user">`;
-            if (avatar) html += `<div class="message-avatar" style="background-image: url(${avatar}); background-size: cover;"></div>`;
-            else html += `<div class="message-avatar">${username.charAt(0)}</div>`;
-            html += `${escapeHtml(username)}</div>`;
+            if (avatar) {
+                html += `<div class="message-avatar" style="background-image: url(${avatar}); background-size: cover; background-position: center;"></div>`;
+            } else {
+                html += `<div class="message-avatar" style="background: #0088cc; display: flex; align-items: center; justify-content: center;">${username.charAt(0).toUpperCase()}</div>`;
+            }
+            html += `<span>${escapeHtml(username)}</span></div>`;
             html += `<div class="message-content" id="content-${msg.id}">`;
             
             if (msg.replyTo) html += `<div class="reply-preview">↩️ ${escapeHtml(msg.replyTo.text.substring(0, 50))}</div>`;
@@ -1214,8 +1401,8 @@
                 const div = document.createElement('div');
                 div.className = 'user-item';
                 if (currentChat.type === 'private' && currentChat.username === user) div.classList.add('active');
-                const avatar = userAvatars[user];
-                div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover;` : ''}">${avatar ? '' : user.charAt(0)}</div>
+                const avatar = getUserAvatar(user);
+                div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover; background-position: center;` : ''}">${avatar ? '' : user.charAt(0).toUpperCase()}</div>
                     <div class="user-info"><div class="user-name">${escapeHtml(user)}</div><div class="user-status">Online</div></div>
                     <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>
                     <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', true)">🎤</button>`;
@@ -1477,8 +1664,18 @@
         // Dark mode
         const darkToggle = document.getElementById('dark-mode-toggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
-        function applyDark() { if (darkMode) { document.body.classList.add('dark-mode'); darkToggle.textContent = '☀️'; } else { document.body.classList.remove('dark-mode'); darkToggle.textContent = '🌙'; } }
-        darkToggle.onclick = () => { darkMode = !darkMode; localStorage.setItem('darkMode', darkMode); applyDark(); };
+        function applyDark() {
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                darkToggle.textContent = '☀️';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkToggle.textContent = '🌙';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+        darkToggle.onclick = () => { darkMode = !darkMode; applyDark(); };
         applyDark();
         
         window.clearPreview = clearPreview;
