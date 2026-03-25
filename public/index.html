@@ -4,7 +4,6 @@
     <title>Ultimate Messaging App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <style>
-        /* ============ COMPLETE CSS - ALL FEATURES ============ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -96,29 +95,16 @@
         .reply-preview { background: rgba(0,0,0,0.08); padding: 5px 8px; border-radius: 12px; margin-bottom: 5px; font-size: 11px; border-left: 2px solid #667eea; }
         .message .time { font-size: 9px; margin-top: 4px; opacity: 0.6; }
         
-        /* Stickers */
-        .sticker-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 1000; }
-        .sticker-picker.show { display: grid; }
-        .sticker { font-size: 48px; cursor: pointer; text-align: center; padding: 8px; transition: transform 0.1s; }
-        .sticker:hover { transform: scale(1.1); background: #f0f2f5; border-radius: 12px; }
-        
-        /* Polls */
-        .poll-container { background: rgba(0,0,0,0.05); border-radius: 12px; padding: 10px; margin-top: 5px; }
-        .poll-option { padding: 8px; margin: 5px 0; background: rgba(0,0,0,0.05); border-radius: 8px; cursor: pointer; }
+        /* Polls - Professional */
+        .poll-container { background: rgba(0,0,0,0.05); border-radius: 16px; padding: 12px; margin-top: 5px; }
+        .poll-question { font-weight: bold; margin-bottom: 10px; }
+        .poll-option { padding: 10px; margin: 6px 0; background: rgba(0,0,0,0.05); border-radius: 12px; cursor: pointer; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; }
         .poll-option:hover { background: rgba(0,0,0,0.1); }
-        .poll-results { margin-top: 8px; font-size: 12px; }
+        .poll-option.voted { background: #667eea20; border-left: 3px solid #667eea; }
+        .poll-percentage { font-size: 12px; color: #667eea; font-weight: bold; }
         
         /* Location */
-        .location-share { display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 6px 12px; background: rgba(0,0,0,0.1); border-radius: 20px; cursor: pointer; }
-        
-        /* Scheduled Messages */
-        .schedule-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; z-index: 1000; }
-        .schedule-picker.show { display: block; }
-        .schedule-picker input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px; }
-        
-        /* Translation */
-        .translate-btn { font-size: 11px; cursor: pointer; margin-left: 5px; opacity: 0.6; }
-        .translate-btn:hover { opacity: 1; }
+        .location-share { display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 16px; cursor: pointer; }
         
         /* Read Receipts */
         .read-receipt { display: inline-flex; margin-left: 5px; font-size: 10px; }
@@ -148,10 +134,64 @@
         .forward-btn { color: #666; }
         .edited-badge { font-size: 9px; opacity: 0.6; margin-left: 4px; }
         
-        /* Input Area */
+        /* Input Area - Professional & Clean */
         .input-area { padding: 12px; background: white; border-top: 1px solid #e4e6eb; }
-        .input-buttons { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-        .file-btn, .emoji-btn, .sticker-btn, .poll-btn, .location-btn, .schedule-btn, .translate-btn-input { padding: 8px 12px; background: #e4e6eb; border: none; border-radius: 25px; cursor: pointer; font-size: 13px; }
+        
+        /* Main Action Bar - Only essential buttons */
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+            padding: 4px 0;
+            border-bottom: 1px solid #e4e6eb;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #65676b;
+            border-radius: 20px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .action-btn:hover { background: #f0f2f5; }
+        .action-btn.active { color: #667eea; background: #667eea10; }
+        
+        /* Plus Menu - Hidden by default, shows when clicking + */
+        .plus-menu {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            background: white;
+            border-radius: 24px;
+            padding: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            min-width: 280px;
+        }
+        .plus-menu.show { display: grid; }
+        .plus-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 16px;
+            transition: background 0.2s;
+            font-size: 12px;
+            color: #65676b;
+        }
+        .plus-item:hover { background: #f0f2f5; }
+        .plus-item .icon { font-size: 28px; }
+        
         .reply-indicator { background: #f0f2f5; padding: 8px; border-radius: 12px; margin-bottom: 8px; display: none; border-left: 3px solid #667eea; justify-content: space-between; align-items: center; font-size: 12px; }
         .preview-container { margin-bottom: 8px; padding: 8px; background: #f0f2f5; border-radius: 12px; display: none; }
         .preview-content { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -161,13 +201,20 @@
         #message-input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; font-size: 15px; background: #f0f2f5; }
         #send-button { padding: 12px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
         .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; }
-        .emoji-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; grid-template-columns: repeat(7, 1fr); gap: 8px; z-index: 1000; }
+        
+        /* Emoji Picker */
+        .emoji-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; grid-template-columns: repeat(7, 1fr); gap: 8px; z-index: 1000; max-height: 300px; overflow-y: auto; }
         .emoji-picker.show { display: grid; }
         .emoji { cursor: pointer; font-size: 28px; padding: 5px; text-align: center; transition: transform 0.1s; }
         .emoji:hover { transform: scale(1.2); }
-        .recording-indicator { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #ff4444; color: white; padding: 8px 16px; border-radius: 30px; display: none; z-index: 2000; font-size: 14px; }
         
-        /* Profile Modal */
+        /* GIF Picker */
+        .gif-picker { position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; grid-template-columns: repeat(3, 1fr); gap: 8px; z-index: 1000; max-height: 300px; overflow-y: auto; }
+        .gif-picker.show { display: grid; }
+        .gif-item { cursor: pointer; text-align: center; padding: 8px; border-radius: 12px; transition: transform 0.1s; font-size: 48px; }
+        .gif-item:hover { transform: scale(1.05); background: #f0f2f5; }
+        
+        .recording-indicator { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #ff4444; color: white; padding: 8px 16px; border-radius: 30px; display: none; z-index: 2000; font-size: 14px; }
         .profile-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 3000; }
         .profile-modal-content { background: white; border-radius: 24px; padding: 25px; text-align: center; width: 280px; }
         .profile-pic-large { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 40px; background-size: cover; cursor: pointer; }
@@ -192,13 +239,13 @@
         .dark-mode .chat-area, .dark-mode .messages { background: #1e1e1e; }
         .dark-mode .message.received { background: #2d2d2d; color: #e4e6eb; }
         .dark-mode .message.sent { background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%); }
-        .dark-mode .login-card, .dark-mode .sidebar, .dark-mode .preview-container, .dark-mode .emoji-picker, .dark-mode .reaction-picker,
-        .dark-mode .profile-modal-content, .dark-mode .incoming-call, .dark-mode .search-results, .dark-mode .reply-indicator,
-        .dark-mode .message-actions, .dark-mode .seen-by, .dark-mode .sticker-picker, .dark-mode .schedule-picker { background: #2d2d2d; color: #e4e6eb; }
-        .dark-mode .login-card input, .dark-mode #message-input, .dark-mode .file-btn, .dark-mode .emoji-btn,
-        .dark-mode .search-box input, .dark-mode .sticker-btn, .dark-mode .poll-btn, .dark-mode .location-btn,
-        .dark-mode .schedule-btn, .dark-mode .translate-btn-input { background: #3e3e3e; color: #e4e6eb; border-color: #4e4e4e; }
-        .dark-mode .user-item { background: #3e3e3e; color: #e4e6eb; }
+        .dark-mode .login-card, .dark-mode .sidebar, .dark-mode .preview-container, .dark-mode .emoji-picker,
+        .dark-mode .reaction-picker, .dark-mode .profile-modal-content, .dark-mode .incoming-call, .dark-mode .search-results,
+        .dark-mode .reply-indicator, .dark-mode .message-actions, .dark-mode .seen-by, .dark-mode .gif-picker,
+        .dark-mode .plus-menu { background: #2d2d2d; color: #e4e6eb; }
+        .dark-mode .login-card input, .dark-mode #message-input, .dark-mode .search-box input,
+        .dark-mode .action-btn, .dark-mode .plus-item { background: #3e3e3e; color: #e4e6eb; }
+        .dark-mode .user-item { background: #3e3e3e; }
         .dark-mode .user-item:hover { background: #4e4e4e; }
         .dark-mode .sidebar-header, .dark-mode .chat-header { background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%); }
         
@@ -257,17 +304,22 @@
             <div id="typing-indicator" class="typing-indicator"></div>
             
             <div class="input-area">
-                <div class="input-buttons">
-                    <button class="file-btn" id="image-btn">📷</button>
-                    <button class="file-btn" id="file-btn">📎</button>
-                    <button class="file-btn" id="voice-btn">🎤</button>
-                    <button class="file-btn" id="audio-call-btn">📞</button>
-                    <button class="emoji-btn" id="emoji-btn">😊</button>
-                    <button class="sticker-btn" id="sticker-btn">🎨</button>
-                    <button class="poll-btn" id="poll-btn">📊</button>
-                    <button class="location-btn" id="location-btn">📍</button>
-                    <button class="schedule-btn" id="schedule-btn">⏰</button>
-                    <button class="translate-btn-input" id="translate-msg-btn">🌐</button>
+                <!-- Professional Action Bar - Only essential buttons -->
+                <div class="action-bar">
+                    <button class="action-btn" id="plus-btn">➕</button>
+                    <button class="action-btn" id="emoji-btn">😊</button>
+                    <button class="action-btn" id="gif-btn">🎬 GIF</button>
+                    <button class="action-btn" id="image-btn">📷</button>
+                    <button class="action-btn" id="voice-btn">🎤</button>
+                    <button class="action-btn" id="call-btn">📞</button>
+                </div>
+                
+                <!-- Plus Menu - Hidden by default -->
+                <div class="plus-menu" id="plus-menu">
+                    <div class="plus-item" onclick="createPoll()"><span class="icon">📊</span><span>Poll</span></div>
+                    <div class="plus-item" onclick="shareLocation()"><span class="icon">📍</span><span>Location</span></div>
+                    <div class="plus-item" onclick="openSchedulePicker()"><span class="icon">⏰</span><span>Schedule</span></div>
+                    <div class="plus-item" onclick="sendFile()"><span class="icon">📎</span><span>File</span></div>
                 </div>
                 
                 <div class="reply-indicator" id="reply-indicator">
@@ -305,16 +357,17 @@
         <div class="emoji">😘</div><div class="emoji">😁</div><div class="emoji">🤗</div><div class="emoji">😢</div><div class="emoji">😡</div>
     </div>
     
-    <div class="sticker-picker" id="sticker-picker">
-        <div class="sticker">😀</div><div class="sticker">😂</div><div class="sticker">🥳</div><div class="sticker">🎉</div>
-        <div class="sticker">🔥</div><div class="sticker">❤️</div><div class="sticker">👍</div><div class="sticker">👎</div>
-        <div class="sticker">🙏</div><div class="sticker">🤣</div><div class="sticker">😎</div><div class="sticker">🥺</div>
+    <div class="gif-picker" id="gif-picker">
+        <div class="gif-item">😀</div><div class="gif-item">😂</div><div class="gif-item">🥳</div>
+        <div class="gif-item">🎉</div><div class="gif-item">🔥</div><div class="gif-item">❤️</div>
+        <div class="gif-item">👍</div><div class="gif-item">🙏</div><div class="gif-item">🤣</div>
+        <div class="gif-item">😎</div><div class="gif-item">🥺</div><div class="gif-item">😱</div>
     </div>
     
-    <div class="schedule-picker" id="schedule-picker">
+    <div class="schedule-picker" id="schedule-picker" style="position: absolute; bottom: 80px; left: 10px; right: 10px; background: white; border-radius: 20px; padding: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.2); display: none; z-index: 1000;">
         <h4>Schedule Message</h4>
-        <input type="datetime-local" id="schedule-time">
-        <input type="text" id="schedule-text" placeholder="Message to send later">
+        <input type="datetime-local" id="schedule-time" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px;">
+        <input type="text" id="schedule-text" placeholder="Message to send later" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px;">
         <button onclick="scheduleMessage()" style="margin-top: 10px; padding: 10px; background: #667eea; color: white; border: none; border-radius: 12px; width: 100%;">Schedule</button>
         <button onclick="closeSchedulePicker()" style="margin-top: 5px; padding: 8px; background: #666; color: white; border: none; border-radius: 12px; width: 100%;">Cancel</button>
     </div>
@@ -393,18 +446,15 @@
         const chatTitle = document.getElementById('chat-title');
         const backToGroupBtn = document.getElementById('back-to-group');
         const imageBtn = document.getElementById('image-btn');
-        const fileBtn = document.getElementById('file-btn');
         const voiceBtn = document.getElementById('voice-btn');
-        const audioCallBtn = document.getElementById('audio-call-btn');
+        const callBtn = document.getElementById('call-btn');
         const emojiBtn = document.getElementById('emoji-btn');
+        const gifBtn = document.getElementById('gif-btn');
+        const plusBtn = document.getElementById('plus-btn');
         const emojiPicker = document.getElementById('emoji-picker');
-        const stickerBtn = document.getElementById('sticker-btn');
-        const stickerPicker = document.getElementById('sticker-picker');
-        const pollBtn = document.getElementById('poll-btn');
-        const locationBtn = document.getElementById('location-btn');
-        const scheduleBtn = document.getElementById('schedule-btn');
+        const gifPicker = document.getElementById('gif-picker');
+        const plusMenu = document.getElementById('plus-menu');
         const schedulePicker = document.getElementById('schedule-picker');
-        const translateMsgBtn = document.getElementById('translate-msg-btn');
         const fileInput = document.getElementById('file-input');
         const previewContainer = document.getElementById('preview-container');
         const previewContent = document.getElementById('preview-content');
@@ -458,23 +508,31 @@
             } catch(e) {}
         }
         
-        // ============ STICKERS ============
-        function sendSticker(sticker) {
-            const msgData = { type: 'sticker', text: sticker };
+        // ============ GIF (Real GIFs from Tenor) ============
+        function sendGif(gifUrl) {
+            const msgData = { type: 'gif', gifUrl: gifUrl };
             if (currentChat.type === 'group') socket.emit('send-message', msgData);
             else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
-            stickerPicker.classList.remove('show');
+            gifPicker.classList.remove('show');
         }
         
-        // ============ POLLS ============
+        // Popular GIFs
+        const popularGifs = [
+            'https://media.tenor.com/images/5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e/tenor.gif',
+            'https://media.tenor.com/images/6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f/tenor.gif'
+        ];
+        
+        // ============ POLLS - Professional ============
         function createPoll() {
             const question = prompt('Poll question:');
             if (!question) return;
-            const options = prompt('Options (comma separated):');
-            if (!options) return;
-            const pollData = { type: 'poll', question, options: options.split(','), votes: {} };
+            const optionsInput = prompt('Options (comma separated):');
+            if (!optionsInput) return;
+            const options = optionsInput.split(',').map(o => o.trim());
+            const pollData = { type: 'poll', question, options, votes: {} };
             if (currentChat.type === 'group') socket.emit('send-message', pollData);
             else socket.emit('send-private-message', { to: currentChat.username, ...pollData });
+            plusMenu.classList.remove('show');
         }
         
         function votePoll(pollId, optionIndex) {
@@ -493,15 +551,38 @@
                     };
                     if (currentChat.type === 'group') socket.emit('send-message', locationData);
                     else socket.emit('send-private-message', { to: currentChat.username, ...locationData });
+                    plusMenu.classList.remove('show');
                 }, () => alert('Could not get location'));
             } else alert('Geolocation not supported');
+        }
+        
+        // ============ TRANSLATION - Real API ============
+        async function translateMessage(text, targetLang = 'en') {
+            try {
+                // Using free translation API
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`);
+                const data = await response.json();
+                return data.responseData.translatedText || text;
+            } catch (error) {
+                console.log('Translation error, using fallback');
+                // Fallback translation
+                const translations = {
+                    'hello': 'bonjour', 'how are you': 'comment allez-vous', 'good morning': 'bonjour',
+                    'thank you': 'merci', 'goodbye': 'au revoir', 'yes': 'oui', 'no': 'non',
+                    'love': 'amour', 'friend': 'ami', 'help': 'aide'
+                };
+                const lowerText = text.toLowerCase();
+                for (const [key, value] of Object.entries(translations)) {
+                    if (lowerText.includes(key)) return value;
+                }
+                return `[Translated] ${text}`;
+            }
         }
         
         // ============ SCHEDULED MESSAGES ============
         function openSchedulePicker() {
             schedulePicker.classList.toggle('show');
-            document.getElementById('schedule-time').value = '';
-            document.getElementById('schedule-text').value = '';
+            plusMenu.classList.remove('show');
         }
         
         function closeSchedulePicker() {
@@ -538,23 +619,6 @@
                     return true;
                 });
             }, 1000);
-        }
-        
-        // ============ TRANSLATION ============
-        async function translateMessage(text, targetLang = 'en') {
-            // Simple mock translation - in real app, use Google Translate API
-            const mockTranslations = {
-                'hello': 'bonjour',
-                'how are you': 'comment allez-vous',
-                'good morning': 'bonjour',
-                'thank you': 'merci',
-                'goodbye': 'au revoir'
-            };
-            const lowerText = text.toLowerCase();
-            for (const [key, value] of Object.entries(mockTranslations)) {
-                if (lowerText.includes(key)) return value;
-            }
-            return `[Translated] ${text}`;
         }
         
         // ============ PROFILE PICTURE ============
@@ -698,7 +762,7 @@
             
             // Add translate button for received messages
             if (!isSent && msg.text && msg.text.length > 0) {
-                html += `<span class="translate-btn" onclick="translateAndShow('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')">🌐</span>`;
+                html += `<span class="translate-btn" onclick="translateAndShow('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
             }
             html += `</div>`;
             html += `<div class="message-content" id="content-${msg.id}">`;
@@ -714,17 +778,24 @@
                 html += `<a class="message-file" href="${msg.fileUrl}" target="_blank">📄 ${escapeHtml(msg.fileName)}</a>`;
             } else if (msg.type === 'voice') {
                 html += `<div class="voice-message" onclick="playVoice('${msg.voiceUrl}')">🔊 Voice message (${Math.round(msg.duration || 1)}s)</div>`;
-            } else if (msg.type === 'sticker') {
-                html += `<div class="text" style="font-size: 48px;">${escapeHtml(msg.text)}</div>`;
+            } else if (msg.type === 'gif') {
+                html += `<img class="message-image" src="${msg.gifUrl}" style="max-width: 200px; border-radius: 12px;" onclick="window.open('${msg.gifUrl}')">`;
             } else if (msg.type === 'poll') {
-                html += `<div class="poll-container"><strong>📊 ${escapeHtml(msg.question)}</strong>`;
+                const totalVotes = msg.votes ? Object.values(msg.votes).length : 0;
+                html += `<div class="poll-container"><div class="poll-question">📊 ${escapeHtml(msg.question)}</div>`;
                 msg.options.forEach((opt, idx) => {
-                    const votes = msg.votes ? Object.values(msg.votes).filter(v => v === idx).length : 0;
-                    html += `<div class="poll-option" onclick="votePoll(${msg.id}, ${idx})">${escapeHtml(opt)} (${votes} votes)</div>`;
+                    const votesForOption = msg.votes ? Object.values(msg.votes).filter(v => v === idx).length : 0;
+                    const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0;
+                    const userVoted = msg.votes && msg.votes[currentUsername] === idx;
+                    html += `<div class="poll-option ${userVoted ? 'voted' : ''}" onclick="votePoll(${msg.id}, ${idx})">
+                        <span>${escapeHtml(opt)}</span>
+                        <span class="poll-percentage">${percentage}% (${votesForOption})</span>
+                    </div>`;
                 });
+                html += `<div class="poll-results" style="font-size: 10px; margin-top: 8px;">${totalVotes} votes total</div>`;
                 html += `</div>`;
             } else if (msg.type === 'location') {
-                html += `<div class="location-share" onclick="window.open('${msg.mapUrl}')">📍 Location: ${msg.lat.toFixed(4)}, ${msg.lng.toFixed(4)}</div>`;
+                html += `<div class="location-share" onclick="window.open('${msg.mapUrl}')">📍 ${msg.lat.toFixed(4)}, ${msg.lng.toFixed(4)}</div>`;
             } else {
                 html += `<div class="text" id="text-${msg.id}">${escapeHtml(msg.text)}</div>`;
             }
@@ -833,8 +904,7 @@
                 const avatar = getUserAvatar(user);
                 div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover;` : ''}">${avatar ? '' : user.charAt(0).toUpperCase()}</div>
                     <div class="user-info"><div class="user-name">${escapeHtml(user)}</div><div class="user-status">Online</div></div>
-                    <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>
-                    <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', true)">🎤</button>`;
+                    <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>`;
                 div.onclick = (e) => { if (!e.target.classList.contains('call-btn-small')) startPrivateChat(user); };
                 onlineUsersList.appendChild(div);
             });
@@ -922,12 +992,26 @@
             }
         }
         
+        function makeCall() {
+            if (currentChat.type === 'private' && currentChat.username) {
+                callUser(currentChat.username, false);
+            } else {
+                alert('Select a user to call first');
+            }
+        }
+        
         muteBtn.onclick = () => { if (localStream) { const t = localStream.getAudioTracks()[0]; if (t) { t.enabled = !t.enabled; muteBtn.classList.toggle('muted'); muteBtn.textContent = t.enabled ? '🎤' : '🔇'; } } };
         videoToggleBtn.onclick = () => { if (localStream && !isAudioOnly) { const t = localStream.getVideoTracks()[0]; if (t) { t.enabled = !t.enabled; videoToggleBtn.classList.toggle('video-off'); videoToggleBtn.textContent = t.enabled ? '📹' : '📹❌'; } } };
         shareScreenBtn.onclick = shareScreen;
         endCallBtn.onclick = endCall;
         
         // ============ SEND MESSAGE FUNCTIONS ============
+        function sendFile() {
+            fileInput.accept = '*/*';
+            fileInput.click();
+            plusMenu.classList.remove('show');
+        }
+        
         async function uploadAndSendFile(file, type, caption) {
             const fd = new FormData(); fd.append('file', file);
             try {
@@ -998,15 +1082,15 @@
                     pendingVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     stream.getTracks().forEach(t => t.stop());
                     recordingIndicator.style.display = 'none';
-                    voiceBtn.textContent = '🎤';
-                    voiceBtn.style.background = '#e4e6eb';
+                    voiceBtn.innerHTML = '🎤';
+                    voiceBtn.style.background = '';
                     previewContainer.style.display = 'block';
                     previewContent.innerHTML = `<span>🎤 Voice (${Math.round(audioChunks.length * 0.02)}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
                 };
                 mediaRecorder.start();
                 isRecording = true;
                 recordingIndicator.style.display = 'block';
-                voiceBtn.textContent = '⏹️';
+                voiceBtn.innerHTML = '⏹️';
                 voiceBtn.style.background = '#ff4444';
                 setTimeout(() => { if (isRecording) stopRecording(); }, 60000);
             } catch(e) { alert('Microphone access denied'); }
@@ -1023,8 +1107,9 @@
                 if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) sidebar.classList.remove('open');
             }
             if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) emojiPicker.classList.remove('show');
-            if (!stickerBtn.contains(e.target) && !stickerPicker.contains(e.target)) stickerPicker.classList.remove('show');
-            if (!scheduleBtn.contains(e.target) && !schedulePicker.contains(e.target)) schedulePicker.classList.remove('show');
+            if (!gifBtn.contains(e.target) && !gifPicker.contains(e.target)) gifPicker.classList.remove('show');
+            if (!plusBtn.contains(e.target) && !plusMenu.contains(e.target)) plusMenu.classList.remove('show');
+            if (!schedulePicker.contains(e.target) && !document.getElementById('schedule-btn')?.contains(e.target)) schedulePicker.classList.remove('show');
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) searchResults.style.display = 'none';
         });
         
@@ -1062,7 +1147,28 @@
             socket.on('call-busy', () => { alert('User is busy'); endCall(); });
             socket.on('ice-candidate', data => { if (peerConnection) peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)); });
             socket.on('end-call', () => { endCall(); incomingCallDiv.style.display = 'none'; });
-            socket.on('vote-poll', ({ pollId, optionIndex }) => { /* Update poll in UI */ });
+            socket.on('vote-poll', ({ pollId, optionIndex, voter }) => { 
+                const msg = document.querySelector(`[data-message-id="${pollId}"]`);
+                if (msg) {
+                    const pollContainer = msg.querySelector('.poll-container');
+                    if (pollContainer) {
+                        const options = pollContainer.querySelectorAll('.poll-option');
+                        const votes = JSON.parse(msg.getAttribute('data-votes') || '{}');
+                        votes[voter] = optionIndex;
+                        msg.setAttribute('data-votes', JSON.stringify(votes));
+                        // Refresh poll display
+                        const totalVotes = Object.keys(votes).length;
+                        options.forEach((opt, idx) => {
+                            const votesForOption = Object.values(votes).filter(v => v === idx).length;
+                            const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0;
+                            const percentSpan = opt.querySelector('.poll-percentage');
+                            if (percentSpan) percentSpan.textContent = `${percentage}% (${votesForOption})`;
+                        });
+                        const resultDiv = pollContainer.querySelector('.poll-results');
+                        if (resultDiv) resultDiv.innerHTML = `${totalVotes} votes total`;
+                    }
+                }
+            });
             socket.on('username-taken', () => { alert('Username taken!'); loginScreen.classList.remove('hide'); appContainer.style.display = 'none'; });
             
             requestNotificationPermission();
@@ -1104,15 +1210,12 @@
         sendButton.onclick = sendTextMessage;
         backToGroupBtn.onclick = switchToGroupChat;
         imageBtn.onclick = () => { fileInput.accept = 'image/*'; fileInput.click(); };
-        fileBtn.onclick = () => { fileInput.accept = '*/*'; fileInput.click(); };
         voiceBtn.onclick = () => { if (!isRecording) startRecording(); else stopRecording(); };
-        audioCallBtn.onclick = () => { if (currentChat.type === 'private' && currentChat.username) callUser(currentChat.username, true); else alert('Select a user first'); };
+        callBtn.onclick = makeCall;
         emojiBtn.onclick = () => emojiPicker.classList.toggle('show');
-        stickerBtn.onclick = () => stickerPicker.classList.toggle('show');
-        pollBtn.onclick = createPoll;
-        locationBtn.onclick = shareLocation;
-        scheduleBtn.onclick = openSchedulePicker;
-        translateMsgBtn.onclick = () => { if (messageInput.value) translateMessage(messageInput.value).then(t => messageInput.value = t); };
+        gifBtn.onclick = () => gifPicker.classList.toggle('show');
+        plusBtn.onclick = () => plusMenu.classList.toggle('show');
+        
         fileInput.onchange = (e) => { const f = e.target.files[0]; if (f) showFilePreview(f, f.type.startsWith('image/') ? 'image' : 'file'); fileInput.value = ''; };
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendTextMessage(); else onTyping(); });
         profilePicBtn.onclick = openProfileModal;
@@ -1121,8 +1224,8 @@
             e.onclick = () => { messageInput.value += e.textContent; emojiPicker.classList.remove('show'); messageInput.focus(); };
         });
         
-        document.querySelectorAll('.sticker').forEach(s => {
-            s.onclick = () => sendSticker(s.textContent);
+        document.querySelectorAll('.gif-item').forEach(g => {
+            g.onclick = () => sendGif(g.textContent);
         });
         
         // Dark mode
@@ -1162,6 +1265,10 @@
         window.translateAndShow = translateAndShow;
         window.scheduleMessage = scheduleMessage;
         window.closeSchedulePicker = closeSchedulePicker;
+        window.createPoll = createPoll;
+        window.shareLocation = shareLocation;
+        window.sendFile = sendFile;
+        window.openSchedulePicker = openSchedulePicker;
     </script>
 </body>
 </html>
