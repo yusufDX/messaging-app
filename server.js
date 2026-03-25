@@ -4,7 +4,6 @@ const socketIo = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const db = require('./database');
 
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
@@ -57,11 +56,7 @@ io.on('connection', (socket) => {
         users[socket.id] = username;
         socket.username = username;
         
-        db.getRecentGroupMessages((dbMessages) => {
-            messages = dbMessages;
-            socket.emit('previous-messages', messages);
-        });
-        
+        socket.emit('previous-messages', messages);
         io.emit('online-users', Object.values(users));
         io.emit('user-joined', `${username} joined`);
         console.log(`✅ ${username} joined`);
@@ -91,12 +86,10 @@ io.on('connection', (socket) => {
             message.duration = data.duration;
         }
         
-        db.saveGroupMessage(message, () => {
-            messages.push(message);
-            if (messages.length > 100) messages.shift();
-            io.emit('new-message', message);
-            console.log(`💬 ${username}: ${data.text || data.type}`);
-        });
+        messages.push(message);
+        if (messages.length > 100) messages.shift();
+        io.emit('new-message', message);
+        console.log(`💬 ${username}: ${data.text || data.type}`);
     });
     
     socket.on('send-private-message', (data) => {
@@ -131,21 +124,16 @@ io.on('connection', (socket) => {
         privateMessages[key].push(message);
         if (privateMessages[key].length > 50) privateMessages[key].shift();
         
-        db.savePrivateMessage(message, () => {
-            if (toSocketId) io.to(toSocketId).emit('private-message', message);
-            socket.emit('private-message', message);
-            console.log(`🔒 ${fromUser} -> ${data.to}: ${data.text || data.type}`);
-        });
+        if (toSocketId) io.to(toSocketId).emit('private-message', message);
+        socket.emit('private-message', message);
+        console.log(`🔒 ${fromUser} -> ${data.to}: ${data.text || data.type}`);
     });
     
     socket.on('get-private-history', (otherUser) => {
         const currentUser = users[socket.id];
         if (!currentUser) return;
-        db.getPrivateMessages(currentUser, otherUser, (history) => {
-            const key = getPrivateRoomKey(currentUser, otherUser);
-            privateMessages[key] = history;
-            socket.emit('private-history', { otherUsername: otherUser, messages: history });
-        });
+        const key = getPrivateRoomKey(currentUser, otherUser);
+        socket.emit('private-history', { otherUsername: otherUser, messages: privateMessages[key] || [] });
     });
     
     socket.on('add-reaction', ({ messageId, reaction, chatType, otherUser }) => {
@@ -160,7 +148,6 @@ io.on('connection', (socket) => {
                 if (!message.reactions[reaction].includes(username)) {
                     message.reactions[reaction].push(username);
                     io.emit('message-reaction', { messageId, reaction, username });
-                    db.saveGroupMessage(message, () => {});
                 }
             }
         } else if (chatType === 'private' && otherUser) {
@@ -175,9 +162,56 @@ io.on('connection', (socket) => {
                     const recipientId = Object.keys(users).find(id => users[id] === otherUser);
                     if (recipientId) io.to(recipientId).emit('message-reaction', { messageId, reaction, username });
                     socket.emit('message-reaction', { messageId, reaction, username });
-                    db.savePrivateMessage(message, () => {});
                 }
             }
+        }
+    });
+    
+    // Video Call Events
+    socket.on('call-user', ({ to, offer }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('incoming-call', {
+                from: users[socket.id],
+                offer: offer
+            });
+        } else {
+            socket.emit('call-error', { message: 'User not online' });
+        }
+    });
+    
+    socket.on('accept-call', ({ to, answer }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('call-accepted', { answer });
+        }
+    });
+    
+    socket.on('reject-call', ({ to }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('call-rejected');
+        }
+    });
+    
+    socket.on('call-busy', ({ to }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('call-busy');
+        }
+    });
+    
+    socket.on('ice-candidate', ({ to, candidate }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('ice-candidate', { candidate });
+        }
+    });
+    
+    socket.on('end-call', ({ to }) => {
+        const toSocketId = Object.keys(users).find(id => users[id] === to);
+        if (toSocketId) {
+            io.to(toSocketId).emit('end-call');
         }
     });
     
