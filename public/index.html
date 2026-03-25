@@ -138,6 +138,7 @@
             border-radius: 10px;
             max-width: 70%;
             word-wrap: break-word;
+            position: relative;
         }
         
         .message.sent {
@@ -161,6 +162,41 @@
             font-size: 14px;
         }
         
+        .message-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .message-file {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .voice-waveform {
+            width: 80px;
+            height: 20px;
+            background: repeating-linear-gradient(45deg, currentColor 0px, currentColor 2px, transparent 2px, transparent 8px);
+        }
+        
         .message .time {
             font-size: 10px;
             margin-top: 5px;
@@ -177,14 +213,47 @@
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         
-        .file-btn {
+        .file-btn, .emoji-btn {
             padding: 8px 15px;
             background: #e4e6eb;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .file-btn:hover, .emoji-btn:hover {
+            background: #d0d2d6;
+        }
+        
+        .preview-container {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f0f2f5;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .preview-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .preview-image {
+            max-width: 50px;
+            max-height: 50px;
+            border-radius: 5px;
+        }
+        
+        .cancel-preview {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            margin-left: auto;
         }
         
         .message-input-wrapper {
@@ -216,6 +285,56 @@
             font-style: italic;
         }
         
+        .emoji-picker {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            z-index: 1000;
+        }
+        
+        .emoji-picker.show {
+            display: grid;
+        }
+        
+        .emoji {
+            cursor: pointer;
+            font-size: 24px;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .emoji:hover {
+            background: #e4e6eb;
+            border-radius: 5px;
+        }
+        
+        .recording-indicator {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: none;
+            z-index: 1000;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+        
         .error {
             color: red;
             margin-top: 10px;
@@ -242,7 +361,7 @@
         <div class="chat-area">
             <div class="chat-header">
                 <div>
-                    <div id="chat-title">Group Chat</div>
+                    <div id="chat-title">💬 Group Chat</div>
                 </div>
                 <button class="back-to-group" id="back-to-group">← Back</button>
             </div>
@@ -254,13 +373,30 @@
                 <div class="input-buttons">
                     <button class="file-btn" id="image-btn">📷 Image</button>
                     <button class="file-btn" id="file-btn">📎 File</button>
+                    <button class="file-btn" id="voice-btn">🎤 Voice</button>
+                    <button class="emoji-btn" id="emoji-btn">😊 Emoji</button>
                 </div>
+                
+                <div class="preview-container" id="preview-container">
+                    <div class="preview-content" id="preview-content"></div>
+                </div>
+                
                 <div class="message-input-wrapper">
                     <input type="text" id="message-input" placeholder="Type a message...">
                     <button id="send-button">Send</button>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="emoji-picker" id="emoji-picker">
+        <div class="emoji">😊</div><div class="emoji">😂</div><div class="emoji">❤️</div>
+        <div class="emoji">😍</div><div class="emoji">👍</div><div class="emoji">🎉</div>
+        <div class="emoji">🔥</div><div class="emoji">💯</div><div class="emoji">🙏</div>
+        <div class="emoji">😭</div><div class="emoji">😎</div><div class="emoji">🤔</div>
+        <div class="emoji">😴</div><div class="emoji">🤣</div><div class="emoji">🥰</div>
+        <div class="emoji">😘</div><div class="emoji">😁</div><div class="emoji">🤗</div>
+        <div class="emoji">😢</div><div class="emoji">😡</div><div class="emoji">👋</div>
     </div>
     
     <input type="file" id="file-input" style="display: none;">
@@ -271,6 +407,13 @@
         let currentUsername = null;
         let currentChat = { type: 'group', username: null };
         let onlineUsers = [];
+        let pendingFile = null; // Store file to send when user clicks Send
+        
+        // Voice recording variables
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let pendingVoiceBlob = null;
         
         const loginScreen = document.getElementById('login-screen');
         const appContainer = document.getElementById('app-container');
@@ -287,28 +430,37 @@
         const backToGroupBtn = document.getElementById('back-to-group');
         const imageBtn = document.getElementById('image-btn');
         const fileBtn = document.getElementById('file-btn');
+        const voiceBtn = document.getElementById('voice-btn');
+        const emojiBtn = document.getElementById('emoji-btn');
+        const emojiPicker = document.getElementById('emoji-picker');
         const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const previewContent = document.getElementById('preview-content');
         
         let typingTimeout = null;
+        
+        // Create recording indicator
+        const recordingIndicator = document.createElement('div');
+        recordingIndicator.className = 'recording-indicator';
+        recordingIndicator.innerHTML = '🔴 Recording... Click 🎤 to stop';
+        document.body.appendChild(recordingIndicator);
         
         function connectToChat(username) {
             socket = io();
             socket.emit('set-username', username);
             
             socket.on('previous-messages', (messages) => {
-                console.log('Loaded messages:', messages);
+                console.log('Loaded messages:', messages.length);
                 messages.forEach(msg => displayMessage(msg, 'group'));
             });
             
             socket.on('new-message', (message) => {
-                console.log('New message:', message);
                 if (currentChat.type === 'group') {
                     displayMessage(message, 'group');
                 }
             });
             
             socket.on('private-message', (message) => {
-                console.log('Private message:', message);
                 const otherUser = message.from === currentUsername ? message.to : message.from;
                 if (currentChat.type === 'private' && currentChat.username === otherUser) {
                     displayMessage(message, 'private');
@@ -316,7 +468,6 @@
             });
             
             socket.on('private-history', ({ otherUsername, messages }) => {
-                console.log('Private history:', messages);
                 if (currentChat.type === 'private' && currentChat.username === otherUsername) {
                     messagesDiv.innerHTML = '';
                     messages.forEach(msg => displayMessage(msg, 'private'));
@@ -327,7 +478,6 @@
             socket.on('user-left', (msg) => addSystemMessage(msg));
             
             socket.on('online-users', (users) => {
-                console.log('Online users:', users);
                 onlineUsers = users.filter(u => u !== currentUsername);
                 updateOnlineUsersList();
                 onlineCount.textContent = `${onlineUsers.length} online`;
@@ -336,6 +486,14 @@
             socket.on('user-typing', (data) => {
                 if (currentChat.type === 'group') {
                     typingIndicator.textContent = `${data.username} is typing...`;
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => typingIndicator.textContent = '', 1000);
+                }
+            });
+            
+            socket.on('private-typing-indicator', ({ from }) => {
+                if (currentChat.type === 'private' && currentChat.username === from) {
+                    typingIndicator.textContent = `${from} is typing...`;
                     clearTimeout(typingTimeout);
                     typingTimeout = setTimeout(() => typingIndicator.textContent = '', 1000);
                 }
@@ -365,11 +523,17 @@
             let contentHtml = `<div class="user">${escapeHtml(username)}</div>`;
             
             if (message.type === 'image') {
-                contentHtml += `<div class="text">${escapeHtml(message.text || '')}</div>`;
-                contentHtml += `<img src="${message.imageUrl}" style="max-width: 200px; max-height: 200px; margin-top: 5px; border-radius: 5px;">`;
+                if (message.text) contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
+                contentHtml += `<img class="message-image" src="${message.imageUrl}" onclick="window.open('${message.imageUrl}')">`;
             } else if (message.type === 'file') {
-                contentHtml += `<div class="text">${escapeHtml(message.text || '')}</div>`;
-                contentHtml += `<a href="${message.fileUrl}" target="_blank" style="display: inline-block; margin-top: 5px; padding: 5px 10px; background: rgba(0,0,0,0.1); border-radius: 5px;">📄 ${escapeHtml(message.fileName)}</a>`;
+                if (message.text) contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
+                contentHtml += `<a class="message-file" href="${message.fileUrl}" target="_blank">📄 ${escapeHtml(message.fileName)}</a>`;
+            } else if (message.type === 'voice') {
+                contentHtml += `<div class="voice-message" onclick="playVoice('${message.voiceUrl}')">
+                    <span>🔊</span>
+                    <div class="voice-waveform"></div>
+                    <span>${Math.round(message.duration || 1)}s</span>
+                </div>`;
             } else {
                 contentHtml += `<div class="text">${escapeHtml(message.text)}</div>`;
             }
@@ -379,6 +543,11 @@
             
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function playVoice(url) {
+            const audio = new Audio(url);
+            audio.play();
         }
         
         function addSystemMessage(text) {
@@ -410,47 +579,44 @@
         function startPrivateChat(username) {
             if (username === currentUsername) return;
             currentChat = { type: 'private', username: username };
-            chatTitle.textContent = `Chat with ${username}`;
+            chatTitle.textContent = `💬 Chat with ${username}`;
             messagesDiv.innerHTML = '';
             socket.emit('get-private-history', username);
             updateOnlineUsersList();
+            clearPreview();
         }
         
         function switchToGroupChat() {
             currentChat = { type: 'group', username: null };
-            chatTitle.textContent = 'Group Chat';
+            chatTitle.textContent = '💬 Group Chat';
             messagesDiv.innerHTML = '';
             updateOnlineUsersList();
+            clearPreview();
         }
         
-        async function uploadFile(file) {
+        async function uploadAndSendFile(file, type, caption) {
             const formData = new FormData();
             formData.append('file', file);
             
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            return result;
-        }
-        
-        async function sendMessageWithFile(file, type) {
             try {
-                const uploadResult = await uploadFile(file);
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
                 
                 const messageData = {
                     type: type,
-                    text: messageInput.value.trim()
+                    text: caption || ''
                 };
                 
                 if (type === 'image') {
-                    messageData.imageUrl = uploadResult.fileUrl;
+                    messageData.imageUrl = result.fileUrl;
                 } else {
-                    messageData.fileUrl = uploadResult.fileUrl;
-                    messageData.fileName = uploadResult.fileName;
-                    messageData.fileSize = uploadResult.fileSize;
+                    messageData.fileUrl = result.fileUrl;
+                    messageData.fileName = result.fileName;
+                    messageData.fileSize = result.fileSize;
                 }
                 
                 if (currentChat.type === 'group') {
@@ -462,30 +628,168 @@
                     });
                 }
                 
-                messageInput.value = '';
+                clearPreview();
             } catch (error) {
                 console.error('Upload error:', error);
                 alert('Error uploading file');
             }
         }
         
-        function sendTextMessage() {
-            const text = messageInput.value.trim();
-            if (!text) return;
+        async function sendVoiceMessage() {
+            if (!pendingVoiceBlob) return;
             
-            console.log('Sending message:', text);
+            const formData = new FormData();
+            formData.append('file', pendingVoiceBlob, 'voice.webm');
             
-            if (currentChat.type === 'group') {
-                socket.emit('send-message', { type: 'text', text: text });
-            } else {
-                socket.emit('send-private-message', { to: currentChat.username, type: 'text', text: text });
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                const messageData = {
+                    type: 'voice',
+                    voiceUrl: result.fileUrl,
+                    duration: audioChunks.length * 0.02
+                };
+                
+                if (currentChat.type === 'group') {
+                    socket.emit('send-message', messageData);
+                } else {
+                    socket.emit('send-private-message', {
+                        to: currentChat.username,
+                        ...messageData
+                    });
+                }
+                
+                pendingVoiceBlob = null;
+            } catch (error) {
+                console.error('Error sending voice message:', error);
+                alert('Error sending voice message');
             }
-            
-            messageInput.value = '';
         }
         
-        function sendMessage() {
-            sendTextMessage();
+        function sendTextMessage() {
+            const text = messageInput.value.trim();
+            if (!text && !pendingFile && !pendingVoiceBlob) return;
+            
+            if (pendingFile) {
+                uploadAndSendFile(pendingFile.file, pendingFile.type, messageInput.value.trim());
+                messageInput.value = '';
+            } else if (pendingVoiceBlob) {
+                sendVoiceMessage();
+                messageInput.value = '';
+            } else if (text) {
+                if (currentChat.type === 'group') {
+                    socket.emit('send-message', { type: 'text', text: text });
+                } else {
+                    socket.emit('send-private-message', { to: currentChat.username, type: 'text', text: text });
+                }
+                messageInput.value = '';
+            }
+        }
+        
+        function showFilePreview(file, type) {
+            pendingFile = { file: file, type: type };
+            previewContainer.style.display = 'block';
+            
+            if (type === 'image') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewContent.innerHTML = `
+                        <img class="preview-image" src="${e.target.result}">
+                        <span>${escapeHtml(file.name)}</span>
+                        <span class="cancel-preview" onclick="clearPreview()">✖ Cancel</span>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContent.innerHTML = `
+                    <span>📄</span>
+                    <span>${escapeHtml(file.name)} (${formatFileSize(file.size)})</span>
+                    <span class="cancel-preview" onclick="clearPreview()">✖ Cancel</span>
+                `;
+            }
+        }
+        
+        function clearPreview() {
+            pendingFile = null;
+            previewContainer.style.display = 'none';
+            previewContent.innerHTML = '';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        
+        // Voice Recording Functions
+        async function initMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                return stream;
+            } catch (err) {
+                console.error('Microphone error:', err);
+                alert('Please allow microphone access to record voice messages');
+                return null;
+            }
+        }
+        
+        async function startRecording() {
+            const stream = await initMicrophone();
+            if (!stream) return;
+            
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = async () => {
+                pendingVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                stream.getTracks().forEach(track => track.stop());
+                recordingIndicator.style.display = 'none';
+                voiceBtn.textContent = '🎤 Voice';
+                voiceBtn.style.background = '#e4e6eb';
+                
+                // Show preview for voice message
+                previewContainer.style.display = 'block';
+                previewContent.innerHTML = `
+                    <span>🎤 Voice Message</span>
+                    <span>${Math.round(audioChunks.length * 0.02)}s</span>
+                    <span class="cancel-preview" onclick="clearVoicePreview()">✖ Cancel</span>
+                `;
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            recordingIndicator.style.display = 'block';
+            voiceBtn.textContent = '⏹️ Stop';
+            voiceBtn.style.background = '#ff4444';
+            voiceBtn.style.color = 'white';
+            
+            // Auto-stop after 60 seconds
+            setTimeout(() => {
+                if (isRecording) {
+                    stopRecording();
+                }
+            }, 60000);
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+        }
+        
+        function clearVoicePreview() {
+            pendingVoiceBlob = null;
+            clearPreview();
         }
         
         function onTyping() {
@@ -504,6 +808,11 @@
             return div.innerHTML;
         }
         
+        // Make functions global for onclick
+        window.clearPreview = clearPreview;
+        window.clearVoicePreview = clearVoicePreview;
+        window.playVoice = playVoice;
+        
         // Event listeners
         joinButton.onclick = () => {
             const username = usernameInput.value.trim();
@@ -517,7 +826,7 @@
             appContainer.style.display = 'flex';
         };
         
-        sendButton.onclick = sendMessage;
+        sendButton.onclick = sendTextMessage;
         backToGroupBtn.onclick = switchToGroupChat;
         
         imageBtn.onclick = () => {
@@ -530,25 +839,52 @@
             fileInput.click();
         };
         
+        voiceBtn.onclick = () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        };
+        
         fileInput.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const isImage = file.type.startsWith('image/');
-                sendMessageWithFile(file, isImage ? 'image' : 'file');
+                showFilePreview(file, isImage ? 'image' : 'file');
             }
             fileInput.value = '';
         };
         
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                sendMessage();
+                sendTextMessage();
             } else {
                 onTyping();
             }
         });
         
+        emojiBtn.onclick = () => {
+            emojiPicker.classList.toggle('show');
+        };
+        
+        document.querySelectorAll('.emoji').forEach(emoji => {
+            emoji.onclick = () => {
+                messageInput.value += emoji.textContent;
+                emojiPicker.classList.remove('show');
+                messageInput.focus();
+            };
+        });
+        
         usernameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') joinButton.click();
+        });
+        
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+                emojiPicker.classList.remove('show');
+            }
         });
     </script>
 </body>
