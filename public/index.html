@@ -228,6 +228,51 @@
             opacity: 0.7;
         }
         
+        /* Read Receipts */
+        .read-receipt {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin-left: 5px;
+            font-size: 10px;
+        }
+        
+        .read-receipt .sent {
+            color: #999;
+        }
+        
+        .read-receipt .delivered {
+            color: #999;
+        }
+        
+        .read-receipt .read {
+            color: #0088cc;
+        }
+        
+        .message.sent .read-receipt {
+            float: right;
+            margin-top: 5px;
+        }
+        
+        /* Seen By Tooltip */
+        .seen-by {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 100;
+            white-space: nowrap;
+        }
+        
+        .message:hover .seen-by {
+            display: block;
+        }
+        
         .message-reactions {
             display: flex;
             gap: 5px;
@@ -658,7 +703,8 @@
         .dark-mode .emoji-picker,
         .dark-mode .reaction-picker,
         .dark-mode .incoming-call,
-        .dark-mode .message-actions {
+        .dark-mode .message-actions,
+        .dark-mode .seen-by {
             background: #2d2d2d;
             color: #e4e6eb;
             border-color: #3e3e3e;
@@ -744,6 +790,10 @@
         .dark-mode .message-file:hover,
         .dark-mode .voice-message:hover {
             background: rgba(255,255,255,0.2);
+        }
+        
+        .dark-mode .read-receipt .read {
+            color: #4dabf7;
         }
     </style>
 </head>
@@ -1019,13 +1069,18 @@
             });
             
             socket.on('new-message', (message) => {
-                if (currentChat.type === 'group') displayMessage(message, 'group');
+                if (currentChat.type === 'group') {
+                    displayMessage(message, 'group');
+                    // Mark as read
+                    socket.emit('mark-read', { messageId: message.id, chatType: 'group' });
+                }
             });
             
             socket.on('private-message', (message) => {
                 const otherUser = message.from === currentUsername ? message.to : message.from;
                 if (currentChat.type === 'private' && currentChat.username === otherUser) {
                     displayMessage(message, 'private');
+                    socket.emit('mark-read', { messageId: message.id, chatType: 'private', otherUser: otherUser });
                 }
             });
             
@@ -1051,6 +1106,10 @@
                     removeMessage(messageId);
                     addSystemMessage('A message was deleted');
                 }
+            });
+            
+            socket.on('message-read', ({ messageId, reader }) => {
+                updateReadReceipt(messageId, reader);
             });
             
             socket.on('user-joined', (msg) => addSystemMessage(msg));
@@ -1165,6 +1224,25 @@
             currentCallWith = null;
         };
         
+        function updateReadReceipt(messageId, reader) {
+            const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageDiv) return;
+            
+            let receiptDiv = messageDiv.querySelector('.read-receipt');
+            if (receiptDiv) {
+                receiptDiv.innerHTML = '<span class="read">✓✓</span>';
+                receiptDiv.setAttribute('title', `Read by ${reader}`);
+            }
+            
+            let seenByDiv = messageDiv.querySelector('.seen-by');
+            if (!seenByDiv) {
+                seenByDiv = document.createElement('div');
+                seenByDiv.className = 'seen-by';
+                messageDiv.appendChild(seenByDiv);
+            }
+            seenByDiv.innerHTML = `Seen by ${reader}`;
+        }
+        
         function displayMessage(message, type) {
             const messageDiv = document.createElement('div');
             const isSent = message.from === currentUsername || 
@@ -1202,6 +1280,21 @@
             
             contentHtml += `</div>`;
             
+            // Add read receipt for sent messages
+            if (isSent) {
+                if (message.read) {
+                    contentHtml += `<div class="read-receipt" title="Read by ${message.readBy || 'someone'}"><span class="read">✓✓</span></div>`;
+                } else if (message.delivered) {
+                    contentHtml += `<div class="read-receipt"><span class="delivered">✓✓</span></div>`;
+                } else {
+                    contentHtml += `<div class="read-receipt"><span class="sent">✓</span></div>`;
+                }
+                
+                if (message.readBy) {
+                    contentHtml += `<div class="seen-by">Seen by ${message.readBy}</div>`;
+                }
+            }
+            
             // Add reactions
             if (message.reactions && Object.keys(message.reactions).length > 0) {
                 contentHtml += `<div class="message-reactions">`;
@@ -1232,6 +1325,16 @@
             messageDiv.innerHTML = contentHtml;
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Mark message as read if it's received and we're viewing it
+            if (!isSent && currentChat.type === type && 
+                (type === 'group' || (type === 'private' && currentChat.username === message.from))) {
+                socket.emit('mark-read', { 
+                    messageId: message.id, 
+                    chatType: type,
+                    otherUser: type === 'private' ? message.from : null
+                });
+            }
         }
         
         function updateMessageContent(messageId, newText) {
@@ -1264,10 +1367,8 @@
             const textDiv = contentDiv.querySelector('.text');
             const oldText = textDiv ? textDiv.innerHTML : '';
             
-            // Hide original content
             contentDiv.style.display = 'none';
             
-            // Create edit input
             const editContainer = document.createElement('div');
             editContainer.id = `edit-container-${messageId}`;
             editContainer.className = 'edit-input-container';
@@ -1424,7 +1525,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                const messageData = { type, text: caption || '', edited: false };
+                const messageData = { type, text: caption || '', edited: false, status: 'sent' };
                 if (type === 'image') messageData.imageUrl = result.fileUrl;
                 else {
                     messageData.fileUrl = result.fileUrl;
@@ -1451,7 +1552,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 const result = await response.json();
                 
-                const messageData = { type: 'voice', voiceUrl: result.fileUrl, duration: audioChunks.length * 0.02, edited: false };
+                const messageData = { type: 'voice', voiceUrl: result.fileUrl, duration: audioChunks.length * 0.02, edited: false, status: 'sent' };
                 if (currentChat.type === 'group') socket.emit('send-message', messageData);
                 else socket.emit('send-private-message', { to: currentChat.username, ...messageData });
                 
@@ -1473,7 +1574,7 @@
                 sendVoiceMessage();
                 messageInput.value = '';
             } else if (text) {
-                const messageData = { type: 'text', text: text, edited: false };
+                const messageData = { type: 'text', text: text, edited: false, status: 'sent' };
                 if (currentChat.type === 'group') socket.emit('send-message', messageData);
                 else socket.emit('send-private-message', { to: currentChat.username, ...messageData });
                 messageInput.value = '';

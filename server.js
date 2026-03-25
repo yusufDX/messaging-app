@@ -57,6 +57,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 let users = {};
 let messages = [];
 let privateMessages = {};
+let messageReads = {}; // Track who read which messages
 
 // Helper function for private message room keys
 function getPrivateRoomKey(user1, user2) {
@@ -68,7 +69,6 @@ io.on('connection', (socket) => {
     
     // User sets their username
     socket.on('set-username', (username) => {
-        // Check if username is already taken
         if (Object.values(users).some(u => u === username)) {
             socket.emit('username-taken');
             return;
@@ -77,10 +77,7 @@ io.on('connection', (socket) => {
         users[socket.id] = username;
         socket.username = username;
         
-        // Send existing messages
         socket.emit('previous-messages', messages);
-        
-        // Update online users list
         io.emit('online-users', Object.values(users));
         io.emit('user-joined', `${username} joined the chat`);
         
@@ -88,7 +85,7 @@ io.on('connection', (socket) => {
         console.log('👥 Active users:', Object.values(users));
     });
     
-    // Group chat messages (text, images, files, voice)
+    // Group chat messages
     socket.on('send-message', (data) => {
         const username = users[socket.id];
         if (!username) return;
@@ -100,10 +97,11 @@ io.on('connection', (socket) => {
             type: data.type || 'text',
             timestamp: new Date().toLocaleTimeString(),
             reactions: {},
-            edited: false
+            edited: false,
+            status: 'sent',
+            readBy: []
         };
         
-        // Handle different message types
         if (data.type === 'image') {
             message.imageUrl = data.imageUrl;
         } else if (data.type === 'file') {
@@ -115,18 +113,20 @@ io.on('connection', (socket) => {
             message.duration = data.duration;
         }
         
-        // Store message
         messages.push(message);
-        
-        // Keep only last 100 messages
         if (messages.length > 100) messages.shift();
         
-        // Broadcast to all users
         io.emit('new-message', message);
         console.log(`💬 [GROUP] ${username}: ${data.text || data.type}`);
+        
+        // Mark as delivered
+        setTimeout(() => {
+            message.status = 'delivered';
+            io.emit('message-delivered', { messageId: message.id });
+        }, 100);
     });
     
-    // Private messages with files and voice
+    // Private messages
     socket.on('send-private-message', (data) => {
         const fromUser = users[socket.id];
         if (!fromUser) return;
@@ -141,10 +141,11 @@ io.on('connection', (socket) => {
             type: data.type || 'text',
             timestamp: new Date().toLocaleTimeString(),
             reactions: {},
-            edited: false
+            edited: false,
+            status: 'sent',
+            readBy: []
         };
         
-        // Handle different message types
         if (data.type === 'image') {
             message.imageUrl = data.imageUrl;
         } else if (data.type === 'file') {
@@ -156,21 +157,51 @@ io.on('connection', (socket) => {
             message.duration = data.duration;
         }
         
-        // Store private message
         const key = getPrivateRoomKey(fromUser, data.to);
         if (!privateMessages[key]) privateMessages[key] = [];
         privateMessages[key].push(message);
-        
-        // Keep only last 50 messages per private chat
         if (privateMessages[key].length > 50) privateMessages[key].shift();
         
-        // Send to recipient if online
         if (toSocketId) {
             io.to(toSocketId).emit('private-message', message);
+            message.status = 'delivered';
+            socket.emit('message-delivered', { messageId: message.id });
         }
         socket.emit('private-message', message);
         
         console.log(`🔒 [PRIVATE] ${fromUser} -> ${data.to}: ${data.text || data.type}`);
+    });
+    
+    // Mark message as read
+    socket.on('mark-read', ({ messageId, chatType, otherUser }) => {
+        const username = users[socket.id];
+        if (!username) return;
+        
+        if (chatType === 'group') {
+            const message = messages.find(m => m.id == messageId);
+            if (message && message.username !== username) {
+                if (!message.readBy) message.readBy = [];
+                if (!message.readBy.includes(username)) {
+                    message.readBy.push(username);
+                    message.status = 'read';
+                    io.emit('message-read', { messageId, reader: username });
+                }
+            }
+        } else if (chatType === 'private' && otherUser) {
+            const key = getPrivateRoomKey(username, otherUser);
+            const message = (privateMessages[key] || []).find(m => m.id == messageId);
+            if (message && message.from !== username) {
+                if (!message.readBy) message.readBy = [];
+                if (!message.readBy.includes(username)) {
+                    message.readBy.push(username);
+                    message.status = 'read';
+                    const senderId = Object.keys(users).find(id => users[id] === message.from);
+                    if (senderId) {
+                        io.to(senderId).emit('message-read', { messageId, reader: username });
+                    }
+                }
+            }
+        }
     });
     
     // Get private message history
@@ -241,7 +272,7 @@ io.on('connection', (socket) => {
         }
     });
     
-    // Add reaction to message
+    // Add reaction
     socket.on('add-reaction', ({ messageId, reaction, chatType, otherUser }) => {
         const username = users[socket.id];
         if (!username) return;
@@ -341,7 +372,7 @@ io.on('connection', (socket) => {
         }
     });
     
-    // User disconnects
+    // Disconnect
     socket.on('disconnect', () => {
         const username = users[socket.id];
         if (username) {
@@ -354,7 +385,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);

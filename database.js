@@ -19,6 +19,7 @@ db.serialize(() => {
             voice_url TEXT,
             voice_duration INTEGER,
             edited BOOLEAN DEFAULT 0,
+            read_by TEXT,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -39,6 +40,7 @@ db.serialize(() => {
             voice_url TEXT,
             voice_duration INTEGER,
             edited BOOLEAN DEFAULT 0,
+            read_by TEXT,
             message_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -47,11 +49,10 @@ db.serialize(() => {
     console.log('✅ Database initialized!');
 });
 
-// Save group message
 function saveGroupMessage(message, callback) {
     const sql = `
-        INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, edited, message_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO group_messages (username, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, edited, read_by, message_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -65,6 +66,7 @@ function saveGroupMessage(message, callback) {
         message.voiceUrl || null,
         message.duration || null,
         message.edited ? 1 : 0,
+        message.readBy ? JSON.stringify(message.readBy) : null,
         message.type
     ], function(err) {
         if (err) {
@@ -76,7 +78,6 @@ function saveGroupMessage(message, callback) {
     });
 }
 
-// Get recent group messages (last 100)
 function getRecentGroupMessages(callback) {
     const sql = `
         SELECT * FROM group_messages 
@@ -101,6 +102,7 @@ function getRecentGroupMessages(callback) {
                 duration: row.voice_duration,
                 type: row.message_type,
                 edited: row.edited === 1,
+                readBy: row.read_by ? JSON.parse(row.read_by) : [],
                 reactions: {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
@@ -109,11 +111,10 @@ function getRecentGroupMessages(callback) {
     });
 }
 
-// Save private message
 function savePrivateMessage(message, callback) {
     const sql = `
-        INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, edited, message_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO private_messages (from_user, to_user, text, image_url, file_url, file_name, file_type, file_size, voice_url, voice_duration, edited, read_by, message_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -128,6 +129,7 @@ function savePrivateMessage(message, callback) {
         message.voiceUrl || null,
         message.duration || null,
         message.edited ? 1 : 0,
+        message.readBy ? JSON.stringify(message.readBy) : null,
         message.type
     ], function(err) {
         if (err) {
@@ -139,7 +141,6 @@ function savePrivateMessage(message, callback) {
     });
 }
 
-// Get private message history between two users
 function getPrivateMessages(user1, user2, callback) {
     const sql = `
         SELECT * FROM private_messages 
@@ -166,6 +167,7 @@ function getPrivateMessages(user1, user2, callback) {
                 duration: row.voice_duration,
                 type: row.message_type,
                 edited: row.edited === 1,
+                readBy: row.read_by ? JSON.parse(row.read_by) : [],
                 reactions: {},
                 timestamp: new Date(row.timestamp).toLocaleTimeString()
             }));
