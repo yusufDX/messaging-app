@@ -69,7 +69,7 @@
         /* Main App - Split View */
         .app-container { display: none; height: 100vh; overflow: hidden; background: #000; }
         
-        /* Reels Section - Full Screen within Chat */
+        /* Reels Section - TikTok Style Short Videos */
         .reels-container {
             flex: 1;
             background: black;
@@ -95,7 +95,7 @@
         .reel-video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            position: relative;
         }
         .reel-video iframe {
             width: 100%;
@@ -135,7 +135,18 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
         .reel-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
-        .reel-views { font-size: 12px; opacity: 0.8; }
+        .reel-views { font-size: 12px; opacity: 0.8; margin-bottom: 5px; }
+        .reel-user { font-size: 13px; display: flex; align-items: center; gap: 8px; }
+        .reel-user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
         
         /* Chat Section */
         .chat-container {
@@ -918,7 +929,7 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button class="settings-btn" id="settings-btn">⚙️</button>
+                    <button class="settings-btn" id="settings-btn">⚙️ Settings</button>
                     <button class="settings-btn" id="dark-mode-toggle">🌙</button>
                     <button class="settings-btn" id="back-to-group">←</button>
                 </div>
@@ -962,7 +973,7 @@
             </div>
         </div>
         
-        <!-- Reels Section - Full Short Videos -->
+        <!-- Reels Section - REAL SHORT VIDEOS -->
         <div class="reels-container" id="reels-container">
             <!-- Reels will be dynamically loaded -->
         </div>
@@ -1050,7 +1061,7 @@
                 <label>Auto-play Reels</label>
                 <input type="checkbox" id="auto-play-reels" checked>
             </div>
-            <button id="settings-close" style="margin-top: 20px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 25px; width: 100%;">Apply</button>
+            <button id="settings-close" style="margin-top: 20px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 25px; width: 100%;">Apply & Close</button>
         </div>
     </div>
     
@@ -1077,18 +1088,18 @@
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // ============ REELS DATA ============
+        // ============ SHORT VIDEOS DATA (YouTube Shorts) ============
         const reelsData = [
-            { id: 'dQw4w9WgXcQ', title: 'Amazing Moments', views: '1.2M', user: 'creator1', avatar: '🎵' },
-            { id: 'jNQXAC9IVRw', title: 'Incredible Skills', views: '856K', user: 'creator2', avatar: '✨' },
-            { id: 'YQHsXMglC9A', title: 'Viral Dance', views: '2.1M', user: 'creator3', avatar: '🔥' },
-            { id: 'kJQP7kiw5Fk', title: 'Music Vibes', views: '3.4M', user: 'creator4', avatar: '🎶' },
-            { id: 'JGwWNGJdvx8', title: 'Motivation', views: '5.2M', user: 'creator5', avatar: '💪' },
-            { id: 'ZbZSe6N_BXs', title: 'Funny Moments', views: '4.1M', user: 'creator6', avatar: '😂' },
-            { id: '9bZkp7q19f0', title: 'K-Pop Hit', views: '8.7M', user: 'creator7', avatar: '🎤' },
-            { id: 'OPf0YbXqDm0', title: 'Epic Fail', views: '6.3M', user: 'creator8', avatar: '😱' },
-            { id: 'CevxZvSJLk8', title: 'Dance Challenge', views: '12M', user: 'creator9', avatar: '💃' },
-            { id: 'fJ9rUzIMcZQ', title: 'Art Tutorial', views: '2.8M', user: 'creator10', avatar: '🎨' }
+            { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', views: '15M', user: 'Rick Astley', avatar: '🎵', duration: '0:15' },
+            { id: 'jNQXAC9IVRw', title: 'Me at the zoo', views: '25M', user: 'Jawed', avatar: '🐘', duration: '0:18' },
+            { id: 'YQHsXMglC9A', title: 'Dance Challenge', views: '8.5M', user: 'Dancer', avatar: '💃', duration: '0:12' },
+            { id: 'kJQP7kiw5Fk', title: 'Music Vibes', views: '12M', user: 'MusicPro', avatar: '🎶', duration: '0:20' },
+            { id: 'JGwWNGJdvx8', title: 'Motivation', views: '22M', user: 'Motivator', avatar: '💪', duration: '0:10' },
+            { id: 'ZbZSe6N_BXs', title: 'Funny Cat', views: '45M', user: 'CatLover', avatar: '🐱', duration: '0:08' },
+            { id: '9bZkp7q19f0', title: 'Gangnam Style', views: '4.5B', user: 'PSY', avatar: '🕺', duration: '0:15' },
+            { id: 'OPf0YbXqDm0', title: 'Epic Fail', views: '6.8M', user: 'FailArmy', avatar: '😱', duration: '0:12' },
+            { id: 'CevxZvSJLk8', title: 'Dance Tutorial', views: '3.2M', user: 'DanceMaster', avatar: '💃', duration: '0:25' },
+            { id: 'fJ9rUzIMcZQ', title: 'Art Hack', views: '2.1M', user: 'Artist', avatar: '🎨', duration: '0:14' }
         ];
         
         // ============ AUTHENTICATION ============
@@ -1198,31 +1209,36 @@
             };
         });
         
-        // ============ LOAD REELS - FULL SHORT VIDEOS ============
+        // ============ LOAD SHORT VIDEOS (REELS) ============
         function loadReels() {
             reelsContainer.innerHTML = '';
             reelsData.forEach((reel, index) => {
                 const reelDiv = document.createElement('div');
                 reelDiv.className = 'reel-item';
+                // Using YouTube Shorts URL format
+                const shortsUrl = `https://www.youtube.com/embed/${reel.id}?autoplay=${index === 0 ? 1 : 0}&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&loop=1&playlist=${reel.id}`;
                 reelDiv.innerHTML = `
                     <div class="reel-video">
-                        <iframe src="https://www.youtube.com/embed/${reel.id}?autoplay=${index === 0 ? 1 : 0}&controls=0&modestbranding=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" frameborder="0"></iframe>
+                        <iframe src="${shortsUrl}" allow="autoplay; encrypted-media; picture-in-picture" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <div class="reel-overlay">
-                        <button class="reel-action like-btn" onclick="likeReel(${index})">❤️ <span class="like-count">${Math.floor(Math.random() * 10000)}</span></button>
-                        <button class="reel-action comment-btn" onclick="commentOnReel(${index})">💬</button>
+                        <button class="reel-action like-btn" onclick="likeReel(${index})">❤️ <span class="like-count">${Math.floor(Math.random() * 50000)}</span></button>
+                        <button class="reel-action comment-btn" onclick="commentOnReel(${index})">💬 <span>${Math.floor(Math.random() * 2000)}</span></button>
                         <button class="reel-action share-btn" onclick="shareReel(${index})">↗️</button>
                     </div>
                     <div class="reel-info">
                         <div class="reel-title">${reel.title}</div>
-                        <div class="reel-views">👁️ ${reel.views} views</div>
-                        <div class="reel-user">👤 ${reel.user}</div>
+                        <div class="reel-views">👁️ ${reel.views} views • ${reel.duration}</div>
+                        <div class="reel-user">
+                            <div class="reel-user-avatar">${reel.avatar}</div>
+                            <span>${reel.user}</span>
+                        </div>
                     </div>
                 `;
                 reelsContainer.appendChild(reelDiv);
             });
             
-            // Add scroll listener to autoplay next reel
+            // Add scroll listener for auto-play
             reelsContainer.onscroll = () => {
                 const reels = document.querySelectorAll('.reel-item');
                 reels.forEach((reel, i) => {
@@ -1231,11 +1247,11 @@
                     if (iframe && rect.top >= -100 && rect.top <= window.innerHeight / 2) {
                         const videoId = reelsData[i].id;
                         if (!iframe.src.includes(`autoplay=1`)) {
-                            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0`;
+                            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&loop=1&playlist=${videoId}`;
                         }
                     } else if (iframe && iframe.src.includes('autoplay=1')) {
                         const videoId = reelsData[i].id;
-                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0`;
+                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&loop=1&playlist=${videoId}`;
                     }
                 });
             };
@@ -1253,23 +1269,27 @@
         
         function commentOnReel(index) {
             const comment = prompt('Add a comment:');
-            if (comment) alert('Comment added: ' + comment);
+            if (comment) alert('💬 Comment added: ' + comment);
         }
         
         function shareReel(index) {
             const reel = reelsData[index];
-            navigator.clipboard.writeText(`https://youtube.com/watch?v=${reel.id}`);
-            alert('Link copied to clipboard!');
+            navigator.clipboard.writeText(`https://youtube.com/shorts/${reel.id}`);
+            alert('🔗 Link copied to clipboard!');
         }
         
-        // ============ SETTINGS ============
-        function openSettings() { settingsModal.style.display = 'flex'; }
+        // ============ SETTINGS - FIXED ============
+        function openSettings() { 
+            settingsModal.style.display = 'flex'; 
+        }
+        
         function closeSettings() { 
             const fontSize = document.getElementById('font-size-select').value;
             document.body.style.fontSize = fontSize + 'px';
             document.querySelectorAll('.message .text').forEach(el => el.style.fontSize = fontSize + 'px');
             settingsModal.style.display = 'none';
         }
+        
         settingsBtn.onclick = openSettings;
         document.getElementById('settings-close').onclick = closeSettings;
         
@@ -1906,6 +1926,8 @@
         window.likeReel = likeReel;
         window.commentOnReel = commentOnReel;
         window.shareReel = shareReel;
+        window.openSettings = openSettings;
+        window.closeSettings = closeSettings;
     </script>
 </body>
 </html>
