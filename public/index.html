@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Messenger</title>
+    <title>Ultimate Messenger - Reels & Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f0f2f5;
+            background: #000;
             transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: 100vh;
         }
@@ -66,8 +66,90 @@
         }
         .error { color: #ff4444; margin-top: 10px; font-size: 14px; }
         
-        /* Main App */
-        .app-container { display: none; height: 100vh; overflow: hidden; }
+        /* Main App - Split View */
+        .app-container { display: none; height: 100vh; overflow: hidden; background: #000; }
+        
+        /* Reels Section - Full Screen within Chat */
+        .reels-container {
+            flex: 1;
+            background: black;
+            position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+            display: none;
+        }
+        .reels-container.active {
+            display: block;
+        }
+        .reel-item {
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            background: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .reel-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .reel-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .reel-overlay {
+            position: absolute;
+            bottom: 100px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            z-index: 10;
+        }
+        .reel-action {
+            background: rgba(0,0,0,0.6);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .reel-action:hover { transform: scale(1.1); }
+        .reel-info {
+            position: absolute;
+            bottom: 100px;
+            left: 15px;
+            color: white;
+            z-index: 10;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .reel-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+        .reel-views { font-size: 12px; opacity: 0.8; }
+        
+        /* Chat Section */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f0f2f5;
+            height: 100vh;
+            transition: background 0.4s;
+            display: none;
+        }
+        .chat-container.active {
+            display: flex;
+        }
         
         /* Sidebar */
         .sidebar {
@@ -114,7 +196,26 @@
             border-radius: 25px;
             background: white;
             font-size: 14px;
-            transition: background 0.3s, color 0.3s;
+        }
+        .mode-tabs {
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+            background: #f0f2f5;
+        }
+        .mode-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 25px;
+            cursor: pointer;
+            background: #e4e6eb;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .mode-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
         .online-users { flex: 1; overflow-y: auto; padding: 10px; }
         .user-item {
@@ -158,15 +259,7 @@
             cursor: pointer;
         }
         
-        /* Chat Area */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f0f2f5;
-            height: 100%;
-            transition: background 0.4s;
-        }
+        /* Chat Header */
         .chat-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -204,15 +297,14 @@
             justify-content: center;
             font-size: 22px;
             background-size: cover;
-            background-position: center;
         }
         .chat-title { font-weight: bold; font-size: 16px; }
         .settings-btn {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 8px 14px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 14px;
             transition: background 0.2s;
@@ -263,7 +355,6 @@
             height: 20px;
             border-radius: 50%;
             background-size: cover;
-            background-position: center;
             flex-shrink: 0;
         }
         .message .text { font-size: 14px; line-height: 1.4; word-break: break-word; }
@@ -353,7 +444,6 @@
             cursor: pointer;
             font-size: 11px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: background 0.3s;
         }
         .message:hover .reaction-btn { display: flex; }
         .reaction-picker {
@@ -366,7 +456,6 @@
             display: none;
             gap: 6px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: background 0.3s;
         }
         .reaction-picker.show { display: flex; }
         .reaction-emoji {
@@ -386,7 +475,6 @@
             display: none;
             gap: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: background 0.3s;
         }
         .message:hover .message-actions { display: flex; }
         .message-action-btn {
@@ -418,7 +506,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             display: none;
             white-space: nowrap;
-            transition: background 0.3s;
         }
         .message:hover .seen-by { display: block; }
         
@@ -454,7 +541,6 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             min-width: 220px;
-            transition: background 0.3s;
         }
         .plus-menu.show { display: grid; }
         .plus-item {
@@ -466,7 +552,6 @@
             cursor: pointer;
             border-radius: 12px;
             font-size: 12px;
-            transition: background 0.2s;
         }
         .plus-item:hover { background: #f0f2f5; }
         .plus-item .icon { font-size: 24px; }
@@ -480,7 +565,6 @@
             border-left: 3px solid #667eea;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.3s;
         }
         .preview-container {
             margin-bottom: 8px;
@@ -488,7 +572,6 @@
             background: #f0f2f5;
             border-radius: 12px;
             display: none;
-            transition: background 0.3s;
         }
         .preview-content {
             display: flex;
@@ -510,7 +593,6 @@
             border-radius: 25px;
             font-size: 15px;
             background: #f0f2f5;
-            transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
         #send-button {
             padding: 12px 20px;
@@ -520,10 +602,8 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.2s;
         }
-        #send-button:hover { transform: scale(1.02); }
-        .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; transition: color 0.3s; }
+        .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; }
         
         .emoji-picker {
             position: absolute;
@@ -540,7 +620,6 @@
             z-index: 1000;
             max-height: 300px;
             overflow-y: auto;
-            transition: background 0.3s;
         }
         .emoji-picker.show { display: grid; }
         .emoji { cursor: pointer; font-size: 28px; padding: 5px; text-align: center; }
@@ -558,9 +637,6 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             z-index: 1000;
-            max-height: 300px;
-            overflow-y: auto;
-            transition: background 0.3s;
         }
         .gif-picker.show { display: grid; }
         .gif-item {
@@ -569,7 +645,6 @@
             padding: 12px;
             border-radius: 12px;
             background: #f0f2f5;
-            transition: background 0.2s;
         }
         .gif-item:hover { background: #e4e6eb; }
         
@@ -586,7 +661,6 @@
             z-index: 5000;
             display: none;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            transition: background 0.3s;
         }
         .schedule-picker input, .translation-picker select, .poll-creator input {
             width: 100%;
@@ -635,7 +709,6 @@
             padding: 25px;
             text-align: center;
             width: 280px;
-            transition: background 0.3s;
         }
         .profile-pic-large {
             width: 100px;
@@ -648,7 +721,6 @@
             margin: 0 auto 15px;
             font-size: 40px;
             background-size: cover;
-            background-position: center;
             cursor: pointer;
         }
         .search-results {
@@ -663,117 +735,7 @@
             width: 90%;
             left: 5%;
             top: 60px;
-            transition: background 0.3s;
         }
-        
-        /* Reels Section */
-        .reels-section {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: none;
-        }
-        .reel-card {
-            background: white;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: transform 0.3s, background 0.3s;
-        }
-        .reel-card:hover { transform: scale(1.02); }
-        .reel-thumbnail {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-        }
-        .reel-info { padding: 12px; }
-        .reel-title { font-weight: 600; margin-bottom: 5px; }
-        .reel-views { font-size: 12px; color: #666; }
-        
-        /* Reels Modal */
-        .reels-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: black;
-            z-index: 5000;
-            display: none;
-            flex-direction: column;
-        }
-        .reels-header {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 10;
-        }
-        .reels-header button {
-            background: rgba(0,0,0,0.6);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-        }
-        .reels-video {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .reels-video iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .reels-controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            gap: 15px;
-        }
-        .reels-controls button {
-            background: rgba(0,0,0,0.6);
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-        }
-        
-        /* Settings */
-        .settings-card { text-align: center; }
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-        }
-        .theme-colors {
-            display: flex;
-            gap: 10px;
-        }
-        .theme-color {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .theme-color:hover { transform: scale(1.1); }
         
         /* Video Call */
         .video-call-container {
@@ -807,16 +769,36 @@
             align-items: center;
             justify-content: space-between;
             z-index: 4000;
-            transition: background 0.3s;
         }
         .accept-call { background: #4caf50; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         .reject-call { background: #ff4444; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
+        
+        /* Settings */
+        .settings-card { text-align: center; }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .theme-colors {
+            display: flex;
+            gap: 10px;
+        }
+        .theme-color {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .theme-color:hover { transform: scale(1.1); }
         
         /* Dark Mode */
         .dark-mode {
             background: #1a1a1a;
         }
-        .dark-mode .chat-area,
+        .dark-mode .chat-container,
         .dark-mode .messages {
             background: #1e1e1e;
         }
@@ -837,8 +819,7 @@
         .dark-mode .poll-creator,
         .dark-mode .settings-modal,
         .dark-mode .profile-modal-content,
-        .dark-mode .search-results,
-        .dark-mode .reel-card {
+        .dark-mode .search-results {
             background: #2d2d2d;
             color: #e4e6eb;
         }
@@ -876,9 +857,6 @@
         .dark-mode .user-status {
             color: #aaa;
         }
-        .dark-mode .reel-views {
-            color: #aaa;
-        }
         .dark-mode .reply-indicator {
             background: #3e3e3e;
         }
@@ -890,11 +868,10 @@
         }
         
         @media (min-width: 768px) {
-            .app-container { display: flex !important; flex-direction: row; height: 100vh; }
+            .app-container { display: flex !important; flex-direction: row; }
             .sidebar { position: relative; left: 0; width: 300px; height: 100%; }
             .menu-btn { display: none; }
-            .chat-area { flex: 1; }
-            .message { max-width: 60%; }
+            .chat-container, .reels-container { flex: 1; }
         }
     </style>
 </head>
@@ -903,7 +880,7 @@
     <div class="login-container" id="login-screen">
         <div class="login-card">
             <h2>✨ Ultimate Messenger</h2>
-            <p>The most advanced messaging experience</p>
+            <p>Chat & Watch Short Videos</p>
             <input type="text" id="username-input" placeholder="Enter username">
             <button id="join-button">Join →</button>
             <div id="error-message" class="error"></div>
@@ -912,6 +889,7 @@
     
     <!-- Main App -->
     <div class="app-container" id="app-container">
+        <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <span>💬 Messenger</span>
@@ -921,44 +899,15 @@
                 <input type="text" id="search-input" placeholder="🔍 Search messages...">
                 <div id="search-results" class="search-results"></div>
             </div>
-            <div class="chat-tabs" style="display: flex; padding: 10px; gap: 10px;">
-                <div class="chat-tab active" data-tab="chats" style="flex:1; text-align:center; padding:10px; border-radius:25px; cursor:pointer; background:#e4e6eb; transition:all 0.3s;">💬 Chats</div>
-                <div class="chat-tab" data-tab="reels" style="flex:1; text-align:center; padding:10px; border-radius:25px; cursor:pointer; background:#e4e6eb; transition:all 0.3s;">🎬 Reels</div>
+            <div class="mode-tabs">
+                <div class="mode-tab active" data-mode="chat">💬 Chat</div>
+                <div class="mode-tab" data-mode="reels">🎬 Shorts</div>
             </div>
-            <div id="chats-list" class="online-users"></div>
-            <div id="reels-list" class="reels-section">
-                <div class="reel-card" data-video="dQw4w9WgXcQ">
-                    <div class="reel-thumbnail">🎵</div>
-                    <div class="reel-info">
-                        <div class="reel-title">Amazing Moments</div>
-                        <div class="reel-views">1.2M views</div>
-                    </div>
-                </div>
-                <div class="reel-card" data-video="jNQXAC9IVRw">
-                    <div class="reel-thumbnail">✨</div>
-                    <div class="reel-info">
-                        <div class="reel-title">Inspirational</div>
-                        <div class="reel-views">856K views</div>
-                    </div>
-                </div>
-                <div class="reel-card" data-video="YQHsXMglC9A">
-                    <div class="reel-thumbnail">🔥</div>
-                    <div class="reel-info">
-                        <div class="reel-title">Viral Hits</div>
-                        <div class="reel-views">2.1M views</div>
-                    </div>
-                </div>
-                <div class="reel-card" data-video="kJQP7kiw5Fk">
-                    <div class="reel-thumbnail">🎶</div>
-                    <div class="reel-info">
-                        <div class="reel-title">Music Vibes</div>
-                        <div class="reel-views">3.4M views</div>
-                    </div>
-                </div>
-            </div>
+            <div id="users-list" class="online-users"></div>
         </div>
         
-        <div class="chat-area">
+        <!-- Chat Section -->
+        <div class="chat-container active" id="chat-container">
             <div class="chat-header">
                 <button class="menu-btn" id="menu-btn">☰</button>
                 <div class="chat-info">
@@ -990,11 +939,11 @@
                 </div>
                 
                 <div class="plus-menu" id="plus-menu">
-                    <div class="plus-item" id="poll-btn"><span class="icon">📊</span><span>Poll</span></div>
-                    <div class="plus-item" id="location-btn"><span class="icon">📍</span><span>Location</span></div>
-                    <div class="plus-item" id="schedule-btn"><span class="icon">⏰</span><span>Schedule</span></div>
-                    <div class="plus-item" id="translate-btn"><span class="icon">🌐</span><span>Translate</span></div>
-                    <div class="plus-item" id="transcribe-btn"><span class="icon">📝</span><span>Transcribe</span></div>
+                    <div class="plus-item" data-action="poll"><span class="icon">📊</span><span>Poll</span></div>
+                    <div class="plus-item" data-action="location"><span class="icon">📍</span><span>Location</span></div>
+                    <div class="plus-item" data-action="schedule"><span class="icon">⏰</span><span>Schedule</span></div>
+                    <div class="plus-item" data-action="translate"><span class="icon">🌐</span><span>Translate</span></div>
+                    <div class="plus-item" data-action="transcribe"><span class="icon">📝</span><span>Transcribe</span></div>
                 </div>
                 
                 <div class="reply-indicator" id="reply-indicator">
@@ -1011,6 +960,11 @@
                     <button id="send-button">Send</button>
                 </div>
             </div>
+        </div>
+        
+        <!-- Reels Section - Full Short Videos -->
+        <div class="reels-container" id="reels-container">
+            <!-- Reels will be dynamically loaded -->
         </div>
     </div>
     
@@ -1030,7 +984,6 @@
         <div class="emoji">😊</div><div class="emoji">😂</div><div class="emoji">❤️</div><div class="emoji">😍</div><div class="emoji">👍</div>
         <div class="emoji">🎉</div><div class="emoji">🔥</div><div class="emoji">💯</div><div class="emoji">🙏</div><div class="emoji">😭</div>
         <div class="emoji">😎</div><div class="emoji">🤔</div><div class="emoji">😴</div><div class="emoji">🤣</div><div class="emoji">🥰</div>
-        <div class="emoji">😘</div><div class="emoji">😁</div><div class="emoji">🤗</div><div class="emoji">😢</div><div class="emoji">😡</div>
     </div>
     
     <div class="gif-picker" id="gif-picker">
@@ -1066,8 +1019,8 @@
         <h3>📊 Create Poll</h3>
         <input type="text" id="poll-question" placeholder="Question">
         <div id="poll-options-container">
-            <input type="text" placeholder="Option 1" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
-            <input type="text" placeholder="Option 2" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+            <input type="text" placeholder="Option 1" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+            <input type="text" placeholder="Option 2" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
         </div>
         <button id="add-poll-option" style="background: #e4e6eb;">+ Add Option</button>
         <button id="poll-submit" style="background: #667eea; color: white; margin-top: 10px;">Create Poll</button>
@@ -1093,18 +1046,11 @@
                     <option value="18">Large</option>
                 </select>
             </div>
+            <div class="setting-item">
+                <label>Auto-play Reels</label>
+                <input type="checkbox" id="auto-play-reels" checked>
+            </div>
             <button id="settings-close" style="margin-top: 20px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 25px; width: 100%;">Apply</button>
-        </div>
-    </div>
-    
-    <div class="reels-modal" id="reels-modal">
-        <div class="reels-header">
-            <button id="close-reels">← Back</button>
-        </div>
-        <div class="reels-video" id="reels-video"></div>
-        <div class="reels-controls">
-            <button id="prev-reel" style="display: none;">⏮️</button>
-            <button id="next-reel" style="display: none;">⏭️</button>
         </div>
     </div>
     
@@ -1131,6 +1077,20 @@
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // ============ REELS DATA ============
+        const reelsData = [
+            { id: 'dQw4w9WgXcQ', title: 'Amazing Moments', views: '1.2M', user: 'creator1', avatar: '🎵' },
+            { id: 'jNQXAC9IVRw', title: 'Incredible Skills', views: '856K', user: 'creator2', avatar: '✨' },
+            { id: 'YQHsXMglC9A', title: 'Viral Dance', views: '2.1M', user: 'creator3', avatar: '🔥' },
+            { id: 'kJQP7kiw5Fk', title: 'Music Vibes', views: '3.4M', user: 'creator4', avatar: '🎶' },
+            { id: 'JGwWNGJdvx8', title: 'Motivation', views: '5.2M', user: 'creator5', avatar: '💪' },
+            { id: 'ZbZSe6N_BXs', title: 'Funny Moments', views: '4.1M', user: 'creator6', avatar: '😂' },
+            { id: '9bZkp7q19f0', title: 'K-Pop Hit', views: '8.7M', user: 'creator7', avatar: '🎤' },
+            { id: 'OPf0YbXqDm0', title: 'Epic Fail', views: '6.3M', user: 'creator8', avatar: '😱' },
+            { id: 'CevxZvSJLk8', title: 'Dance Challenge', views: '12M', user: 'creator9', avatar: '💃' },
+            { id: 'fJ9rUzIMcZQ', title: 'Art Tutorial', views: '2.8M', user: 'creator10', avatar: '🎨' }
+        ];
+        
         // ============ AUTHENTICATION ============
         let currentUser = null;
         let currentSession = localStorage.getItem('currentSession');
@@ -1178,9 +1138,8 @@
         let notificationPermission = false;
         const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
         
-        // ============ DOM ELEMENTS ============
-        const onlineUsersList = document.getElementById('chats-list');
-        const reelsList = document.getElementById('reels-list');
+        // DOM Elements
+        const usersList = document.getElementById('users-list');
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
@@ -1218,91 +1177,90 @@
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menu-btn');
         const logoutBtn = document.getElementById('logout-btn');
-        const reelsModal = document.getElementById('reels-modal');
-        const reelsVideo = document.getElementById('reels-video');
-        const closeReels = document.getElementById('close-reels');
-        const prevReel = document.getElementById('prev-reel');
-        const nextReel = document.getElementById('next-reel');
+        const chatContainer = document.getElementById('chat-container');
+        const reelsContainer = document.getElementById('reels-container');
         
-        let currentReelIndex = 0;
-        const reelsData = [
-            { id: 'dQw4w9WgXcQ', title: 'Amazing Moments' },
-            { id: 'jNQXAC9IVRw', title: 'Inspirational' },
-            { id: 'YQHsXMglC9A', title: 'Viral Hits' },
-            { id: 'kJQP7kiw5Fk', title: 'Music Vibes' }
-        ];
-        
-        // ============ TABS ============
-        const tabs = document.querySelectorAll('.chat-tab');
-        tabs.forEach(tab => {
+        // ============ MODE SWITCHING ============
+        const modeTabs = document.querySelectorAll('.mode-tab');
+        modeTabs.forEach(tab => {
             tab.onclick = () => {
-                tabs.forEach(t => t.classList.remove('active'));
+                modeTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                if (tab.dataset.tab === 'chats') {
-                    document.getElementById('chats-list').style.display = 'block';
-                    reelsList.style.display = 'none';
+                const mode = tab.dataset.mode;
+                if (mode === 'chat') {
+                    chatContainer.classList.add('active');
+                    reelsContainer.classList.remove('active');
                 } else {
-                    document.getElementById('chats-list').style.display = 'none';
-                    reelsList.style.display = 'block';
+                    chatContainer.classList.remove('active');
+                    reelsContainer.classList.add('active');
+                    loadReels();
                 }
             };
         });
         
-        // ============ REELS WITH SLIDE FUNCTIONALITY ============
-        function openReel(index) {
-            currentReelIndex = index;
-            const reel = reelsData[currentReelIndex];
-            reelsModal.style.display = 'flex';
-            reelsVideo.innerHTML = `<iframe src="https://www.youtube.com/embed/${reel.id}?autoplay=1&controls=0&modestbranding=1&rel=0" allow="autoplay; encrypted-media" style="width:100%;height:100%;border:none;"></iframe>`;
+        // ============ LOAD REELS - FULL SHORT VIDEOS ============
+        function loadReels() {
+            reelsContainer.innerHTML = '';
+            reelsData.forEach((reel, index) => {
+                const reelDiv = document.createElement('div');
+                reelDiv.className = 'reel-item';
+                reelDiv.innerHTML = `
+                    <div class="reel-video">
+                        <iframe src="https://www.youtube.com/embed/${reel.id}?autoplay=${index === 0 ? 1 : 0}&controls=0&modestbranding=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" frameborder="0"></iframe>
+                    </div>
+                    <div class="reel-overlay">
+                        <button class="reel-action like-btn" onclick="likeReel(${index})">❤️ <span class="like-count">${Math.floor(Math.random() * 10000)}</span></button>
+                        <button class="reel-action comment-btn" onclick="commentOnReel(${index})">💬</button>
+                        <button class="reel-action share-btn" onclick="shareReel(${index})">↗️</button>
+                    </div>
+                    <div class="reel-info">
+                        <div class="reel-title">${reel.title}</div>
+                        <div class="reel-views">👁️ ${reel.views} views</div>
+                        <div class="reel-user">👤 ${reel.user}</div>
+                    </div>
+                `;
+                reelsContainer.appendChild(reelDiv);
+            });
             
-            // Show/hide navigation buttons based on position
-            prevReel.style.display = currentReelIndex > 0 ? 'block' : 'none';
-            nextReel.style.display = currentReelIndex < reelsData.length - 1 ? 'block' : 'none';
+            // Add scroll listener to autoplay next reel
+            reelsContainer.onscroll = () => {
+                const reels = document.querySelectorAll('.reel-item');
+                reels.forEach((reel, i) => {
+                    const rect = reel.getBoundingClientRect();
+                    const iframe = reel.querySelector('iframe');
+                    if (iframe && rect.top >= -100 && rect.top <= window.innerHeight / 2) {
+                        const videoId = reelsData[i].id;
+                        if (!iframe.src.includes(`autoplay=1`)) {
+                            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0`;
+                        }
+                    } else if (iframe && iframe.src.includes('autoplay=1')) {
+                        const videoId = reelsData[i].id;
+                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0`;
+                    }
+                });
+            };
         }
         
-        function nextReelFunc() {
-            if (currentReelIndex < reelsData.length - 1) {
-                openReel(currentReelIndex + 1);
-            }
+        function likeReel(index) {
+            const btn = document.querySelectorAll('.like-btn')[index];
+            const countSpan = btn.querySelector('.like-count');
+            let count = parseInt(countSpan.textContent);
+            count++;
+            countSpan.textContent = count;
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => btn.style.transform = '', 200);
         }
         
-        function prevReelFunc() {
-            if (currentReelIndex > 0) {
-                openReel(currentReelIndex - 1);
-            }
+        function commentOnReel(index) {
+            const comment = prompt('Add a comment:');
+            if (comment) alert('Comment added: ' + comment);
         }
         
-        document.querySelectorAll('.reel-card').forEach((card, idx) => {
-            card.onclick = () => openReel(idx);
-        });
-        
-        closeReels.onclick = () => {
-            reelsModal.style.display = 'none';
-            reelsVideo.innerHTML = '';
-        };
-        
-        if (prevReel) prevReel.onclick = prevReelFunc;
-        if (nextReel) nextReel.onclick = nextReelFunc;
-        
-        // Add swipe functionality for mobile
-        let touchStartY = 0;
-        let touchEndY = 0;
-        
-        reelsModal.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
-        
-        reelsModal.addEventListener('touchend', (e) => {
-            touchEndY = e.changedTouches[0].clientY;
-            const diff = touchStartY - touchEndY;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    nextReelFunc();
-                } else {
-                    prevReelFunc();
-                }
-            }
-        });
+        function shareReel(index) {
+            const reel = reelsData[index];
+            navigator.clipboard.writeText(`https://youtube.com/watch?v=${reel.id}`);
+            alert('Link copied to clipboard!');
+        }
         
         // ============ SETTINGS ============
         function openSettings() { settingsModal.style.display = 'flex'; }
@@ -1322,7 +1280,7 @@
                 orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
             };
             const gradient = gradients[theme];
-            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small, .chat-tab.active').forEach(el => {
+            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small, .mode-tab.active').forEach(el => {
                 if (el.style) el.style.background = gradient;
             });
         }
@@ -1385,7 +1343,7 @@
         }
         
         // ============ POLLS ============
-        document.getElementById('poll-btn').onclick = () => {
+        document.querySelector('[data-action="poll"]').onclick = () => {
             pollCreator.style.display = 'block';
             plusMenu.classList.remove('show');
         };
@@ -1394,8 +1352,8 @@
             pollCreator.style.display = 'none';
             document.getElementById('poll-question').value = '';
             document.getElementById('poll-options-container').innerHTML = `
-                <input type="text" placeholder="Option 1" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
-                <input type="text" placeholder="Option 2" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+                <input type="text" placeholder="Option 1" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+                <input type="text" placeholder="Option 2" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
             `;
         };
         
@@ -1404,6 +1362,7 @@
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = `Option ${container.children.length + 1}`;
+            input.className = 'poll-opt';
             input.style.cssText = 'margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;';
             container.appendChild(input);
         };
@@ -1424,7 +1383,7 @@
         }
         
         // ============ LOCATION ============
-        document.getElementById('location-btn').onclick = () => {
+        document.querySelector('[data-action="location"]').onclick = () => {
             if ('geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition(pos => {
                     const locationData = { type: 'location', lat: pos.coords.latitude, lng: pos.coords.longitude, mapUrl: `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}` };
@@ -1436,7 +1395,7 @@
         };
         
         // ============ SCHEDULE ============
-        document.getElementById('schedule-btn').onclick = () => {
+        document.querySelector('[data-action="schedule"]').onclick = () => {
             schedulePicker.style.display = 'block';
             plusMenu.classList.remove('show');
         };
@@ -1459,8 +1418,7 @@
             document.getElementById('schedule-time').value = '';
             document.getElementById('schedule-text').value = '';
             
-            // Schedule checker
-            setInterval(() => {
+            const interval = setInterval(() => {
                 const now = Date.now();
                 for (let i = 0; i < scheduledMessages.length; i++) {
                     if (scheduledMessages[i].time <= now) {
@@ -1471,11 +1429,12 @@
                         i--;
                     }
                 }
+                if (scheduledMessages.length === 0) clearInterval(interval);
             }, 1000);
         };
         
         // ============ TRANSLATION ============
-        document.getElementById('translate-btn').onclick = () => {
+        document.querySelector('[data-action="translate"]').onclick = () => {
             translationPicker.style.display = 'block';
             plusMenu.classList.remove('show');
         };
@@ -1500,7 +1459,7 @@
         };
         
         // ============ VOICE TRANSCRIPTION ============
-        document.getElementById('transcribe-btn').onclick = () => {
+        document.querySelector('[data-action="transcribe"]').onclick = () => {
             if (!('webkitSpeechRecognition' in window)) { alert('Speech recognition not supported in this browser'); return; }
             const recognition = new webkitSpeechRecognition();
             recognition.lang = 'en-US';
@@ -1610,7 +1569,6 @@
             }
             html += `<span>${escapeHtml(username)}</span>`;
             
-            // Add translate button for received text messages
             if (!isSent && msg.text && msg.type === 'text') {
                 html += `<span onclick="openTranslationForMessage('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
             }
@@ -1646,7 +1604,6 @@
             if (msg.edited) html += `<span class="edited-badge">(edited)</span>`;
             html += `</div>`;
             
-            // Read receipts
             if (isSent) {
                 if (msg.readBy && msg.readBy.length > 0) {
                     html += `<div class="read-receipt"><span class="read">✓✓</span></div>`;
@@ -1658,7 +1615,6 @@
                 }
             }
             
-            // Reactions
             if (msg.reactions && Object.keys(msg.reactions).length) {
                 html += `<div class="message-reactions">`;
                 for (const [emoji, users] of Object.entries(msg.reactions)) {
@@ -1724,7 +1680,7 @@
         searchInput.addEventListener('input', (e) => { setTimeout(() => searchMessages(e.target.value), 300); });
         
         function updateOnlineUsersList() {
-            onlineUsersList.innerHTML = '';
+            usersList.innerHTML = '';
             onlineUsers.forEach(user => {
                 if (user === currentUsername) return;
                 const div = document.createElement('div'); div.className = 'user-item';
@@ -1732,7 +1688,7 @@
                 const avatar = getUserAvatar(user);
                 div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover;` : ''}">${avatar ? '' : user.charAt(0)}</div><div class="user-info"><div class="user-name">${escapeHtml(user)}</div><div class="user-status">Online</div></div><button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>`;
                 div.onclick = (e) => { if (!e.target.classList.contains('call-btn-small')) startPrivateChat(user); };
-                onlineUsersList.appendChild(div);
+                usersList.appendChild(div);
             });
         }
         
@@ -1947,6 +1903,9 @@
         window.scrollToMessage = scrollToMessage;
         window.votePoll = votePoll;
         window.openTranslationForMessage = openTranslationForMessage;
+        window.likeReel = likeReel;
+        window.commentOnReel = commentOnReel;
+        window.shareReel = shareReel;
     </script>
 </body>
 </html>

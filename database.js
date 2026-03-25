@@ -5,7 +5,7 @@ const dbPath = path.join(__dirname, 'chat.db');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
-    // Table for group messages
+    // Group messages
     db.run(`
         CREATE TABLE IF NOT EXISTS group_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,6 +18,13 @@ db.serialize(() => {
             file_size INTEGER,
             voice_url TEXT,
             voice_duration INTEGER,
+            gif_url TEXT,
+            poll_question TEXT,
+            poll_options TEXT,
+            poll_votes TEXT,
+            location_lat REAL,
+            location_lng REAL,
+            location_map TEXT,
             reply_to_id INTEGER,
             reply_to_text TEXT,
             reply_to_username TEXT,
@@ -31,7 +38,7 @@ db.serialize(() => {
         )
     `);
     
-    // Table for private messages
+    // Private messages
     db.run(`
         CREATE TABLE IF NOT EXISTS private_messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,6 +52,13 @@ db.serialize(() => {
             file_size INTEGER,
             voice_url TEXT,
             voice_duration INTEGER,
+            gif_url TEXT,
+            poll_question TEXT,
+            poll_options TEXT,
+            poll_votes TEXT,
+            location_lat REAL,
+            location_lng REAL,
+            location_map TEXT,
             reply_to_id INTEGER,
             reply_to_text TEXT,
             reply_to_username TEXT,
@@ -58,7 +72,7 @@ db.serialize(() => {
         )
     `);
     
-    // Table for user avatars
+    // User avatars
     db.run(`
         CREATE TABLE IF NOT EXISTS user_avatars (
             username TEXT PRIMARY KEY,
@@ -70,14 +84,14 @@ db.serialize(() => {
     console.log('✅ Database initialized!');
 });
 
-// Save group message
 function saveGroupMessage(message, callback) {
     const sql = `
         INSERT INTO group_messages (
             username, text, image_url, file_url, file_name, file_type, file_size,
-            voice_url, voice_duration, reply_to_id, reply_to_text, reply_to_username,
+            voice_url, voice_duration, gif_url, poll_question, poll_options, poll_votes,
+            location_lat, location_lng, location_map, reply_to_id, reply_to_text, reply_to_username,
             forwarded, forwarded_from, edited, read_by, reactions, message_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -90,6 +104,13 @@ function saveGroupMessage(message, callback) {
         message.fileSize || null,
         message.voiceUrl || null,
         message.duration || null,
+        message.gifUrl || null,
+        message.question || null,
+        message.options ? JSON.stringify(message.options) : null,
+        message.votes ? JSON.stringify(message.votes) : null,
+        message.lat || null,
+        message.lng || null,
+        message.mapUrl || null,
         message.replyTo?.id || null,
         message.replyTo?.text || null,
         message.replyTo?.username || null,
@@ -100,27 +121,17 @@ function saveGroupMessage(message, callback) {
         message.reactions ? JSON.stringify(message.reactions) : null,
         message.type
     ], function(err) {
-        if (err) {
-            console.error('❌ Error saving group message:', err);
-        } else {
-            message.id = this.lastID;
-            if (callback) callback(message);
-        }
+        if (err) console.error('❌ Error saving group message:', err);
+        else { message.id = this.lastID; if (callback) callback(message); }
     });
 }
 
-// Get recent group messages (last 100)
 function getRecentGroupMessages(callback) {
-    const sql = `
-        SELECT * FROM group_messages 
-        ORDER BY timestamp DESC LIMIT 100
-    `;
+    const sql = `SELECT * FROM group_messages ORDER BY timestamp DESC LIMIT 100`;
     
     db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('❌ Error loading group messages:', err);
-            callback([]);
-        } else {
+        if (err) { console.error('❌ Error loading messages:', err); callback([]); }
+        else {
             const messages = rows.reverse().map(row => ({
                 id: row.id,
                 username: row.username,
@@ -132,12 +143,15 @@ function getRecentGroupMessages(callback) {
                 fileSize: row.file_size,
                 voiceUrl: row.voice_url,
                 duration: row.voice_duration,
+                gifUrl: row.gif_url,
                 type: row.message_type,
-                replyTo: row.reply_to_id ? {
-                    id: row.reply_to_id,
-                    text: row.reply_to_text,
-                    username: row.reply_to_username
-                } : null,
+                question: row.poll_question,
+                options: row.poll_options ? JSON.parse(row.poll_options) : null,
+                votes: row.poll_votes ? JSON.parse(row.poll_votes) : null,
+                lat: row.location_lat,
+                lng: row.location_lng,
+                mapUrl: row.location_map,
+                replyTo: row.reply_to_id ? { id: row.reply_to_id, text: row.reply_to_text, username: row.reply_to_username } : null,
                 forwarded: row.forwarded === 1,
                 forwardedFrom: row.forwarded_from,
                 edited: row.edited === 1,
@@ -150,14 +164,14 @@ function getRecentGroupMessages(callback) {
     });
 }
 
-// Save private message
 function savePrivateMessage(message, callback) {
     const sql = `
         INSERT INTO private_messages (
             from_user, to_user, text, image_url, file_url, file_name, file_type, file_size,
-            voice_url, voice_duration, reply_to_id, reply_to_text, reply_to_username,
+            voice_url, voice_duration, gif_url, poll_question, poll_options, poll_votes,
+            location_lat, location_lng, location_map, reply_to_id, reply_to_text, reply_to_username,
             forwarded, forwarded_from, edited, read_by, reactions, message_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     db.run(sql, [
@@ -171,6 +185,13 @@ function savePrivateMessage(message, callback) {
         message.fileSize || null,
         message.voiceUrl || null,
         message.duration || null,
+        message.gifUrl || null,
+        message.question || null,
+        message.options ? JSON.stringify(message.options) : null,
+        message.votes ? JSON.stringify(message.votes) : null,
+        message.lat || null,
+        message.lng || null,
+        message.mapUrl || null,
         message.replyTo?.id || null,
         message.replyTo?.text || null,
         message.replyTo?.username || null,
@@ -181,16 +202,11 @@ function savePrivateMessage(message, callback) {
         message.reactions ? JSON.stringify(message.reactions) : null,
         message.type
     ], function(err) {
-        if (err) {
-            console.error('❌ Error saving private message:', err);
-        } else {
-            message.id = this.lastID;
-            if (callback) callback(message);
-        }
+        if (err) console.error('❌ Error saving private message:', err);
+        else { message.id = this.lastID; if (callback) callback(message); }
     });
 }
 
-// Get private message history between two users
 function getPrivateMessages(user1, user2, callback) {
     const sql = `
         SELECT * FROM private_messages 
@@ -199,10 +215,8 @@ function getPrivateMessages(user1, user2, callback) {
     `;
     
     db.all(sql, [user1, user2, user2, user1], (err, rows) => {
-        if (err) {
-            console.error('❌ Error loading private messages:', err);
-            callback([]);
-        } else {
+        if (err) { console.error('❌ Error loading private messages:', err); callback([]); }
+        else {
             const messages = rows.map(row => ({
                 id: row.id,
                 from: row.from_user,
@@ -215,12 +229,15 @@ function getPrivateMessages(user1, user2, callback) {
                 fileSize: row.file_size,
                 voiceUrl: row.voice_url,
                 duration: row.voice_duration,
+                gifUrl: row.gif_url,
                 type: row.message_type,
-                replyTo: row.reply_to_id ? {
-                    id: row.reply_to_id,
-                    text: row.reply_to_text,
-                    username: row.reply_to_username
-                } : null,
+                question: row.poll_question,
+                options: row.poll_options ? JSON.parse(row.poll_options) : null,
+                votes: row.poll_votes ? JSON.parse(row.poll_votes) : null,
+                lat: row.location_lat,
+                lng: row.location_lng,
+                mapUrl: row.location_map,
+                replyTo: row.reply_to_id ? { id: row.reply_to_id, text: row.reply_to_text, username: row.reply_to_username } : null,
                 forwarded: row.forwarded === 1,
                 forwardedFrom: row.forwarded_from,
                 edited: row.edited === 1,
@@ -233,55 +250,14 @@ function getPrivateMessages(user1, user2, callback) {
     });
 }
 
-// Save or update user avatar
 function saveUserAvatar(username, avatarUrl, callback) {
-    const sql = `
-        INSERT INTO user_avatars (username, avatar_url)
-        VALUES (?, ?)
-        ON CONFLICT(username) DO UPDATE SET
-        avatar_url = excluded.avatar_url,
-        updated_at = CURRENT_TIMESTAMP
-    `;
-    
-    db.run(sql, [username, avatarUrl], function(err) {
-        if (err) {
-            console.error('❌ Error saving avatar:', err);
-        } else if (callback) {
-            callback();
-        }
-    });
+    const sql = `INSERT INTO user_avatars (username, avatar_url) VALUES (?, ?) ON CONFLICT(username) DO UPDATE SET avatar_url = excluded.avatar_url, updated_at = CURRENT_TIMESTAMP`;
+    db.run(sql, [username, avatarUrl], function(err) { if (err) console.error('❌ Error saving avatar:', err); else if (callback) callback(); });
 }
 
-// Get user avatar
 function getUserAvatar(username, callback) {
     const sql = `SELECT avatar_url FROM user_avatars WHERE username = ?`;
-    
-    db.get(sql, [username], (err, row) => {
-        if (err) {
-            console.error('❌ Error loading avatar:', err);
-            callback(null);
-        } else {
-            callback(row ? row.avatar_url : null);
-        }
-    });
-}
-
-// Get all user avatars
-function getAllUserAvatars(callback) {
-    const sql = `SELECT username, avatar_url FROM user_avatars`;
-    
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('❌ Error loading avatars:', err);
-            callback({});
-        } else {
-            const avatars = {};
-            rows.forEach(row => {
-                avatars[row.username] = row.avatar_url;
-            });
-            callback(avatars);
-        }
-    });
+    db.get(sql, [username], (err, row) => { callback(row ? row.avatar_url : null); });
 }
 
 module.exports = {
@@ -290,6 +266,5 @@ module.exports = {
     savePrivateMessage,
     getPrivateMessages,
     saveUserAvatar,
-    getUserAvatar,
-    getAllUserAvatars
+    getUserAvatar
 };
