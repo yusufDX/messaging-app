@@ -3,3 +3,4 @@ uploads/
 chat.db
 .DS_Store
 *.log
+.env
