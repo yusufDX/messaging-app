@@ -614,6 +614,68 @@
             font-weight: 600;
         }
         
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            max-width: 380px;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 6000;
+            transform: translateX(-120%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+            cursor: pointer;
+        }
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        .toast-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            background-size: cover;
+        }
+        .toast-content {
+            flex: 1;
+        }
+        .toast-name {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+        .toast-message {
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .toast-time {
+            font-size: 10px;
+            color: #999;
+        }
+        .dark-mode .toast-notification {
+            background: #2d2d2d;
+            color: #e4e6eb;
+        }
+        .dark-mode .toast-message {
+            color: #aaa;
+        }
+        
         /* Video Call */
         .video-call-container {
             position: fixed;
@@ -663,7 +725,7 @@
             color: #e4e6eb;
         }
         .dark-mode .message.sent {
-            /* Theme color will override this */
+            /* Keep default dark mode gradient - theme colors don't apply in dark mode */
             background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
         }
         .dark-mode .sidebar,
@@ -719,13 +781,14 @@
             .menu-btn { display: none; }
             .chat-area { flex: 1; }
             .message { max-width: 60%; }
+            .toast-notification { left: auto; right: 20px; bottom: 30px; }
         }
     </style>
 </head>
 <body>
     <!-- Login Screen -->
     <div class="login-container" id="login-screen">
-        <div class="login-card">
+        <div class="login-card" id="login-card">
             <h2>✨ Ultimate Messenger</h2>
             <p>Secure messaging with friends</p>
             <input type="text" id="login-username" placeholder="Username">
@@ -735,7 +798,7 @@
             <div id="login-error" class="error"></div>
         </div>
         
-        <!-- Register Form (hidden initially) -->
+        <!-- Register Form -->
         <div class="login-card" id="register-card" style="display: none;">
             <h2>✨ Create Account</h2>
             <p>Choose a username and password</p>
@@ -838,6 +901,16 @@
         </div>
     </div>
     
+    <!-- Toast Notification -->
+    <div class="toast-notification" id="toast-notification">
+        <div class="toast-avatar" id="toast-avatar"></div>
+        <div class="toast-content">
+            <div class="toast-name" id="toast-name"></div>
+            <div class="toast-message" id="toast-message"></div>
+        </div>
+        <div class="toast-time" id="toast-time"></div>
+    </div>
+    
     <div class="profile-modal" id="profile-modal">
         <div class="profile-modal-content">
             <div class="profile-pic-large" id="profile-pic-large">👤</div>
@@ -894,7 +967,7 @@
         let users = JSON.parse(localStorage.getItem('app_users') || '{}');
         
         const loginScreen = document.getElementById('login-screen');
-        const loginCard = document.querySelector('#login-screen .login-card');
+        const loginCard = document.getElementById('login-card');
         const registerCard = document.getElementById('register-card');
         const appContainer = document.getElementById('app-container');
         const loginUsername = document.getElementById('login-username');
@@ -1006,6 +1079,43 @@
         const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
         const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
         
+        // Toast notification
+        const toast = document.getElementById('toast-notification');
+        const toastAvatar = document.getElementById('toast-avatar');
+        const toastName = document.getElementById('toast-name');
+        const toastMessage = document.getElementById('toast-message');
+        const toastTime = document.getElementById('toast-time');
+        let toastTimeout = null;
+        
+        function showToast(sender, message, senderAvatar, chatType) {
+            if (!messagePreviewEnabled && message) {
+                message = 'New message';
+            }
+            toastAvatar.style.backgroundImage = senderAvatar ? `url(${senderAvatar})` : '';
+            toastAvatar.style.backgroundSize = 'cover';
+            toastAvatar.textContent = senderAvatar ? '' : sender.charAt(0).toUpperCase();
+            toastName.textContent = sender;
+            toastMessage.textContent = message && message.length > 40 ? message.substring(0, 40) + '...' : message;
+            toastTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            toast.classList.add('show');
+            
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+            
+            // Store click data
+            toast.onclick = () => {
+                toast.classList.remove('show');
+                if (chatType === 'group') {
+                    switchToGroupChat();
+                } else {
+                    startPrivateChat(sender);
+                }
+            };
+        }
+        
         // ============ DOM ELEMENTS ============
         const onlineUsersListEl = document.getElementById('online-users-list');
         const messagesDiv = document.getElementById('messages');
@@ -1105,15 +1215,16 @@
                 orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
             };
             const gradient = gradients[theme];
-            // Apply to sent messages in both light and dark mode
+            // Only apply to sent messages (existing and future)
             document.querySelectorAll('.message.sent').forEach(el => {
                 el.style.background = gradient;
             });
-            // Also apply to sidebar header and chat header
-            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small').forEach(el => {
-                if (el.style) el.style.background = gradient;
-            });
             localStorage.setItem('theme_color', theme);
+        }
+        
+        function applyThemeToAllMessages() {
+            const savedTheme = localStorage.getItem('theme_color') || 'purple';
+            setTheme(savedTheme);
         }
         
         function toggleSound() {
@@ -1172,15 +1283,6 @@
             if ('Notification' in window) {
                 Notification.requestPermission().then(p => notificationPermission = p === 'granted');
             }
-        }
-        
-        function showNotification(title, body) {
-            if (!notificationPermission || document.hasFocus()) return;
-            try {
-                const n = new Notification(title, { body });
-                setTimeout(() => n.close(), 5000);
-                n.onclick = () => window.focus();
-            } catch(e) {}
         }
         
         // ============ PROFILE PICTURE ============
@@ -1401,13 +1503,15 @@
                 });
             }
             
-            if (!isSent && document.hidden) {
-                if (messagePreviewEnabled) {
-                    showNotification(username, msg.text || 'New message');
-                } else {
-                    showNotification(username, 'New message');
+            // Show toast notification for new messages (only if not in current chat)
+            if (!isSent && !document.hasFocus()) {
+                const isCurrentChat = (type === 'group' && currentChat.type === 'group') ||
+                    (type === 'private' && currentChat.type === 'private' && currentChat.username === username);
+                if (!isCurrentChat) {
+                    const senderAvatar = getUserAvatar(username);
+                    showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar, type);
+                    playNotificationSound();
                 }
-                playNotificationSound();
             }
         }
         
@@ -1683,8 +1787,7 @@
             
             // Apply theme to existing messages after connection
             setTimeout(() => {
-                const savedTheme = localStorage.getItem('theme_color') || 'purple';
-                setTheme(savedTheme);
+                applyThemeToAllMessages();
             }, 500);
         }
         
@@ -1737,9 +1840,6 @@
                 darkToggle.textContent = '🌙';
                 localStorage.setItem('darkMode', 'false');
             }
-            // Re-apply theme after dark mode toggle to ensure colors work
-            const savedTheme = localStorage.getItem('theme_color') || 'purple';
-            setTheme(savedTheme);
         }
         darkToggle.onclick = () => { darkMode = !darkMode; applyDark(); };
         applyDark();
