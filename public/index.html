@@ -1145,7 +1145,9 @@
                 showToast('User Blocked', `${userToBlock} has been blocked`, null, 'warning');
                 refreshFriendLists();
                 if (currentChat.type === 'private' && currentChat.username === userToBlock) {
-                    switchToGroupChat();
+                    document.getElementById('chat-title').textContent = 'Select a friend to chat';
+                    messagesDiv.innerHTML = '';
+                    currentChat = { type: 'group', username: null };
                 }
             }
         }
@@ -1219,11 +1221,12 @@
             const allUsers = Object.keys(users);
             const friendsListArr = friendships[currentUser.username].friends || [];
             const blockedArr = blockedUsers[currentUser.username] || [];
+            const pendingRequests = friendships[currentUser.username].requests || [];
             const availableUsers = allUsers.filter(u => 
                 u !== currentUser.username && 
                 !friendsListArr.includes(u) && 
                 !blockedArr.includes(u) &&
-                !(friendships[currentUser.username].requests || []).includes(u)
+                !pendingRequests.includes(u)
             );
             availableUsers.forEach(user => {
                 const div = document.createElement('div');
@@ -1297,14 +1300,14 @@
         let toastTimeout = null;
         
         function showToast(title, message, avatar, type = 'message') {
-            if (type === 'message' && !messagePreviewEnabled && message) {
+            if (type === 'message' && !messagePreviewEnabled && message && message !== 'New message') {
                 message = 'New message';
             }
             toastAvatar.style.backgroundImage = avatar ? `url(${avatar})` : '';
             toastAvatar.style.backgroundSize = 'cover';
             toastAvatar.textContent = avatar ? '' : title.charAt(0).toUpperCase();
             toastName.textContent = title;
-            toastMessage.textContent = message && message.length > 40 ? message.substring(0, 40) + '...' : message;
+            toastMessage.textContent = message && message.length > 40 ? message.substring(0, 40) + '...' : message || 'New message';
             toastTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             toast.classList.add('show');
@@ -1715,14 +1718,11 @@
                 });
             }
             
-            if (!isSent && !document.hasFocus()) {
-                const isCurrentChat = (type === 'group' && currentChat.type === 'group') ||
-                    (type === 'private' && currentChat.type === 'private' && currentChat.username === username);
-                if (!isCurrentChat && !isBlocked(username)) {
-                    const senderAvatar = getUserAvatar(username);
-                    showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar, 'message');
-                    playNotificationSound();
-                }
+            if (!isSent && !document.hasFocus() && !isBlocked(username) && 
+                !(currentChat.type === 'private' && currentChat.username === username)) {
+                const senderAvatar = getUserAvatar(username);
+                showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar, 'message');
+                playNotificationSound();
             }
         }
         
@@ -1740,10 +1740,15 @@
         function searchUsers(query) {
             if (!query || query.length < 2) { searchResults.style.display = 'none'; return; }
             const allUsers = Object.keys(users);
+            const friendsListArr = friendships[currentUsername]?.friends || [];
+            const blockedArr = blockedUsers[currentUsername] || [];
+            const pendingRequests = friendships[currentUsername]?.requests || [];
             const results = allUsers.filter(u => 
                 u !== currentUsername && 
                 u.toLowerCase().includes(query.toLowerCase()) &&
-                !isBlocked(u)
+                !friendsListArr.includes(u) &&
+                !blockedArr.includes(u) &&
+                !pendingRequests.includes(u)
             ).slice(0, 10);
             if (results.length) {
                 searchResults.innerHTML = results.map(u => `
@@ -1988,7 +1993,8 @@
                 if (currentChat.type === 'private' && currentChat.username === other) { 
                     displayMessage(m, 'private'); 
                 }
-                if (!document.hasFocus()) {
+                if (!document.hasFocus() && !isBlocked(other) && 
+                    !(currentChat.type === 'private' && currentChat.username === other)) {
                     showToast(m.from, m.text || '📷 Image' || '📎 File' || '🎤 Voice', getUserAvatar(m.from), 'message');
                     playNotificationSound();
                 }
@@ -2028,10 +2034,12 @@
             socket.on('friend-request-received', ({ from }) => {
                 showToast('Friend Request', `${from} sent you a friend request`, null, 'info');
                 refreshFriendLists();
+                playNotificationSound();
             });
             socket.on('friend-request-accepted', ({ from }) => {
                 showToast('Friend Request Accepted', `${from} accepted your request`, null, 'success');
                 refreshFriendLists();
+                playNotificationSound();
             });
             
             requestNotificationPermission();
