@@ -139,6 +139,26 @@
             background: white;
             font-size: 14px;
         }
+        .chat-tabs {
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+            background: #f0f2f5;
+        }
+        .chat-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            background: #e4e6eb;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .chat-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
         .online-users { flex: 1; overflow-y: auto; padding: 10px; }
         .user-item {
             padding: 12px;
@@ -170,6 +190,22 @@
         .user-info { flex: 1; }
         .user-name { font-weight: 600; font-size: 16px; }
         .user-status { font-size: 11px; color: #666; }
+        .friend-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .friend-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+        .add-friend-btn { background: #667eea; color: white; }
+        .accept-btn { background: #4caf50; color: white; }
+        .reject-btn { background: #ff4444; color: white; }
+        .block-btn { background: #ff6b6b; color: white; }
+        .friend-status { font-size: 10px; color: #888; }
         .call-btn-small {
             padding: 6px 10px;
             font-size: 12px;
@@ -433,6 +469,9 @@
             background: #f0f2f5;
             border-radius: 12px;
             display: none;
+        }
+        .preview-container.show {
+            display: block;
         }
         .preview-content { display: flex; align-items: center; gap: 8px; font-size: 12px; }
         .preview-image { max-width: 40px; max-height: 40px; border-radius: 8px; }
@@ -724,7 +763,6 @@
             background: #2d2d2d;
             color: #e4e6eb;
         }
-        /* In dark mode, sent messages keep a neutral gradient (NOT theme colors) */
         .dark-mode .message.sent {
             background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
         }
@@ -738,7 +776,8 @@
         .dark-mode .reply-indicator,
         .dark-mode .message-actions,
         .dark-mode .seen-by,
-        .dark-mode .settings-modal {
+        .dark-mode .settings-modal,
+        .dark-mode .toast-notification {
             background: #2d2d2d;
             color: #e4e6eb;
         }
@@ -790,7 +829,7 @@
     <div class="login-container" id="login-screen">
         <div class="login-card" id="login-card">
             <h2>✨ Ultimate Messenger</h2>
-            <p>Secure messaging with friends</p>
+            <p>Connect with friends</p>
             <input type="text" id="login-username" placeholder="Username">
             <input type="password" id="login-password" placeholder="Password">
             <button id="login-btn">Login →</button>
@@ -798,7 +837,6 @@
             <div id="login-error" class="error"></div>
         </div>
         
-        <!-- Register Form -->
         <div class="login-card" id="register-card" style="display: none;">
             <h2>✨ Create Account</h2>
             <p>Choose a username and password</p>
@@ -814,14 +852,21 @@
     <div class="app-container" id="app-container">
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <span>👥 Chats</span>
+                <span>💬 Messenger</span>
                 <div class="profile-pic" id="profile-pic-btn">👤</div>
             </div>
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="🔍 Search messages...">
+                <input type="text" id="search-input" placeholder="🔍 Search users...">
                 <div id="search-results" class="search-results"></div>
             </div>
-            <div class="online-users" id="online-users-list"></div>
+            <div class="chat-tabs">
+                <div class="chat-tab active" data-tab="friends">👥 Friends</div>
+                <div class="chat-tab" data-tab="requests">📨 Requests</div>
+                <div class="chat-tab" data-tab="all">🌐 All Users</div>
+            </div>
+            <div id="friends-list" class="online-users"></div>
+            <div id="requests-list" class="online-users" style="display: none;"></div>
+            <div id="all-users-list" class="online-users" style="display: none;"></div>
         </div>
         
         <div class="chat-area">
@@ -830,14 +875,13 @@
                 <div class="chat-info">
                     <div class="chat-avatar" id="chat-avatar">💬</div>
                     <div>
-                        <div class="chat-title" id="chat-title">Group Chat</div>
+                        <div class="chat-title" id="chat-title">Select a friend to chat</div>
                         <div style="font-size: 11px;" id="chat-status"></div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <button class="back-to-group" id="settings-btn">⚙️</button>
                     <button class="back-to-group" id="dark-mode-toggle">🌙</button>
-                    <button class="back-to-group" id="back-to-group">←</button>
                 </div>
             </div>
             
@@ -916,9 +960,9 @@
             <div class="profile-pic-large" id="profile-pic-large">👤</div>
             <h3 id="profile-username"></h3>
             <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
-            <button onclick="changeProfilePicture()" style="margin: 10px; padding: 8px 20px; background: #667eea; color: white; border: none; border-radius: 25px; cursor: pointer;">📷 Change Photo</button>
-            <button onclick="closeProfileModal()" style="padding: 8px 20px; background: #666; color: white; border: none; border-radius: 25px; cursor: pointer;">Close</button>
-            <button id="logout-btn" style="margin-top: 10px; padding: 8px 20px; background: #ff4444; color: white; border: none; border-radius: 25px; cursor: pointer;">🚪 Logout</button>
+            <button onclick="changeProfilePicture()" style="margin: 10px; padding: 8px 20px; background: #667eea; color: white; border: none; border-radius: 25px;">📷 Change Photo</button>
+            <button onclick="closeProfileModal()" style="padding: 8px 20px; background: #666; color: white; border: none; border-radius: 25px;">Close</button>
+            <button id="logout-btn" style="margin-top: 10px; padding: 8px 20px; background: #ff4444; color: white; border: none; border-radius: 25px;">🚪 Logout</button>
         </div>
     </div>
     
@@ -932,15 +976,9 @@
     </div>
     
     <div class="video-call-container" id="video-call-container">
-        <div class="video-grid" id="video-grid">
-            <div class="video-box" id="local-video-box">
-                <video id="local-video" autoplay muted playsinline></video>
-                <div class="video-label">You</div>
-            </div>
-            <div class="video-box" id="remote-video-box">
-                <video id="remote-video" autoplay playsinline></video>
-                <div class="video-label" id="remote-label">Calling...</div>
-            </div>
+        <div class="video-grid">
+            <div class="video-box"><video id="local-video" autoplay muted playsinline></video><div class="video-label">You</div></div>
+            <div class="video-box"><video id="remote-video" autoplay playsinline></video><div class="video-label">Caller</div></div>
         </div>
         <div class="call-controls">
             <button class="call-btn call-mute" id="mute-btn">🎤</button>
@@ -952,19 +990,18 @@
     
     <div class="incoming-call" id="incoming-call">
         <span>📞 Call from <span id="caller-name"></span></span>
-        <div>
-            <button class="accept-call" id="accept-call">Accept</button>
-            <button class="reject-call" id="reject-call">Reject</button>
-        </div>
+        <div><button class="accept-call" id="accept-call">Accept</button><button class="reject-call" id="reject-call">Reject</button></div>
     </div>
     
     <input type="file" id="file-input" style="display: none;">
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // ============ AUTHENTICATION ============
+        // ============ AUTHENTICATION & FRIEND SYSTEM ============
         let currentUser = null;
         let users = JSON.parse(localStorage.getItem('app_users') || '{}');
+        let friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
+        let blockedUsers = JSON.parse(localStorage.getItem('blocked_users') || '{}');
         
         const loginScreen = document.getElementById('login-screen');
         const loginCard = document.getElementById('login-card');
@@ -981,7 +1018,13 @@
         const loginError = document.getElementById('login-error');
         const registerError = document.getElementById('register-error');
         
-        // Check if user is already logged in
+        // Friend lists containers
+        const friendsList = document.getElementById('friends-list');
+        const requestsList = document.getElementById('requests-list');
+        const allUsersList = document.getElementById('all-users-list');
+        const tabs = document.querySelectorAll('.chat-tab');
+        
+        // Check existing session
         const savedSession = localStorage.getItem('current_session');
         if (savedSession) {
             currentUser = JSON.parse(savedSession);
@@ -1036,7 +1079,9 @@
                 return;
             }
             users[username] = password;
+            friendships[username] = { friends: [], requests: [] };
             localStorage.setItem('app_users', JSON.stringify(users));
+            localStorage.setItem('friendships', JSON.stringify(friendships));
             registerError.textContent = '';
             registerError.style.color = '#4caf50';
             registerError.textContent = 'Account created! Please login.';
@@ -1047,11 +1092,174 @@
             }, 1500);
         };
         
+        // Friend Functions
+        function sendFriendRequest(toUser) {
+            if (!friendships[toUser]) friendships[toUser] = { friends: [], requests: [] };
+            if (friendships[toUser].requests.includes(currentUser.username)) {
+                showToast('Info', 'Request already sent', null, 'info');
+                return;
+            }
+            if (friendships[currentUser.username].friends.includes(toUser)) {
+                showToast('Info', 'Already friends', null, 'info');
+                return;
+            }
+            friendships[toUser].requests.push(currentUser.username);
+            localStorage.setItem('friendships', JSON.stringify(friendships));
+            showToast('Friend Request Sent', `To ${toUser}`, null, 'info');
+            refreshFriendLists();
+            if (socket) socket.emit('friend-request-sent', { to: toUser, from: currentUser.username });
+        }
+        
+        function acceptFriendRequest(fromUser) {
+            const requests = friendships[currentUser.username].requests;
+            const index = requests.indexOf(fromUser);
+            if (index !== -1) {
+                requests.splice(index, 1);
+                friendships[currentUser.username].friends.push(fromUser);
+                if (!friendships[fromUser]) friendships[fromUser] = { friends: [], requests: [] };
+                friendships[fromUser].friends.push(currentUser.username);
+                localStorage.setItem('friendships', JSON.stringify(friendships));
+                showToast('Friend Added', `${fromUser} is now your friend`, null, 'success');
+                refreshFriendLists();
+                if (socket) socket.emit('friend-request-accepted', { to: fromUser, from: currentUser.username });
+            }
+        }
+        
+        function rejectFriendRequest(fromUser) {
+            const requests = friendships[currentUser.username].requests;
+            const index = requests.indexOf(fromUser);
+            if (index !== -1) {
+                requests.splice(index, 1);
+                localStorage.setItem('friendships', JSON.stringify(friendships));
+                showToast('Request Rejected', `Rejected request from ${fromUser}`, null, 'info');
+                refreshFriendLists();
+                if (socket) socket.emit('friend-request-rejected', { to: fromUser, from: currentUser.username });
+            }
+        }
+        
+        function blockUser(userToBlock) {
+            if (!blockedUsers[currentUser.username]) blockedUsers[currentUser.username] = [];
+            if (!blockedUsers[currentUser.username].includes(userToBlock)) {
+                blockedUsers[currentUser.username].push(userToBlock);
+                localStorage.setItem('blocked_users', JSON.stringify(blockedUsers));
+                showToast('User Blocked', `${userToBlock} has been blocked`, null, 'warning');
+                refreshFriendLists();
+                if (currentChat.type === 'private' && currentChat.username === userToBlock) {
+                    switchToGroupChat();
+                }
+            }
+        }
+        
+        function unblockUser(userToUnblock) {
+            if (blockedUsers[currentUser.username]) {
+                const index = blockedUsers[currentUser.username].indexOf(userToUnblock);
+                if (index !== -1) {
+                    blockedUsers[currentUser.username].splice(index, 1);
+                    localStorage.setItem('blocked_users', JSON.stringify(blockedUsers));
+                    showToast('User Unblocked', `${userToUnblock} has been unblocked`, null, 'info');
+                    refreshFriendLists();
+                }
+            }
+        }
+        
+        function isBlocked(user) {
+            return blockedUsers[currentUser.username]?.includes(user) || false;
+        }
+        
+        function refreshFriendLists() {
+            if (!friendships[currentUser.username]) friendships[currentUser.username] = { friends: [], requests: [] };
+            
+            // Friends list
+            friendsList.innerHTML = '';
+            const friends = friendships[currentUser.username].friends || [];
+            friends.forEach(friend => {
+                const div = document.createElement('div');
+                div.className = 'user-item';
+                div.innerHTML = `
+                    <div class="user-avatar">${friend.charAt(0).toUpperCase()}</div>
+                    <div class="user-info">
+                        <div class="user-name">${escapeHtml(friend)}</div>
+                        <div class="friend-status">Friend</div>
+                    </div>
+                    <button class="call-btn-small" onclick="event.stopPropagation(); startPrivateChat('${friend}')">💬</button>
+                    <button class="friend-btn block-btn" onclick="event.stopPropagation(); blockUser('${friend}')">🚫</button>
+                `;
+                div.onclick = () => startPrivateChat(friend);
+                friendsList.appendChild(div);
+            });
+            if (friends.length === 0) {
+                friendsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No friends yet. Add some!</div>';
+            }
+            
+            // Requests list
+            requestsList.innerHTML = '';
+            const requests = friendships[currentUser.username].requests || [];
+            requests.forEach(req => {
+                const div = document.createElement('div');
+                div.className = 'user-item';
+                div.innerHTML = `
+                    <div class="user-avatar">${req.charAt(0).toUpperCase()}</div>
+                    <div class="user-info">
+                        <div class="user-name">${escapeHtml(req)}</div>
+                        <div class="friend-status">Friend request</div>
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-btn accept-btn" onclick="event.stopPropagation(); acceptFriendRequest('${req}')">✓</button>
+                        <button class="friend-btn reject-btn" onclick="event.stopPropagation(); rejectFriendRequest('${req}')">✗</button>
+                    </div>
+                `;
+                requestsList.appendChild(div);
+            });
+            if (requests.length === 0) {
+                requestsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No friend requests</div>';
+            }
+            
+            // All users list (excluding self, friends, and blocked)
+            allUsersList.innerHTML = '';
+            const allUsers = Object.keys(users);
+            const friendsListArr = friendships[currentUser.username].friends || [];
+            const blockedArr = blockedUsers[currentUser.username] || [];
+            const availableUsers = allUsers.filter(u => 
+                u !== currentUser.username && 
+                !friendsListArr.includes(u) && 
+                !blockedArr.includes(u) &&
+                !(friendships[currentUser.username].requests || []).includes(u)
+            );
+            availableUsers.forEach(user => {
+                const div = document.createElement('div');
+                div.className = 'user-item';
+                div.innerHTML = `
+                    <div class="user-avatar">${user.charAt(0).toUpperCase()}</div>
+                    <div class="user-info">
+                        <div class="user-name">${escapeHtml(user)}</div>
+                        <div class="friend-status">Not a friend</div>
+                    </div>
+                    <button class="friend-btn add-friend-btn" onclick="event.stopPropagation(); sendFriendRequest('${user}')">➕ Add</button>
+                `;
+                allUsersList.appendChild(div);
+            });
+            if (availableUsers.length === 0) {
+                allUsersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No users found</div>';
+            }
+        }
+        
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const mode = tab.dataset.tab;
+                document.getElementById('friends-list').style.display = mode === 'friends' ? 'block' : 'none';
+                document.getElementById('requests-list').style.display = mode === 'requests' ? 'block' : 'none';
+                document.getElementById('all-users-list').style.display = mode === 'all' ? 'block' : 'none';
+            };
+        });
+        
         // ============ GLOBAL VARIABLES ============
         let socket = null;
         let currentUsername = null;
         let currentChat = { type: 'group', username: null };
-        let onlineUsersList = [];
+        let onlineUsers = [];
         let pendingFile = null;
         let mediaRecorder = null;
         let audioChunks = [];
@@ -1061,6 +1269,7 @@
         let userAvatars = {};
         let allMessages = [];
         let voiceStartTime = null;
+        let privateChats = JSON.parse(localStorage.getItem('private_chats') || '{}');
         
         let notificationSoundEnabled = true;
         let messagePreviewEnabled = true;
@@ -1087,43 +1296,30 @@
         const toastTime = document.getElementById('toast-time');
         let toastTimeout = null;
         
-        function showToast(sender, message, senderAvatar, chatType) {
-            if (!messagePreviewEnabled && message) {
+        function showToast(title, message, avatar, type = 'message') {
+            if (type === 'message' && !messagePreviewEnabled && message) {
                 message = 'New message';
             }
-            toastAvatar.style.backgroundImage = senderAvatar ? `url(${senderAvatar})` : '';
+            toastAvatar.style.backgroundImage = avatar ? `url(${avatar})` : '';
             toastAvatar.style.backgroundSize = 'cover';
-            toastAvatar.textContent = senderAvatar ? '' : sender.charAt(0).toUpperCase();
-            toastName.textContent = sender;
+            toastAvatar.textContent = avatar ? '' : title.charAt(0).toUpperCase();
+            toastName.textContent = title;
             toastMessage.textContent = message && message.length > 40 ? message.substring(0, 40) + '...' : message;
             toastTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             toast.classList.add('show');
-            
             if (toastTimeout) clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('show');
             }, 4000);
-            
-            // Store click data
-            toast.onclick = () => {
-                toast.classList.remove('show');
-                if (chatType === 'group') {
-                    switchToGroupChat();
-                } else {
-                    startPrivateChat(sender);
-                }
-            };
         }
         
         // ============ DOM ELEMENTS ============
-        const onlineUsersListEl = document.getElementById('online-users-list');
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const typingIndicator = document.getElementById('typing-indicator');
         const chatTitle = document.getElementById('chat-title');
-        const backToGroupBtn = document.getElementById('back-to-group');
         const imageBtn = document.getElementById('image-btn');
         const fileBtn = document.getElementById('file-btn');
         const voiceBtn = document.getElementById('voice-btn');
@@ -1194,13 +1390,8 @@
             setTheme(savedTheme);
         }
         
-        function openSettings() {
-            settingsModal.style.display = 'flex';
-        }
-        
-        function closeSettings() {
-            settingsModal.style.display = 'none';
-        }
+        function openSettings() { settingsModal.style.display = 'flex'; }
+        function closeSettings() { settingsModal.style.display = 'none'; }
         
         function applyFontSize() {
             const fontSize = fontSizeSelect.value;
@@ -1215,21 +1406,15 @@
                 orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
             };
             const gradient = gradients[theme];
-            
-            // Update header and button gradients (light mode only, but applies anyway)
-            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small').forEach(el => {
+            document.querySelectorAll('.sidebar-header, .chat-header, #send-button').forEach(el => {
                 if (el.style) el.style.background = gradient;
             });
-            
-            // Update ALL sent messages (both existing and future)
             document.querySelectorAll('.message.sent').forEach(el => {
                 el.style.background = gradient;
             });
-            
             localStorage.setItem('theme_color', theme);
         }
         
-        // Function to apply theme to all existing messages (called after loading)
         function applyThemeToAllMessages() {
             const savedTheme = localStorage.getItem('theme_color') || 'purple';
             setTheme(savedTheme);
@@ -1265,9 +1450,7 @@
         }
         
         // ============ MENU TOGGLE ============
-        menuBtn.onclick = () => {
-            sidebar.classList.toggle('open');
-        };
+        menuBtn.onclick = () => sidebar.classList.toggle('open');
         
         document.addEventListener('click', (e) => {
             if (window.innerWidth < 768) {
@@ -1371,10 +1554,10 @@
         
         function forwardMessage(msg) {
             const target = prompt('Forward to which user?');
-            if (target && onlineUsersList.includes(target)) {
+            if (target && friendships[currentUsername]?.friends?.includes(target)) {
                 socket.emit('forward-message', { messageId: msg.id, to: target, chatType: 'private', originalMessage: msg });
                 alert(`Forwarded to ${target}`);
-            } else if (target) alert('User not online');
+            } else if (target) alert('User not in your friends list');
         }
         
         function addReaction(id, reaction) {
@@ -1406,6 +1589,19 @@
         
         function getUserAvatar(username) {
             return userAvatars[username] || localStorage.getItem(`avatar_${username}`);
+        }
+        
+        function savePrivateMessage(sender, receiver, message) {
+            const chatKey = [sender, receiver].sort().join('_');
+            if (!privateChats[chatKey]) privateChats[chatKey] = [];
+            privateChats[chatKey].push(message);
+            if (privateChats[chatKey].length > 500) privateChats[chatKey].shift();
+            localStorage.setItem('private_chats', JSON.stringify(privateChats));
+        }
+        
+        function getPrivateChats(user1, user2) {
+            const chatKey = [user1, user2].sort().join('_');
+            return privateChats[chatKey] || [];
         }
         
         function updateMessageReadReceipt(messageId, reader) {
@@ -1466,7 +1662,7 @@
                 if (msg.readBy && msg.readBy.length > 0) {
                     html += `<div class="read-receipt"><span class="read">✓✓</span></div>`;
                     html += `<div class="seen-by">Seen by ${msg.readBy.join(', ')}</div>`;
-                } else if (msg.status === 'delivered' || msg.delivered) {
+                } else if (msg.status === 'delivered') {
                     html += `<div class="read-receipt"><span class="delivered">✓✓</span></div>`;
                 } else {
                     html += `<div class="read-receipt"><span class="sent">✓</span></div>`;
@@ -1496,7 +1692,6 @@
             html += `</div>`;
             html += `<div class="time">${msg.timestamp}</div>`;
             
-            // Apply current theme to this new message
             const savedTheme = localStorage.getItem('theme_color') || 'purple';
             if (isSent) {
                 const gradients = {
@@ -1510,8 +1705,6 @@
             div.innerHTML = html;
             messagesDiv.appendChild(div);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            allMessages.push(msg);
-            if (allMessages.length > 500) allMessages.shift();
             
             if (!isSent && currentChat.type === type && 
                 (type === 'group' || (type === 'private' && currentChat.username === username))) {
@@ -1522,13 +1715,12 @@
                 });
             }
             
-            // Show toast notification for new messages (only if not in current chat)
             if (!isSent && !document.hasFocus()) {
                 const isCurrentChat = (type === 'group' && currentChat.type === 'group') ||
                     (type === 'private' && currentChat.type === 'private' && currentChat.username === username);
-                if (!isCurrentChat) {
+                if (!isCurrentChat && !isBlocked(username)) {
                     const senderAvatar = getUserAvatar(username);
-                    showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar, type);
+                    showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar, 'message');
                     playNotificationSound();
                 }
             }
@@ -1545,68 +1737,58 @@
             messagesDiv.appendChild(div);
         }
         
-        function searchMessages(query) {
+        function searchUsers(query) {
             if (!query || query.length < 2) { searchResults.style.display = 'none'; return; }
-            const results = allMessages.filter(m => m.text && m.text.toLowerCase().includes(query.toLowerCase())).slice(0, 10);
+            const allUsers = Object.keys(users);
+            const results = allUsers.filter(u => 
+                u !== currentUsername && 
+                u.toLowerCase().includes(query.toLowerCase()) &&
+                !isBlocked(u)
+            ).slice(0, 10);
             if (results.length) {
-                searchResults.innerHTML = results.map(m => `<div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer;" onclick="scrollToMessage(${m.id})"><strong>${escapeHtml(m.username || m.from)}</strong>: ${escapeHtml(m.text.substring(0, 50))}</div>`).join('');
+                searchResults.innerHTML = results.map(u => `
+                    <div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="sendFriendRequest('${u}')">
+                        <span>${escapeHtml(u)}</span>
+                        <button class="friend-btn add-friend-btn" style="padding: 4px 12px;">➕ Add</button>
+                    </div>
+                `).join('');
                 searchResults.style.display = 'block';
             } else {
-                searchResults.innerHTML = '<div style="padding: 10px;">No messages found</div>';
+                searchResults.innerHTML = '<div style="padding: 10px;">No users found</div>';
                 searchResults.style.display = 'block';
             }
         }
         
-        function scrollToMessage(id) {
-            const el = document.querySelector(`[data-message-id="${id}"]`);
-            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.backgroundColor = '#667eea20'; setTimeout(() => el.style.backgroundColor = '', 2000); }
-            searchResults.style.display = 'none';
-            searchInput.value = '';
-        }
-        
-        searchInput.addEventListener('input', (e) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => searchMessages(e.target.value), 300); });
-        
-        function updateOnlineUsersList() {
-            onlineUsersListEl.innerHTML = '';
-            onlineUsersList.forEach(user => {
-                if (user === currentUsername) return;
-                const div = document.createElement('div');
-                div.className = 'user-item';
-                if (currentChat.type === 'private' && currentChat.username === user) div.classList.add('active');
-                const avatar = getUserAvatar(user);
-                div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover;` : ''}">${avatar ? '' : user.charAt(0).toUpperCase()}</div>
-                    <div class="user-info"><div class="user-name">${escapeHtml(user)}</div><div class="user-status">Online</div></div>
-                    <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>
-                    <button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', true)">🎤</button>`;
-                div.onclick = (e) => { if (!e.target.classList.contains('call-btn-small')) startPrivateChat(user); };
-                onlineUsersListEl.appendChild(div);
-            });
-        }
+        searchInput.addEventListener('input', (e) => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => searchUsers(e.target.value), 300); });
         
         function startPrivateChat(user) {
             if (user === currentUsername) return;
+            if (isBlocked(user)) {
+                alert('This user is blocked. Unblock them to chat.');
+                return;
+            }
+            if (!friendships[currentUsername]?.friends?.includes(user)) {
+                alert('You can only chat with friends. Send a friend request first.');
+                return;
+            }
             currentChat = { type: 'private', username: user };
             chatTitle.textContent = user;
             document.getElementById('chat-status').textContent = 'Private chat';
             messagesDiv.innerHTML = '';
+            const history = getPrivateChats(currentUsername, user);
+            history.forEach(msg => displayMessage(msg, 'private'));
             socket.emit('get-private-history', user);
-            updateOnlineUsersList();
             cancelReply();
             if (window.innerWidth < 768) sidebar.classList.remove('open');
-        }
-        
-        function switchToGroupChat() {
-            currentChat = { type: 'group', username: null };
-            chatTitle.textContent = 'Group Chat';
-            document.getElementById('chat-status').textContent = '';
-            messagesDiv.innerHTML = '';
-            updateOnlineUsersList();
-            cancelReply();
         }
         
         // ============ CALL FUNCTIONS ============
         function callUser(user, audioOnly = false) {
             if (callActive) { alert('Already in a call!'); return; }
+            if (!friendships[currentUsername]?.friends?.includes(user)) {
+                alert('You can only call friends.');
+                return;
+            }
             isAudioOnly = audioOnly;
             currentCallWith = user;
             const constraints = audioOnly ? { audio: true, video: false } : { video: true, audio: true };
@@ -1676,12 +1858,18 @@
             try {
                 const res = await fetch('/upload', { method: 'POST', body: fd });
                 const data = await res.json();
-                const msgData = { type, text: caption || '' };
+                const msgData = { type, text: caption || '', timestamp: new Date().toLocaleTimeString(), id: Date.now() };
                 if (type === 'image') msgData.imageUrl = data.fileUrl;
                 else { msgData.fileUrl = data.fileUrl; msgData.fileName = data.fileName; msgData.fileSize = data.fileSize; }
                 if (replyToMessage) msgData.replyTo = replyToMessage;
-                if (currentChat.type === 'group') socket.emit('send-message', msgData);
-                else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
+                
+                if (currentChat.type === 'private' && currentChat.username) {
+                    const message = { ...msgData, from: currentUsername, to: currentChat.username };
+                    savePrivateMessage(currentUsername, currentChat.username, message);
+                    socket.emit('send-private-message', message);
+                } else {
+                    socket.emit('send-message', msgData);
+                }
                 clearPreview(); cancelReply();
             } catch(e) { alert('Upload failed'); }
         }
@@ -1693,10 +1881,16 @@
                 const res = await fetch('/upload', { method: 'POST', body: fd });
                 const data = await res.json();
                 const duration = Math.round((Date.now() - voiceStartTime) / 1000);
-                const msgData = { type: 'voice', voiceUrl: data.fileUrl, duration: duration };
+                const msgData = { type: 'voice', voiceUrl: data.fileUrl, duration: duration, timestamp: new Date().toLocaleTimeString(), id: Date.now() };
                 if (replyToMessage) msgData.replyTo = replyToMessage;
-                if (currentChat.type === 'group') socket.emit('send-message', msgData);
-                else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
+                
+                if (currentChat.type === 'private' && currentChat.username) {
+                    const message = { ...msgData, from: currentUsername, to: currentChat.username };
+                    savePrivateMessage(currentUsername, currentChat.username, message);
+                    socket.emit('send-private-message', message);
+                } else {
+                    socket.emit('send-message', msgData);
+                }
                 pendingVoiceBlob = null;
                 clearPreview(); cancelReply();
             } catch(e) { alert('Voice send failed'); }
@@ -1708,10 +1902,16 @@
             if (pendingFile) { uploadAndSendFile(pendingFile.file, pendingFile.type, text); messageInput.value = ''; }
             else if (pendingVoiceBlob) { sendVoiceMessage(); messageInput.value = ''; }
             else if (text) {
-                const msgData = { type: 'text', text };
+                const msgData = { type: 'text', text, timestamp: new Date().toLocaleTimeString(), id: Date.now() };
                 if (replyToMessage) msgData.replyTo = replyToMessage;
-                if (currentChat.type === 'group') socket.emit('send-message', msgData);
-                else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
+                
+                if (currentChat.type === 'private' && currentChat.username) {
+                    const message = { ...msgData, from: currentUsername, to: currentChat.username };
+                    savePrivateMessage(currentUsername, currentChat.username, message);
+                    socket.emit('send-private-message', message);
+                } else {
+                    socket.emit('send-message', msgData);
+                }
                 messageInput.value = '';
                 cancelReply();
             }
@@ -1719,7 +1919,7 @@
         
         function showFilePreview(file, type) {
             pendingFile = { file, type };
-            previewContainer.style.display = 'block';
+            previewContainer.classList.add('show');
             if (type === 'image') {
                 const r = new FileReader();
                 r.onload = (e) => { previewContent.innerHTML = `<img class="preview-image" src="${e.target.result}"><span>${escapeHtml(file.name)}</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`; };
@@ -1729,7 +1929,12 @@
             }
         }
         
-        function clearPreview() { pendingFile = null; pendingVoiceBlob = null; previewContainer.style.display = 'none'; previewContent.innerHTML = ''; }
+        function clearPreview() { 
+            pendingFile = null; 
+            pendingVoiceBlob = null; 
+            previewContainer.classList.remove('show');
+            previewContent.innerHTML = ''; 
+        }
         
         // ============ VOICE RECORDING ============
         async function startRecording() {
@@ -1745,7 +1950,7 @@
                     recordingIndicator.style.display = 'none';
                     voiceBtn.textContent = '🎤';
                     voiceBtn.style.background = '#e4e6eb';
-                    previewContainer.style.display = 'block';
+                    previewContainer.classList.add('show');
                     const duration = Math.round((Date.now() - voiceStartTime) / 1000);
                     previewContent.innerHTML = `<span>🎤 Voice (${duration}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
                 };
@@ -1759,22 +1964,41 @@
         }
         
         function stopRecording() { if (mediaRecorder && isRecording) { mediaRecorder.stop(); isRecording = false; } }
-        function onTyping() { if (!socket) return; if (currentChat.type === 'group') socket.emit('typing'); else socket.emit('private-typing', { to: currentChat.username }); }
+        function onTyping() { if (!socket) return; if (currentChat.type === 'group') socket.emit('typing'); else if (currentChat.type === 'private') { socket.emit('private-typing', { to: currentChat.username }); } }
         
         // ============ CONNECT TO SERVER ============
         function initApp() {
             currentUsername = currentUser.username;
+            if (!friendships[currentUsername]) friendships[currentUsername] = { friends: [], requests: [] };
             userAvatars[currentUsername] = localStorage.getItem(`avatar_${currentUsername}`);
             updateUIAfterAvatarChange();
             loadSettings();
+            refreshFriendLists();
             
             socket = io();
             socket.emit('set-username', currentUsername);
             
             socket.on('previous-messages', msgs => msgs.forEach(m => displayMessage(m, 'group')));
             socket.on('new-message', m => { if (currentChat.type === 'group') { displayMessage(m, 'group'); } });
-            socket.on('private-message', m => { const other = m.from === currentUsername ? m.to : m.from; if (currentChat.type === 'private' && currentChat.username === other) { displayMessage(m, 'private'); } });
-            socket.on('private-history', ({ otherUsername, messages }) => { if (currentChat.type === 'private' && currentChat.username === otherUsername) { messagesDiv.innerHTML = ''; messages.forEach(m => displayMessage(m, 'private')); } });
+            socket.on('private-message', m => { 
+                const other = m.from === currentUsername ? m.to : m.from;
+                if (!friendships[currentUsername]?.friends?.includes(other)) return;
+                if (isBlocked(other)) return;
+                savePrivateMessage(m.from, m.to, m);
+                if (currentChat.type === 'private' && currentChat.username === other) { 
+                    displayMessage(m, 'private'); 
+                }
+                if (!document.hasFocus()) {
+                    showToast(m.from, m.text || '📷 Image' || '📎 File' || '🎤 Voice', getUserAvatar(m.from), 'message');
+                    playNotificationSound();
+                }
+            });
+            socket.on('private-history', ({ otherUsername, messages }) => {
+                if (currentChat.type === 'private' && currentChat.username === otherUsername) {
+                    messagesDiv.innerHTML = '';
+                    messages.forEach(m => displayMessage(m, 'private'));
+                }
+            });
             socket.on('message-reaction', ({ messageId, reaction, username }) => { 
                 const msg = document.querySelector(`[data-message-id="${messageId}"]`);
                 if (msg) { 
@@ -1788,10 +2012,10 @@
             socket.on('message-edited', ({ messageId, newText }) => { const c = document.getElementById(`content-${messageId}`); if (c) { const t = c.querySelector('.text'); if (t) t.innerHTML = escapeHtml(newText); if (!c.querySelector('.edited-badge')) { const b = document.createElement('span'); b.className = 'edited-badge'; b.textContent = '(edited)'; c.appendChild(b); } } });
             socket.on('message-deleted', ({ messageId }) => { const m = document.querySelector(`[data-message-id="${messageId}"]`); if (m) m.remove(); addSystemMessage('A message was deleted'); });
             socket.on('message-read', ({ messageId, reader }) => updateMessageReadReceipt(messageId, reader));
-            socket.on('avatar-update', ({ username, avatarUrl }) => { userAvatars[username] = avatarUrl; updateOnlineUsersList(); });
+            socket.on('avatar-update', ({ username, avatarUrl }) => { userAvatars[username] = avatarUrl; refreshFriendLists(); });
             socket.on('user-joined', msg => addSystemMessage(msg));
             socket.on('user-left', msg => addSystemMessage(msg));
-            socket.on('online-users', users => { onlineUsersList = users.filter(u => u !== currentUsername); updateOnlineUsersList(); });
+            socket.on('online-users', users => { onlineUsers = users; });
             socket.on('user-typing', data => { if (currentChat.type === 'group') { typingIndicator.textContent = `${data.username} is typing...`; clearTimeout(typingTimeout); typingTimeout = setTimeout(() => typingIndicator.textContent = '', 1000); } });
             socket.on('private-typing-indicator', ({ from }) => { if (currentChat.type === 'private' && currentChat.username === from) { typingIndicator.textContent = `${from} is typing...`; clearTimeout(typingTimeout); typingTimeout = setTimeout(() => typingIndicator.textContent = '', 1000); } });
             socket.on('incoming-call', data => { if (callActive) { socket.emit('call-busy', { to: data.from }); return; } currentCallWith = data.from; currentCallOffer = data.offer; callerNameSpan.textContent = data.from; incomingCallDiv.style.display = 'flex'; });
@@ -1801,13 +2025,17 @@
             socket.on('ice-candidate', data => { if (peerConnection) peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)); });
             socket.on('end-call', () => { endCall(); incomingCallDiv.style.display = 'none'; });
             socket.on('username-taken', () => { alert('Username taken!'); logout(); });
+            socket.on('friend-request-received', ({ from }) => {
+                showToast('Friend Request', `${from} sent you a friend request`, null, 'info');
+                refreshFriendLists();
+            });
+            socket.on('friend-request-accepted', ({ from }) => {
+                showToast('Friend Request Accepted', `${from} accepted your request`, null, 'success');
+                refreshFriendLists();
+            });
             
             requestNotificationPermission();
-            
-            // Apply theme to all existing messages after loading
-            setTimeout(() => {
-                applyThemeToAllMessages();
-            }, 500);
+            setTimeout(() => { applyThemeToAllMessages(); }, 500);
         }
         
         acceptCallBtn.onclick = () => {
@@ -1829,7 +2057,6 @@
         
         // ============ EVENT LISTENERS ============
         sendButton.onclick = sendTextMessage;
-        backToGroupBtn.onclick = switchToGroupChat;
         imageBtn.onclick = () => { fileInput.accept = 'image/*'; fileInput.click(); };
         fileBtn.onclick = () => { fileInput.accept = '*/*'; fileInput.click(); };
         voiceBtn.onclick = () => { if (!isRecording) startRecording(); else stopRecording(); };
@@ -1846,7 +2073,7 @@
             color.onclick = () => setTheme(color.dataset.theme);
         });
         
-        // Dark mode - with smooth transition
+        // Dark mode
         const darkToggle = document.getElementById('dark-mode-toggle');
         let darkMode = localStorage.getItem('darkMode') === 'true';
         function applyDark() {
@@ -1878,11 +2105,16 @@
         window.forwardMessage = forwardMessage;
         window.addReaction = addReaction;
         window.toggleReactionPicker = toggleReactionPicker;
-        window.scrollToMessage = scrollToMessage;
         window.openSettings = openSettings;
         window.closeSettings = closeSettings;
         window.applyFontSize = applyFontSize;
         window.setTheme = setTheme;
+        window.sendFriendRequest = sendFriendRequest;
+        window.acceptFriendRequest = acceptFriendRequest;
+        window.rejectFriendRequest = rejectFriendRequest;
+        window.blockUser = blockUser;
+        window.unblockUser = unblockUser;
+        window.startPrivateChat = startPrivateChat;
     </script>
 </body>
 </html>
