@@ -629,7 +629,7 @@
             font-weight: 600;
         }
         
-        /* Toast Notification */
+        /* Toast Notification - Beautiful */
         .toast-notification {
             position: fixed;
             bottom: 30px;
@@ -646,6 +646,11 @@
             transform: translateX(120%);
             transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
             cursor: pointer;
+            animation: toastGlow 0.3s ease;
+        }
+        @keyframes toastGlow {
+            from { box-shadow: 0 0 0 0 rgba(102,126,234,0.4); }
+            to { box-shadow: 0 0 0 5px rgba(102,126,234,0); }
         }
         .toast-notification.show {
             transform: translateX(0);
@@ -667,42 +672,6 @@
         .toast-name { font-weight: bold; font-size: 15px; margin-bottom: 3px; }
         .toast-message { font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .toast-time { font-size: 10px; color: #999; }
-        
-        /* Video Call */
-        .video-call-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: black;
-            z-index: 4000;
-            display: none;
-            flex-direction: column;
-        }
-        .video-grid { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px; }
-        .video-box { flex: 1; background: #1a1a1a; border-radius: 16px; overflow: hidden; position: relative; }
-        .video-box video { width: 100%; height: 100%; object-fit: cover; }
-        .video-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 20px; font-size: 11px; }
-        .call-controls { display: flex; gap: 15px; justify-content: center; padding: 15px; background: #1a1a1a; }
-        .call-btn { width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 22px; cursor: pointer; }
-        .call-end { background: #ff4444; color: white; }
-        .call-mute, .call-video, .call-share { background: #333; color: white; }
-        .incoming-call {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 20px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 4000;
-        }
-        .accept-call { background: #4caf50; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
-        .reject-call { background: #ff4444; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         
         /* Dark Mode */
         .dark-mode {
@@ -980,10 +949,12 @@
         if (Object.keys(users).length === 0) {
             users = {
                 'amine': '123',
-                'khatir': '123'
+                'khatir': '123',
+                'sarah': '123',
+                'youssef': '123'
             };
             localStorage.setItem('app_users', JSON.stringify(users));
-            console.log('✅ Default users created: amine, khatir');
+            console.log('✅ Default users created:', Object.keys(users));
         }
         
         const loginScreen = document.getElementById('login-screen');
@@ -1006,6 +977,29 @@
         const requestsList = document.getElementById('requests-list');
         const allUsersList = document.getElementById('all-users-list');
         const tabs = document.querySelectorAll('.chat-tab');
+        
+        // Toast notification
+        const toast = document.getElementById('toast-notification');
+        const toastAvatar = document.getElementById('toast-avatar');
+        const toastName = document.getElementById('toast-name');
+        const toastMessage = document.getElementById('toast-message');
+        const toastTime = document.getElementById('toast-time');
+        let toastTimeout = null;
+        
+        function showToast(title, message, avatar) {
+            toastAvatar.style.backgroundImage = avatar ? `url(${avatar})` : '';
+            toastAvatar.style.backgroundSize = 'cover';
+            toastAvatar.textContent = avatar ? '' : title.charAt(0).toUpperCase();
+            toastName.textContent = title;
+            toastMessage.textContent = message && message.length > 40 ? message.substring(0, 40) + '...' : message;
+            toastTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            toast.classList.add('show');
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
         
         // Check existing session
         const savedSession = localStorage.getItem('current_session');
@@ -1075,21 +1069,22 @@
             }, 1500);
         };
         
-        // Friend Functions
+        // Friend Functions with Beautiful Toast Notifications
         function sendFriendRequest(toUser) {
             if (!friendships[toUser]) friendships[toUser] = { friends: [], requests: [] };
             if (friendships[toUser].requests?.includes(currentUser.username)) {
-                alert('Request already sent');
+                showToast('✨ Info', `Friend request already sent to ${toUser}`, null);
                 return;
             }
             if (friendships[currentUser.username].friends?.includes(toUser)) {
-                alert('Already friends');
+                showToast('✨ Info', `You are already friends with ${toUser}`, null);
                 return;
             }
             friendships[toUser].requests.push(currentUser.username);
             localStorage.setItem('friendships', JSON.stringify(friendships));
-            alert(`Friend request sent to ${toUser}`);
+            showToast('✨ Friend Request Sent', `✨ Request sent to ${toUser} ✨`, null);
             refreshFriendLists();
+            if (socket) socket.emit('friend-request-sent', { to: toUser, from: currentUser.username });
         }
         
         function acceptFriendRequest(fromUser) {
@@ -1101,8 +1096,9 @@
                 if (!friendships[fromUser]) friendships[fromUser] = { friends: [], requests: [] };
                 friendships[fromUser].friends.push(currentUser.username);
                 localStorage.setItem('friendships', JSON.stringify(friendships));
-                alert(`${fromUser} is now your friend`);
+                showToast('🎉 Friend Added!', `🎉 You are now friends with ${fromUser} 🎉`, null);
                 refreshFriendLists();
+                if (socket) socket.emit('friend-request-accepted', { to: fromUser, from: currentUser.username });
             }
         }
         
@@ -1112,8 +1108,9 @@
             if (index !== -1) {
                 requests.splice(index, 1);
                 localStorage.setItem('friendships', JSON.stringify(friendships));
-                alert(`Rejected request from ${fromUser}`);
+                showToast('📨 Request Rejected', `You rejected the request from ${fromUser}`, null);
                 refreshFriendLists();
+                if (socket) socket.emit('friend-request-rejected', { to: fromUser, from: currentUser.username });
             }
         }
         
@@ -1122,7 +1119,7 @@
             if (!blockedUsers[currentUser.username].includes(userToBlock)) {
                 blockedUsers[currentUser.username].push(userToBlock);
                 localStorage.setItem('blocked_users', JSON.stringify(blockedUsers));
-                alert(`${userToBlock} blocked`);
+                showToast('🚫 User Blocked', `${userToBlock} has been blocked`, null);
                 refreshFriendLists();
                 if (currentChat.type === 'private' && currentChat.username === userToBlock) {
                     document.getElementById('chat-title').textContent = 'Select a friend to chat';
@@ -1141,8 +1138,6 @@
             
             // Get all registered users
             const allRegisteredUsers = Object.keys(users);
-            console.log('All users:', allRegisteredUsers);
-            console.log('Current user:', currentUser.username);
             
             // Friends list
             friendsList.innerHTML = '';
@@ -1189,21 +1184,16 @@
                 requestsList.innerHTML = '<div style="padding: 40px; text-align: center; color: #888;">No friend requests</div>';
             }
             
-            // ALL USERS - SHOW ALL REGISTERED USERS EXCEPT SELF
+            // ALL USERS - SHOW ALL REGISTERED USERS (including everyone)
             allUsersList.innerHTML = '';
             const friendsListArr = friendships[currentUser.username].friends || [];
             const blockedArr = blockedUsers[currentUser.username] || [];
             const pendingRequests = friendships[currentUser.username].requests || [];
             
             // Show ALL users except current user
-            const availableUsers = allRegisteredUsers.filter(u => 
-                u !== currentUser.username
-            );
-            
-            console.log('Available users for All Users tab:', availableUsers);
+            const availableUsers = allRegisteredUsers.filter(u => u !== currentUser.username);
             
             availableUsers.forEach(user => {
-                // Check relationship status
                 let status = '';
                 let button = '';
                 
@@ -1212,12 +1202,12 @@
                     button = `<button class="chat-btn" onclick="event.stopPropagation(); startPrivateChat('${user}')">💬 Chat</button>`;
                 } else if (pendingRequests.includes(user)) {
                     status = 'Request sent';
-                    button = `<span class="friend-status" style="color: #888;">Request sent</span>`;
+                    button = `<span class="friend-status" style="color: #888;">⏳ Request sent</span>`;
                 } else if (blockedArr.includes(user)) {
                     status = 'Blocked';
-                    button = `<span class="friend-status" style="color: #ff6b6b;">Blocked</span>`;
+                    button = `<span class="friend-status" style="color: #ff6b6b;">🚫 Blocked</span>`;
                 } else {
-                    status = 'Not a friend';
+                    status = 'Add friend';
                     button = `<button class="friend-btn add-friend-btn" onclick="event.stopPropagation(); sendFriendRequest('${user}')">➕ Add Friend</button>`;
                 }
                 
@@ -1284,32 +1274,6 @@
         let notificationPermission = false;
         const reactionEmojis = ['👍', '❤️', '😂', '😮', '😢'];
         const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-        
-        // Toast notification
-        const toast = document.getElementById('toast-notification');
-        const toastAvatar = document.getElementById('toast-avatar');
-        const toastName = document.getElementById('toast-name');
-        const toastMessage = document.getElementById('toast-message');
-        const toastTime = document.getElementById('toast-time');
-        let toastTimeout = null;
-        
-        function showToast(title, message, avatar) {
-            if (!messagePreviewEnabled && message && message !== 'New message') {
-                message = 'New message';
-            }
-            toastAvatar.style.backgroundImage = avatar ? `url(${avatar})` : '';
-            toastAvatar.style.backgroundSize = 'cover';
-            toastAvatar.textContent = avatar ? '' : title.charAt(0).toUpperCase();
-            toastName.textContent = title;
-            toastMessage.textContent = message && message.length > 40 ? message.substring(0, 40) + '...' : message || 'New message';
-            toastTime.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            toast.classList.add('show');
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
-        }
         
         // ============ DOM ELEMENTS ============
         const messagesDiv = document.getElementById('messages');
@@ -2008,6 +1972,16 @@
             socket.on('ice-candidate', data => { if (peerConnection) peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)); });
             socket.on('end-call', () => { endCall(); incomingCallDiv.style.display = 'none'; });
             socket.on('username-taken', () => { alert('Username taken!'); logout(); });
+            socket.on('friend-request-received', ({ from }) => {
+                showToast('💌 New Friend Request', `${from} wants to be your friend!`, null);
+                refreshFriendLists();
+                playNotificationSound();
+            });
+            socket.on('friend-request-accepted', ({ from }) => {
+                showToast('🎉 Friend Request Accepted', `${from} accepted your friend request!`, null);
+                refreshFriendLists();
+                playNotificationSound();
+            });
             
             requestNotificationPermission();
             setTimeout(() => { applyThemeToAllMessages(); }, 500);
