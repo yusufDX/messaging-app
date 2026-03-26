@@ -724,8 +724,8 @@
             background: #2d2d2d;
             color: #e4e6eb;
         }
+        /* In dark mode, sent messages keep a neutral gradient (NOT theme colors) */
         .dark-mode .message.sent {
-            /* Keep default dark mode gradient - theme colors don't apply in dark mode */
             background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
         }
         .dark-mode .sidebar,
@@ -1215,13 +1215,21 @@
                 orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
             };
             const gradient = gradients[theme];
-            // Only apply to sent messages (existing and future)
+            
+            // Update header and button gradients (light mode only, but applies anyway)
+            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small').forEach(el => {
+                if (el.style) el.style.background = gradient;
+            });
+            
+            // Update ALL sent messages (both existing and future)
             document.querySelectorAll('.message.sent').forEach(el => {
                 el.style.background = gradient;
             });
+            
             localStorage.setItem('theme_color', theme);
         }
         
+        // Function to apply theme to all existing messages (called after loading)
         function applyThemeToAllMessages() {
             const savedTheme = localStorage.getItem('theme_color') || 'purple';
             setTheme(savedTheme);
@@ -1487,6 +1495,17 @@
             html += `<button class="message-action-btn forward-btn" onclick="forwardMessage({id:${msg.id},text:'${escapeHtml(msg.text).replace(/'/g, "\\'")}',username:'${username}'})">↪️</button>`;
             html += `</div>`;
             html += `<div class="time">${msg.timestamp}</div>`;
+            
+            // Apply current theme to this new message
+            const savedTheme = localStorage.getItem('theme_color') || 'purple';
+            if (isSent) {
+                const gradients = {
+                    purple: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    green: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                    orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
+                };
+                div.style.background = gradients[savedTheme];
+            }
             
             div.innerHTML = html;
             messagesDiv.appendChild(div);
@@ -1785,7 +1804,7 @@
             
             requestNotificationPermission();
             
-            // Apply theme to existing messages after connection
+            // Apply theme to all existing messages after loading
             setTimeout(() => {
                 applyThemeToAllMessages();
             }, 500);
