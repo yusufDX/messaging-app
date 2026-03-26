@@ -17,7 +17,7 @@
             min-height: 100vh;
         }
         
-        /* Login Screen */
+        /* Login Screen - Professional */
         .login-container {
             position: fixed;
             top: 0;
@@ -30,51 +30,61 @@
             justify-content: center;
             z-index: 2000;
             transition: transform 0.5s ease;
+            backdrop-filter: blur(10px);
         }
         .login-container.hide { transform: translateY(-100%); }
         
         .login-card {
-            max-width: 400px;
+            max-width: 420px;
             width: 90%;
-            background: white;
-            border-radius: 30px;
-            padding: 40px 30px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 40px;
+            padding: 50px 35px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeInUp 0.5s ease;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.6s cubic-bezier(0.34, 1.2, 0.64, 1);
+            backdrop-filter: blur(10px);
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .login-card h2 { color: #667eea; margin-bottom: 10px; font-size: 28px; }
-        .login-card p { color: #666; margin-bottom: 30px; font-size: 14px; }
+        .login-card h2 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .login-card p { color: #666; margin-bottom: 35px; font-size: 15px; }
         .login-card input {
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border: 2px solid #e8e8e8;
+            border-radius: 30px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background: #f8f9fa;
         }
-        .login-card input:focus { outline: none; border-color: #667eea; }
+        .login-card input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.1); transform: scale(1.02); }
         .login-card button {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 30px;
             font-size: 16px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 15px;
-            transition: transform 0.2s;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s;
         }
-        .login-card button:hover { transform: scale(1.02); }
-        .error { color: #ff4444; margin-top: 10px; font-size: 14px; }
+        .login-card button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.4); }
+        .error { color: #ff4444; margin-top: 15px; font-size: 14px; }
         
         /* Main App */
         .app-container { display: none; height: 100vh; overflow: hidden; }
@@ -166,6 +176,7 @@
             border: none;
             border-radius: 20px;
             cursor: pointer;
+            margin-left: 4px;
         }
         
         /* Chat Area */
@@ -539,46 +550,64 @@
             transition: background 0.3s;
         }
         
-        /* Settings Modal */
+        /* Settings Modal - Professional */
         .settings-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            border-radius: 24px;
-            padding: 25px;
-            width: 280px;
+            border-radius: 32px;
+            padding: 30px;
+            width: 300px;
             z-index: 5000;
             display: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
             transition: background 0.3s;
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
         .settings-card { text-align: center; }
+        .settings-card h3 { margin-bottom: 25px; color: #667eea; font-size: 24px; }
         .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 15px 0;
+            margin: 20px 0;
         }
-        .theme-colors { display: flex; gap: 10px; }
+        .setting-item label { font-weight: 500; color: #333; }
+        .theme-colors { display: flex; gap: 12px; }
         .theme-color {
-            width: 35px;
-            height: 35px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            border: 2px solid transparent;
         }
-        .theme-color:hover { transform: scale(1.1); }
+        .theme-color:hover { transform: scale(1.1); border-color: #fff; box-shadow: 0 0 0 2px #ddd; }
         .close-settings {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #667eea;
+            margin-top: 25px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             width: 100%;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .close-settings:hover { transform: scale(1.02); }
+        select {
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            font-size: 14px;
         }
         
         /* Video Call */
@@ -618,7 +647,7 @@
         .accept-call { background: #4caf50; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         .reject-call { background: #ff4444; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         
-        /* Dark Mode */
+        /* Dark Mode - With Theme Support */
         .dark-mode {
             background: #1a1a1a;
         }
@@ -630,6 +659,7 @@
             background: #2d2d2d;
             color: #e4e6eb;
         }
+        /* Theme colors in dark mode - will be overridden by setTheme */
         .dark-mode .message.sent {
             background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
         }
@@ -647,9 +677,10 @@
             background: #2d2d2d;
             color: #e4e6eb;
         }
-        .dark-mode .search-box {
-            background: #2d2d2d;
-        }
+        .dark-mode .settings-card h3 { color: #8b9eff; }
+        .dark-mode .setting-item label { color: #e4e6eb; }
+        .dark-mode select { background: #3e3e3e; color: #e4e6eb; border-color: #4e4e4e; }
+        .dark-mode .search-box { background: #2d2d2d; }
         .dark-mode .search-box input,
         .dark-mode #message-input,
         .dark-mode .file-btn,
@@ -702,7 +733,7 @@
     <!-- Login Screen -->
     <div class="login-container" id="login-screen">
         <div class="login-card">
-            <h2>📱 Ultimate Messaging App</h2>
+            <h2>✨ Ultimate Messenger</h2>
             <p>Connect with friends in real-time</p>
             <input type="text" id="username-input" placeholder="Enter your username" autocomplete="off">
             <button id="join-button">Join Chat →</button>
@@ -749,7 +780,6 @@
                     <button class="file-btn" id="image-btn">📷</button>
                     <button class="file-btn" id="file-btn">📎</button>
                     <button class="file-btn" id="voice-btn">🎤</button>
-                    <button class="file-btn" id="audio-call-btn">📞</button>
                     <button class="emoji-btn" id="emoji-btn">😊</button>
                 </div>
                 
@@ -857,6 +887,7 @@
         let replyToMessage = null;
         let userAvatars = {};
         let allMessages = [];
+        let voiceStartTime = null;
         
         // Video call vars
         let localStream = null;
@@ -888,7 +919,6 @@
         const imageBtn = document.getElementById('image-btn');
         const fileBtn = document.getElementById('file-btn');
         const voiceBtn = document.getElementById('voice-btn');
-        const audioCallBtn = document.getElementById('audio-call-btn');
         const emojiBtn = document.getElementById('emoji-btn');
         const emojiPicker = document.getElementById('emoji-picker');
         const fileInput = document.getElementById('file-input');
@@ -951,9 +981,16 @@
                 orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
             };
             const gradient = gradients[theme];
+            // Apply to light mode elements
             document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small').forEach(el => {
                 if (el.style) el.style.background = gradient;
             });
+            // Also apply to dark mode sent messages if in dark mode
+            if (document.body.classList.contains('dark-mode')) {
+                document.querySelectorAll('.message.sent').forEach(el => {
+                    el.style.background = gradient;
+                });
+            }
         }
         
         settingsBtn.onclick = openSettings;
@@ -1148,7 +1185,8 @@
                 if (msg.text) html += `<div class="text">${escapeHtml(msg.text)}</div>`;
                 html += `<a class="message-file" href="${msg.fileUrl}" target="_blank">📄 ${escapeHtml(msg.fileName)}</a>`;
             } else if (msg.type === 'voice') {
-                html += `<div class="voice-message" onclick="playVoice('${msg.voiceUrl}')">🔊 Voice message (${Math.round(msg.duration || 1)}s)</div>`;
+                const duration = Math.round(msg.duration || 1);
+                html += `<div class="voice-message" onclick="playVoice('${msg.voiceUrl}')">🔊 Voice message (${duration}s)</div>`;
             } else {
                 html += `<div class="text">${escapeHtml(msg.text)}</div>`;
             }
@@ -1367,7 +1405,8 @@
             try {
                 const res = await fetch('/upload', { method: 'POST', body: fd });
                 const data = await res.json();
-                const msgData = { type: 'voice', voiceUrl: data.fileUrl, duration: audioChunks.length * 0.02 };
+                const duration = Math.round((Date.now() - voiceStartTime) / 1000);
+                const msgData = { type: 'voice', voiceUrl: data.fileUrl, duration: duration };
                 if (replyToMessage) msgData.replyTo = replyToMessage;
                 if (currentChat.type === 'group') socket.emit('send-message', msgData);
                 else socket.emit('send-private-message', { to: currentChat.username, ...msgData });
@@ -1411,6 +1450,7 @@
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
+                voiceStartTime = Date.now();
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 mediaRecorder.onstop = () => {
                     pendingVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -1419,7 +1459,8 @@
                     voiceBtn.textContent = '🎤';
                     voiceBtn.style.background = '#e4e6eb';
                     previewContainer.style.display = 'block';
-                    previewContent.innerHTML = `<span>🎤 Voice (${Math.round(audioChunks.length * 0.02)}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
+                    const duration = Math.round((Date.now() - voiceStartTime) / 1000);
+                    previewContent.innerHTML = `<span>🎤 Voice (${duration}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
                 };
                 mediaRecorder.start();
                 isRecording = true;
@@ -1510,7 +1551,6 @@
         imageBtn.onclick = () => { fileInput.accept = 'image/*'; fileInput.click(); };
         fileBtn.onclick = () => { fileInput.accept = '*/*'; fileInput.click(); };
         voiceBtn.onclick = () => { if (!isRecording) startRecording(); else stopRecording(); };
-        audioCallBtn.onclick = () => { if (currentChat.type === 'private' && currentChat.username) callUser(currentChat.username, true); else alert('Select a user first'); };
         fileInput.onchange = (e) => { const f = e.target.files[0]; if (f) showFilePreview(f, f.type.startsWith('image/') ? 'image' : 'file'); fileInput.value = ''; };
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendTextMessage(); else onTyping(); });
         emojiBtn.onclick = () => emojiPicker.classList.toggle('show');
