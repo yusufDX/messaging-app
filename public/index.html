@@ -13,7 +13,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f0f2f5;
-            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background 0.3s ease;
             min-height: 100vh;
         }
         
@@ -34,17 +34,17 @@
         .login-container.hide { transform: translateY(-100%); }
         
         .login-card {
-            max-width: 420px;
+            max-width: 400px;
             width: 90%;
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 40px;
-            padding: 45px 35px;
+            background: white;
+            border-radius: 30px;
+            padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            animation: fadeInUp 0.6s cubic-bezier(0.34, 1.2, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.5s ease;
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
@@ -52,44 +52,38 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 12px;
-            font-size: 32px;
-            font-weight: 800;
+            margin-bottom: 10px;
+            font-size: 28px;
         }
-        .login-card p { color: #666; margin-bottom: 25px; font-size: 15px; }
+        .login-card p { color: #666; margin-bottom: 30px; font-size: 14px; }
         .login-card input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 15px;
             margin: 10px 0;
-            border: 2px solid #e8e8e8;
-            border-radius: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
             font-size: 16px;
-            transition: all 0.3s;
-            background: #f8f9fa;
         }
-        .login-card input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.1); }
+        .login-card input:focus { outline: none; border-color: #667eea; }
         .login-card button {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 15px;
             font-size: 16px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: bold;
             margin-top: 15px;
-            transition: all 0.3s;
         }
-        .login-card button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.4); }
         .login-card .register-link {
             margin-top: 15px;
             color: #667eea;
             cursor: pointer;
             font-size: 14px;
         }
-        .login-card .register-link:hover { text-decoration: underline; }
-        .error { color: #ff4444; margin-top: 15px; font-size: 14px; }
+        .error { color: #ff4444; margin-top: 10px; font-size: 14px; }
         
         /* Main App */
         .app-container { display: none; height: 100vh; overflow: hidden; }
@@ -103,7 +97,7 @@
             height: 100%;
             background: white;
             z-index: 1000;
-            transition: left 0.3s ease, background 0.4s;
+            transition: left 0.3s ease, background 0.3s;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
@@ -116,7 +110,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.4s;
+            transition: background 0.3s;
         }
         .profile-pic {
             width: 45px;
@@ -130,7 +124,7 @@
             font-size: 22px;
             background-size: cover;
         }
-        .search-box { padding: 12px; background: #f0f2f5; transition: background 0.4s; }
+        .search-box { padding: 12px; background: #f0f2f5; transition: background 0.3s; }
         .search-box input {
             width: 100%;
             padding: 12px;
@@ -138,12 +132,14 @@
             border-radius: 25px;
             background: white;
             font-size: 14px;
+            transition: background 0.3s, color 0.3s;
         }
         .chat-tabs {
             display: flex;
             padding: 10px;
             gap: 10px;
             background: #f0f2f5;
+            transition: background 0.3s;
         }
         .chat-tab {
             flex: 1;
@@ -154,22 +150,30 @@
             background: #e4e6eb;
             transition: all 0.3s;
             font-weight: 500;
+            color: #333;
         }
         .chat-tab.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        .online-users { flex: 1; overflow-y: auto; padding: 10px; }
+        .user-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f0f2f5;
+            transition: background 0.3s;
+        }
         .user-item {
             padding: 12px;
-            margin: 5px 0;
+            margin: 8px 0;
             cursor: pointer;
             border-radius: 12px;
-            background: #f5f5f5;
+            background: white;
             display: flex;
             align-items: center;
             gap: 12px;
             transition: background 0.3s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .user-item:hover { background: #e4e6eb; }
         .user-item.active { background: #667eea20; border-left: 3px solid #667eea; }
@@ -188,26 +192,29 @@
             flex-shrink: 0;
         }
         .user-info { flex: 1; }
-        .user-name { font-weight: 600; font-size: 16px; }
-        .user-status { font-size: 11px; color: #666; }
+        .user-name { font-weight: 600; font-size: 16px; color: #1a1a1a; transition: color 0.3s; }
+        .user-status { font-size: 11px; color: #666; margin-top: 2px; transition: color 0.3s; }
         .friend-actions {
             display: flex;
-            gap: 5px;
+            gap: 6px;
         }
         .friend-btn {
-            padding: 4px 8px;
+            padding: 6px 12px;
             font-size: 11px;
             border: none;
-            border-radius: 15px;
+            border-radius: 20px;
             cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
         }
+        .friend-btn:hover { transform: scale(1.02); }
         .add-friend-btn { background: #667eea; color: white; }
         .accept-btn { background: #4caf50; color: white; }
         .reject-btn { background: #ff4444; color: white; }
         .block-btn { background: #ff6b6b; color: white; }
-        .friend-status { font-size: 10px; color: #888; }
+        .chat-btn { background: #0088cc; color: white; }
         .call-btn-small {
-            padding: 6px 10px;
+            padding: 6px 12px;
             font-size: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -223,7 +230,7 @@
             flex-direction: column;
             background: #f0f2f5;
             height: 100%;
-            transition: background 0.4s;
+            transition: background 0.3s;
         }
         .chat-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -235,7 +242,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            transition: background 0.4s;
+            transition: background 0.3s;
         }
         .menu-btn {
             background: none;
@@ -264,21 +271,21 @@
             background-size: cover;
         }
         .chat-title { font-weight: bold; font-size: 16px; }
-        .back-to-group {
+        .settings-btn {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
             padding: 6px 12px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
         }
         .messages {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
             background: #f0f2f5;
-            transition: background 0.4s;
+            transition: background 0.3s;
         }
         
         /* Messages */
@@ -304,7 +311,7 @@
             color: black;
             border-bottom-left-radius: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            transition: background 0.4s;
+            transition: background 0.3s;
         }
         .message .user {
             font-size: 11px;
@@ -437,8 +444,8 @@
         }
         .message:hover .seen-by { display: block; }
         
-        /* Input Area */
-        .input-area { padding: 12px; background: white; border-top: 1px solid #e4e6eb; transition: background 0.4s; }
+        /* Input Area - NO WEIRD BOX */
+        .input-area { padding: 12px; background: white; border-top: 1px solid #e4e6eb; transition: background 0.3s; }
         .input-buttons {
             display: flex;
             gap: 8px;
@@ -446,12 +453,13 @@
             flex-wrap: wrap;
         }
         .file-btn, .emoji-btn {
-            padding: 8px 12px;
+            padding: 8px 14px;
             background: #e4e6eb;
             border: none;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            transition: background 0.2s;
         }
         .reply-indicator {
             background: #f0f2f5;
@@ -462,20 +470,8 @@
             border-left: 3px solid #667eea;
             justify-content: space-between;
             align-items: center;
+            font-size: 12px;
         }
-        .preview-container {
-            margin-bottom: 8px;
-            padding: 8px;
-            background: #f0f2f5;
-            border-radius: 12px;
-            display: none;
-        }
-        .preview-container.show {
-            display: block;
-        }
-        .preview-content { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-        .preview-image { max-width: 40px; max-height: 40px; border-radius: 8px; }
-        .cancel-preview { cursor: pointer; color: red; margin-left: auto; font-weight: bold; }
         .message-input-wrapper { display: flex; gap: 8px; }
         #message-input {
             flex: 1;
@@ -484,6 +480,7 @@
             border-radius: 25px;
             font-size: 15px;
             background: #f0f2f5;
+            transition: background 0.3s, color 0.3s;
         }
         #send-button {
             padding: 12px 20px;
@@ -494,7 +491,7 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; }
+        .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; transition: color 0.3s; }
         
         .emoji-picker {
             position: absolute;
@@ -611,7 +608,7 @@
             transition: all 0.2s;
             border: 2px solid transparent;
         }
-        .theme-color:hover { transform: scale(1.1); border-color: #fff; box-shadow: 0 0 0 2px #ddd; }
+        .theme-color:hover { transform: scale(1.1); }
         select {
             padding: 10px 15px;
             border-radius: 25px;
@@ -657,9 +654,8 @@
         .toast-notification {
             position: fixed;
             bottom: 30px;
-            left: 20px;
             right: 20px;
-            max-width: 380px;
+            max-width: 350px;
             background: white;
             border-radius: 20px;
             padding: 15px;
@@ -668,7 +664,7 @@
             align-items: center;
             gap: 12px;
             z-index: 6000;
-            transform: translateX(-120%);
+            transform: translateX(120%);
             transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
             cursor: pointer;
         }
@@ -688,32 +684,10 @@
             font-weight: bold;
             background-size: cover;
         }
-        .toast-content {
-            flex: 1;
-        }
-        .toast-name {
-            font-weight: bold;
-            font-size: 15px;
-            margin-bottom: 3px;
-        }
-        .toast-message {
-            font-size: 13px;
-            color: #666;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .toast-time {
-            font-size: 10px;
-            color: #999;
-        }
-        .dark-mode .toast-notification {
-            background: #2d2d2d;
-            color: #e4e6eb;
-        }
-        .dark-mode .toast-message {
-            color: #aaa;
-        }
+        .toast-content { flex: 1; }
+        .toast-name { font-weight: bold; font-size: 15px; margin-bottom: 3px; }
+        .toast-message { font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .toast-time { font-size: 10px; color: #999; }
         
         /* Video Call */
         .video-call-container {
@@ -751,12 +725,14 @@
         .accept-call { background: #4caf50; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         .reject-call { background: #ff4444; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         
-        /* Dark Mode */
+        /* Dark Mode - COMPLETE */
         .dark-mode {
             background: #1a1a1a;
         }
         .dark-mode .chat-area,
-        .dark-mode .messages {
+        .dark-mode .messages,
+        .dark-mode .user-list-container,
+        .dark-mode .chat-tabs {
             background: #1e1e1e;
         }
         .dark-mode .message.received {
@@ -767,7 +743,6 @@
             background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
         }
         .dark-mode .sidebar,
-        .dark-mode .preview-container,
         .dark-mode .emoji-picker,
         .dark-mode .reaction-picker,
         .dark-mode .profile-modal-content,
@@ -781,10 +756,9 @@
             background: #2d2d2d;
             color: #e4e6eb;
         }
-        .dark-mode .settings-card h3 { color: #8b9eff; }
-        .dark-mode .setting-item label { color: #e4e6eb; }
-        .dark-mode select { background: #3e3e3e; color: #e4e6eb; border-color: #4e4e4e; }
-        .dark-mode .search-box { background: #2d2d2d; }
+        .dark-mode .search-box {
+            background: #2d2d2d;
+        }
         .dark-mode .search-box input,
         .dark-mode #message-input,
         .dark-mode .file-btn,
@@ -800,27 +774,51 @@
         .dark-mode .user-item:hover {
             background: #4e4e4e;
         }
-        .dark-mode .sidebar-header,
-        .dark-mode .chat-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
-        }
-        .dark-mode .typing-indicator {
-            color: #999;
+        .dark-mode .user-name {
+            color: #e4e6eb;
         }
         .dark-mode .user-status {
             color: #aaa;
         }
+        .dark-mode .sidebar-header,
+        .dark-mode .chat-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a1a2e 100%);
+        }
+        .dark-mode .chat-tab {
+            background: #3e3e3e;
+            color: #e4e6eb;
+        }
+        .dark-mode .chat-tab.active {
+            background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
+            color: white;
+        }
+        .dark-mode .typing-indicator {
+            color: #999;
+        }
         .dark-mode .message .time {
+            color: #aaa;
+        }
+        .dark-mode .setting-item label {
+            color: #e4e6eb;
+        }
+        .dark-mode select {
+            background: #3e3e3e;
+            color: #e4e6eb;
+            border-color: #4e4e4e;
+        }
+        .dark-mode .settings-card h3 {
+            color: #8b9eff;
+        }
+        .dark-mode .toast-message {
             color: #aaa;
         }
         
         @media (min-width: 768px) {
             .app-container { display: flex !important; flex-direction: row; height: 100vh; }
-            .sidebar { position: relative; left: 0; width: 300px; height: 100%; }
+            .sidebar { position: relative; left: 0; width: 320px; height: 100%; }
             .menu-btn { display: none; }
             .chat-area { flex: 1; }
             .message { max-width: 60%; }
-            .toast-notification { left: auto; right: 20px; bottom: 30px; }
         }
     </style>
 </head>
@@ -864,9 +862,9 @@
                 <div class="chat-tab" data-tab="requests">📨 Requests</div>
                 <div class="chat-tab" data-tab="all">🌐 All Users</div>
             </div>
-            <div id="friends-list" class="online-users"></div>
-            <div id="requests-list" class="online-users" style="display: none;"></div>
-            <div id="all-users-list" class="online-users" style="display: none;"></div>
+            <div id="friends-list" class="user-list-container"></div>
+            <div id="requests-list" class="user-list-container" style="display: none;"></div>
+            <div id="all-users-list" class="user-list-container" style="display: none;"></div>
         </div>
         
         <div class="chat-area">
@@ -880,8 +878,8 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button class="back-to-group" id="settings-btn">⚙️</button>
-                    <button class="back-to-group" id="dark-mode-toggle">🌙</button>
+                    <button class="settings-btn" id="settings-btn">⚙️</button>
+                    <button class="settings-btn" id="dark-mode-toggle">🌙</button>
                 </div>
             </div>
             
@@ -890,19 +888,15 @@
             
             <div class="input-area">
                 <div class="input-buttons">
-                    <button class="file-btn" id="image-btn">📷</button>
-                    <button class="file-btn" id="file-btn">📎</button>
-                    <button class="file-btn" id="voice-btn">🎤</button>
-                    <button class="emoji-btn" id="emoji-btn">😊</button>
+                    <button class="file-btn" id="image-btn">📷 Image</button>
+                    <button class="file-btn" id="file-btn">📎 File</button>
+                    <button class="file-btn" id="voice-btn">🎤 Voice</button>
+                    <button class="emoji-btn" id="emoji-btn">😊 Emoji</button>
                 </div>
                 
                 <div class="reply-indicator" id="reply-indicator">
                     <div id="reply-preview"></div>
                     <button onclick="cancelReply()" style="background: none; border: none; color: red; cursor: pointer;">✖</button>
-                </div>
-                
-                <div class="preview-container" id="preview-container">
-                    <div class="preview-content" id="preview-content"></div>
                 </div>
                 
                 <div class="message-input-wrapper">
@@ -1003,6 +997,17 @@
         let friendships = JSON.parse(localStorage.getItem('friendships') || '{}');
         let blockedUsers = JSON.parse(localStorage.getItem('blocked_users') || '{}');
         
+        // Create default test users if none exist
+        if (Object.keys(users).length === 0) {
+            users = {
+                'amine': '123',
+                'khatir': '123',
+                'sarah': '123',
+                'mohamed': '123'
+            };
+            localStorage.setItem('app_users', JSON.stringify(users));
+        }
+        
         const loginScreen = document.getElementById('login-screen');
         const loginCard = document.getElementById('login-card');
         const registerCard = document.getElementById('register-card');
@@ -1095,17 +1100,17 @@
         // Friend Functions
         function sendFriendRequest(toUser) {
             if (!friendships[toUser]) friendships[toUser] = { friends: [], requests: [] };
-            if (friendships[toUser].requests.includes(currentUser.username)) {
-                showToast('Info', 'Request already sent', null, 'info');
+            if (friendships[toUser].requests?.includes(currentUser.username)) {
+                showToast('Info', 'Request already sent', null);
                 return;
             }
-            if (friendships[currentUser.username].friends.includes(toUser)) {
-                showToast('Info', 'Already friends', null, 'info');
+            if (friendships[currentUser.username].friends?.includes(toUser)) {
+                showToast('Info', 'Already friends', null);
                 return;
             }
             friendships[toUser].requests.push(currentUser.username);
             localStorage.setItem('friendships', JSON.stringify(friendships));
-            showToast('Friend Request Sent', `To ${toUser}`, null, 'info');
+            showToast('Friend Request Sent', `To ${toUser}`, null);
             refreshFriendLists();
             if (socket) socket.emit('friend-request-sent', { to: toUser, from: currentUser.username });
         }
@@ -1119,7 +1124,7 @@
                 if (!friendships[fromUser]) friendships[fromUser] = { friends: [], requests: [] };
                 friendships[fromUser].friends.push(currentUser.username);
                 localStorage.setItem('friendships', JSON.stringify(friendships));
-                showToast('Friend Added', `${fromUser} is now your friend`, null, 'success');
+                showToast('Friend Added', `${fromUser} is now your friend`, null);
                 refreshFriendLists();
                 if (socket) socket.emit('friend-request-accepted', { to: fromUser, from: currentUser.username });
             }
@@ -1131,7 +1136,7 @@
             if (index !== -1) {
                 requests.splice(index, 1);
                 localStorage.setItem('friendships', JSON.stringify(friendships));
-                showToast('Request Rejected', `Rejected request from ${fromUser}`, null, 'info');
+                showToast('Request Rejected', `Rejected request from ${fromUser}`, null);
                 refreshFriendLists();
                 if (socket) socket.emit('friend-request-rejected', { to: fromUser, from: currentUser.username });
             }
@@ -1142,24 +1147,12 @@
             if (!blockedUsers[currentUser.username].includes(userToBlock)) {
                 blockedUsers[currentUser.username].push(userToBlock);
                 localStorage.setItem('blocked_users', JSON.stringify(blockedUsers));
-                showToast('User Blocked', `${userToBlock} has been blocked`, null, 'warning');
+                showToast('User Blocked', `${userToBlock} has been blocked`, null);
                 refreshFriendLists();
                 if (currentChat.type === 'private' && currentChat.username === userToBlock) {
                     document.getElementById('chat-title').textContent = 'Select a friend to chat';
                     messagesDiv.innerHTML = '';
                     currentChat = { type: 'group', username: null };
-                }
-            }
-        }
-        
-        function unblockUser(userToUnblock) {
-            if (blockedUsers[currentUser.username]) {
-                const index = blockedUsers[currentUser.username].indexOf(userToUnblock);
-                if (index !== -1) {
-                    blockedUsers[currentUser.username].splice(index, 1);
-                    localStorage.setItem('blocked_users', JSON.stringify(blockedUsers));
-                    showToast('User Unblocked', `${userToUnblock} has been unblocked`, null, 'info');
-                    refreshFriendLists();
                 }
             }
         }
@@ -1181,16 +1174,16 @@
                     <div class="user-avatar">${friend.charAt(0).toUpperCase()}</div>
                     <div class="user-info">
                         <div class="user-name">${escapeHtml(friend)}</div>
-                        <div class="friend-status">Friend</div>
+                        <div class="user-status">Friend</div>
                     </div>
-                    <button class="call-btn-small" onclick="event.stopPropagation(); startPrivateChat('${friend}')">💬</button>
-                    <button class="friend-btn block-btn" onclick="event.stopPropagation(); blockUser('${friend}')">🚫</button>
+                    <button class="chat-btn" onclick="event.stopPropagation(); startPrivateChat('${friend}')">💬 Chat</button>
+                    <button class="friend-btn block-btn" onclick="event.stopPropagation(); blockUser('${friend}')">🚫 Block</button>
                 `;
                 div.onclick = () => startPrivateChat(friend);
                 friendsList.appendChild(div);
             });
             if (friends.length === 0) {
-                friendsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No friends yet. Add some!</div>';
+                friendsList.innerHTML = '<div style="padding: 40px; text-align: center; color: #888;">No friends yet.<br>Add some friends!</div>';
             }
             
             // Requests list
@@ -1203,20 +1196,20 @@
                     <div class="user-avatar">${req.charAt(0).toUpperCase()}</div>
                     <div class="user-info">
                         <div class="user-name">${escapeHtml(req)}</div>
-                        <div class="friend-status">Friend request</div>
+                        <div class="user-status">Friend request</div>
                     </div>
-                    <div class="friend-actions">
-                        <button class="friend-btn accept-btn" onclick="event.stopPropagation(); acceptFriendRequest('${req}')">✓</button>
-                        <button class="friend-btn reject-btn" onclick="event.stopPropagation(); rejectFriendRequest('${req}')">✗</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="friend-btn accept-btn" onclick="event.stopPropagation(); acceptFriendRequest('${req}')">✓ Accept</button>
+                        <button class="friend-btn reject-btn" onclick="event.stopPropagation(); rejectFriendRequest('${req}')">✗ Reject</button>
                     </div>
                 `;
                 requestsList.appendChild(div);
             });
             if (requests.length === 0) {
-                requestsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No friend requests</div>';
+                requestsList.innerHTML = '<div style="padding: 40px; text-align: center; color: #888;">No friend requests</div>';
             }
             
-            // All users list (excluding self, friends, and blocked)
+            // All users list
             allUsersList.innerHTML = '';
             const allUsers = Object.keys(users);
             const friendsListArr = friendships[currentUser.username].friends || [];
@@ -1235,14 +1228,14 @@
                     <div class="user-avatar">${user.charAt(0).toUpperCase()}</div>
                     <div class="user-info">
                         <div class="user-name">${escapeHtml(user)}</div>
-                        <div class="friend-status">Not a friend</div>
+                        <div class="user-status">Not a friend</div>
                     </div>
-                    <button class="friend-btn add-friend-btn" onclick="event.stopPropagation(); sendFriendRequest('${user}')">➕ Add</button>
+                    <button class="friend-btn add-friend-btn" onclick="event.stopPropagation(); sendFriendRequest('${user}')">➕ Add Friend</button>
                 `;
                 allUsersList.appendChild(div);
             });
             if (availableUsers.length === 0) {
-                allUsersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No users found</div>';
+                allUsersList.innerHTML = '<div style="padding: 40px; text-align: center; color: #888;">No users found</div>';
             }
         }
         
@@ -1299,8 +1292,8 @@
         const toastTime = document.getElementById('toast-time');
         let toastTimeout = null;
         
-        function showToast(title, message, avatar, type = 'message') {
-            if (type === 'message' && !messagePreviewEnabled && message && message !== 'New message') {
+        function showToast(title, message, avatar) {
+            if (!messagePreviewEnabled && message && message !== 'New message') {
                 message = 'New message';
             }
             toastAvatar.style.backgroundImage = avatar ? `url(${avatar})` : '';
@@ -1329,8 +1322,6 @@
         const emojiBtn = document.getElementById('emoji-btn');
         const emojiPicker = document.getElementById('emoji-picker');
         const fileInput = document.getElementById('file-input');
-        const previewContainer = document.getElementById('preview-container');
-        const previewContent = document.getElementById('preview-content');
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
         const profilePicBtn = document.getElementById('profile-pic-btn');
@@ -1721,7 +1712,7 @@
             if (!isSent && !document.hasFocus() && !isBlocked(username) && 
                 !(currentChat.type === 'private' && currentChat.username === username)) {
                 const senderAvatar = getUserAvatar(username);
-                showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar, 'message');
+                showToast(username, msg.text || '📷 Image' || '📎 File' || '🎤 Voice', senderAvatar);
                 playNotificationSound();
             }
         }
@@ -1752,14 +1743,14 @@
             ).slice(0, 10);
             if (results.length) {
                 searchResults.innerHTML = results.map(u => `
-                    <div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="sendFriendRequest('${u}')">
-                        <span>${escapeHtml(u)}</span>
-                        <button class="friend-btn add-friend-btn" style="padding: 4px 12px;">➕ Add</button>
+                    <div style="padding: 12px; border-bottom: 1px solid #ddd; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="sendFriendRequest('${u}')">
+                        <span><strong>${escapeHtml(u)}</strong></span>
+                        <button class="friend-btn add-friend-btn" style="padding: 6px 12px;">➕ Add</button>
                     </div>
                 `).join('');
                 searchResults.style.display = 'block';
             } else {
-                searchResults.innerHTML = '<div style="padding: 10px;">No users found</div>';
+                searchResults.innerHTML = '<div style="padding: 12px; text-align: center;">No users found</div>';
                 searchResults.style.display = 'block';
             }
         }
@@ -1922,23 +1913,9 @@
             }
         }
         
-        function showFilePreview(file, type) {
-            pendingFile = { file, type };
-            previewContainer.classList.add('show');
-            if (type === 'image') {
-                const r = new FileReader();
-                r.onload = (e) => { previewContent.innerHTML = `<img class="preview-image" src="${e.target.result}"><span>${escapeHtml(file.name)}</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`; };
-                r.readAsDataURL(file);
-            } else {
-                previewContent.innerHTML = `<span>📄</span><span>${escapeHtml(file.name)} (${formatFileSize(file.size)})</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
-            }
-        }
-        
         function clearPreview() { 
             pendingFile = null; 
             pendingVoiceBlob = null; 
-            previewContainer.classList.remove('show');
-            previewContent.innerHTML = ''; 
         }
         
         // ============ VOICE RECORDING ============
@@ -1955,9 +1932,8 @@
                     recordingIndicator.style.display = 'none';
                     voiceBtn.textContent = '🎤';
                     voiceBtn.style.background = '#e4e6eb';
-                    previewContainer.classList.add('show');
                     const duration = Math.round((Date.now() - voiceStartTime) / 1000);
-                    previewContent.innerHTML = `<span>🎤 Voice (${duration}s)</span><span class="cancel-preview" onclick="clearPreview()">✖</span>`;
+                    showToast('Voice Recording', `${duration}s recorded`, null);
                 };
                 mediaRecorder.start();
                 isRecording = true;
@@ -1995,7 +1971,7 @@
                 }
                 if (!document.hasFocus() && !isBlocked(other) && 
                     !(currentChat.type === 'private' && currentChat.username === other)) {
-                    showToast(m.from, m.text || '📷 Image' || '📎 File' || '🎤 Voice', getUserAvatar(m.from), 'message');
+                    showToast(m.from, m.text || '📷 Image' || '📎 File' || '🎤 Voice', getUserAvatar(m.from));
                     playNotificationSound();
                 }
             });
@@ -2032,12 +2008,12 @@
             socket.on('end-call', () => { endCall(); incomingCallDiv.style.display = 'none'; });
             socket.on('username-taken', () => { alert('Username taken!'); logout(); });
             socket.on('friend-request-received', ({ from }) => {
-                showToast('Friend Request', `${from} sent you a friend request`, null, 'info');
+                showToast('Friend Request', `${from} sent you a friend request`, null);
                 refreshFriendLists();
                 playNotificationSound();
             });
             socket.on('friend-request-accepted', ({ from }) => {
-                showToast('Friend Request Accepted', `${from} accepted your request`, null, 'success');
+                showToast('Friend Request Accepted', `${from} accepted your request`, null);
                 refreshFriendLists();
                 playNotificationSound();
             });
@@ -2068,7 +2044,7 @@
         imageBtn.onclick = () => { fileInput.accept = 'image/*'; fileInput.click(); };
         fileBtn.onclick = () => { fileInput.accept = '*/*'; fileInput.click(); };
         voiceBtn.onclick = () => { if (!isRecording) startRecording(); else stopRecording(); };
-        fileInput.onchange = (e) => { const f = e.target.files[0]; if (f) showFilePreview(f, f.type.startsWith('image/') ? 'image' : 'file'); fileInput.value = ''; };
+        fileInput.onchange = (e) => { const f = e.target.files[0]; if (f) { pendingFile = { file: f, type: f.type.startsWith('image/') ? 'image' : 'file' }; sendTextMessage(); } fileInput.value = ''; };
         messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendTextMessage(); else onTyping(); });
         emojiBtn.onclick = () => emojiPicker.classList.toggle('show');
         profilePicBtn.onclick = openProfileModal;
@@ -2121,7 +2097,6 @@
         window.acceptFriendRequest = acceptFriendRequest;
         window.rejectFriendRequest = rejectFriendRequest;
         window.blockUser = blockUser;
-        window.unblockUser = unblockUser;
         window.startPrivateChat = startPrivateChat;
     </script>
 </body>
