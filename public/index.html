@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Messenger - Reels & Chat</title>
+    <title>Ultimate Messenger - Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #000;
-            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f0f2f5;
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
             min-height: 100vh;
         }
         
@@ -50,6 +50,7 @@
             border: 2px solid #e0e0e0;
             border-radius: 15px;
             font-size: 16px;
+            transition: border-color 0.3s;
         }
         .login-card input:focus { outline: none; border-color: #667eea; }
         .login-card button {
@@ -63,104 +64,13 @@
             cursor: pointer;
             font-weight: bold;
             margin-top: 15px;
-        }
-        .error { color: #ff4444; margin-top: 10px; font-size: 14px; }
-        
-        /* Main App - Split View */
-        .app-container { display: none; height: 100vh; overflow: hidden; background: #000; }
-        
-        /* Reels Section - TikTok Style Short Videos */
-        .reels-container {
-            flex: 1;
-            background: black;
-            position: relative;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            height: 100vh;
-            display: none;
-        }
-        .reels-container.active {
-            display: block;
-        }
-        .reel-item {
-            height: 100vh;
-            scroll-snap-align: start;
-            position: relative;
-            background: black;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .reel-video {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-        .reel-video iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .reel-overlay {
-            position: absolute;
-            bottom: 100px;
-            right: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            z-index: 10;
-        }
-        .reel-action {
-            background: rgba(0,0,0,0.6);
-            border: none;
-            color: white;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             transition: transform 0.2s;
         }
-        .reel-action:hover { transform: scale(1.1); }
-        .reel-info {
-            position: absolute;
-            bottom: 100px;
-            left: 15px;
-            color: white;
-            z-index: 10;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-        .reel-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
-        .reel-views { font-size: 12px; opacity: 0.8; margin-bottom: 5px; }
-        .reel-user { font-size: 13px; display: flex; align-items: center; gap: 8px; }
-        .reel-user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
+        .login-card button:hover { transform: scale(1.02); }
+        .error { color: #ff4444; margin-top: 10px; font-size: 14px; }
         
-        /* Chat Section */
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f0f2f5;
-            height: 100vh;
-            transition: background 0.4s;
-            display: none;
-        }
-        .chat-container.active {
-            display: flex;
-        }
+        /* Main App */
+        .app-container { display: none; height: 100vh; overflow: hidden; }
         
         /* Sidebar */
         .sidebar {
@@ -171,7 +81,7 @@
             height: 100%;
             background: white;
             z-index: 1000;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
@@ -184,7 +94,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.3s;
+            transition: background 0.4s;
         }
         .profile-pic {
             width: 45px;
@@ -198,8 +108,9 @@
             font-size: 22px;
             background-size: cover;
             background-position: center;
+            transition: background 0.3s;
         }
-        .search-box { padding: 12px; background: #f0f2f5; transition: background 0.3s; }
+        .search-box { padding: 12px; background: #f0f2f5; transition: background 0.4s; }
         .search-box input {
             width: 100%;
             padding: 12px;
@@ -207,12 +118,14 @@
             border-radius: 25px;
             background: white;
             font-size: 14px;
+            transition: background 0.4s, color 0.3s;
         }
         .mode-tabs {
             display: flex;
             padding: 10px;
             gap: 10px;
             background: #f0f2f5;
+            transition: background 0.4s;
         }
         .mode-tab {
             flex: 1;
@@ -258,7 +171,7 @@
             flex-shrink: 0;
         }
         .user-info { flex: 1; }
-        .user-name { font-weight: 600; font-size: 16px; }
+        .user-name { font-weight: 600; font-size: 16px; transition: color 0.3s; }
         .user-status { font-size: 11px; color: #666; transition: color 0.3s; }
         .call-btn-small {
             padding: 6px 10px;
@@ -268,9 +181,18 @@
             border: none;
             border-radius: 20px;
             cursor: pointer;
+            transition: background 0.3s;
         }
         
-        /* Chat Header */
+        /* Chat Section */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f0f2f5;
+            height: 100vh;
+            transition: background 0.4s;
+        }
         .chat-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -281,7 +203,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            transition: background 0.3s;
+            transition: background 0.4s;
         }
         .menu-btn {
             background: none;
@@ -290,7 +212,9 @@
             font-size: 24px;
             cursor: pointer;
             padding: 5px;
+            transition: transform 0.2s;
         }
+        .menu-btn:hover { transform: scale(1.1); }
         .chat-info {
             display: flex;
             align-items: center;
@@ -308,6 +232,7 @@
             justify-content: center;
             font-size: 22px;
             background-size: cover;
+            transition: background 0.3s;
         }
         .chat-title { font-weight: bold; font-size: 16px; }
         .settings-btn {
@@ -318,9 +243,9 @@
             border-radius: 25px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        .settings-btn:hover { background: rgba(255,255,255,0.3); }
+        .settings-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.02); }
         .messages {
             flex: 1;
             overflow-y: auto;
@@ -351,7 +276,7 @@
             color: black;
             border-bottom-left-radius: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            transition: background 0.3s;
+            transition: background 0.4s;
         }
         .message .user {
             font-size: 11px;
@@ -366,9 +291,10 @@
             height: 20px;
             border-radius: 50%;
             background-size: cover;
+            background-position: center;
             flex-shrink: 0;
         }
-        .message .text { font-size: 14px; line-height: 1.4; word-break: break-word; }
+        .message .text { font-size: 14px; line-height: 1.4; word-break: break-word; transition: color 0.3s; }
         .message-image {
             max-width: 100%;
             max-height: 200px;
@@ -404,7 +330,7 @@
             font-size: 11px;
             border-left: 2px solid #667eea;
         }
-        .message .time { font-size: 9px; margin-top: 4px; opacity: 0.6; }
+        .message .time { font-size: 9px; margin-top: 4px; opacity: 0.6; transition: color 0.3s; }
         
         /* Poll */
         .poll-container {
@@ -428,19 +354,8 @@
         .poll-percentage { font-weight: bold; color: #667eea; }
         
         /* Reactions */
-        .message-reactions {
-            display: flex;
-            gap: 4px;
-            margin-top: 5px;
-            flex-wrap: wrap;
-        }
-        .reaction {
-            background: rgba(0,0,0,0.1);
-            padding: 2px 6px;
-            border-radius: 20px;
-            font-size: 11px;
-            cursor: pointer;
-        }
+        .message-reactions { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+        .reaction { background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 20px; font-size: 11px; cursor: pointer; }
         .reaction-btn {
             position: absolute;
             top: -8px;
@@ -455,6 +370,7 @@
             cursor: pointer;
             font-size: 11px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: background 0.3s;
         }
         .message:hover .reaction-btn { display: flex; }
         .reaction-picker {
@@ -467,13 +383,10 @@
             display: none;
             gap: 6px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: background 0.3s;
         }
         .reaction-picker.show { display: flex; }
-        .reaction-emoji {
-            font-size: 18px;
-            cursor: pointer;
-            padding: 4px;
-        }
+        .reaction-emoji { font-size: 18px; cursor: pointer; padding: 4px; }
         
         /* Message Actions */
         .message-actions {
@@ -486,6 +399,7 @@
             display: none;
             gap: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: background 0.3s;
         }
         .message:hover .message-actions { display: flex; }
         .message-action-btn {
@@ -517,17 +431,13 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             display: none;
             white-space: nowrap;
+            transition: background 0.3s;
         }
         .message:hover .seen-by { display: block; }
         
         /* Input Area */
-        .input-area { padding: 12px; background: white; border-top: 1px solid #e4e6eb; transition: background 0.3s; }
-        .action-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
+        .input-area { padding: 12px; background: white; border-top: 1px solid #e4e6eb; transition: background 0.4s; }
+        .action-bar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         .action-btn {
             background: none;
             border: none;
@@ -552,6 +462,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             min-width: 220px;
+            transition: background 0.3s;
         }
         .plus-menu.show { display: grid; }
         .plus-item {
@@ -563,6 +474,7 @@
             cursor: pointer;
             border-radius: 12px;
             font-size: 12px;
+            transition: background 0.2s;
         }
         .plus-item:hover { background: #f0f2f5; }
         .plus-item .icon { font-size: 24px; }
@@ -576,6 +488,7 @@
             border-left: 3px solid #667eea;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.3s;
         }
         .preview-container {
             margin-bottom: 8px;
@@ -583,18 +496,10 @@
             background: #f0f2f5;
             border-radius: 12px;
             display: none;
+            transition: background 0.3s;
         }
-        .preview-content {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-        }
-        .preview-image {
-            max-width: 40px;
-            max-height: 40px;
-            border-radius: 8px;
-        }
+        .preview-content { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+        .preview-image { max-width: 40px; max-height: 40px; border-radius: 8px; }
         .cancel-preview { cursor: pointer; color: red; margin-left: auto; font-weight: bold; }
         .message-input-wrapper { display: flex; gap: 8px; }
         #message-input {
@@ -604,6 +509,7 @@
             border-radius: 25px;
             font-size: 15px;
             background: #f0f2f5;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
         }
         #send-button {
             padding: 12px 20px;
@@ -613,8 +519,10 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
+            transition: transform 0.2s;
         }
-        .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; }
+        #send-button:hover { transform: scale(1.02); }
+        .typing-indicator { padding: 8px 15px; color: #666; font-size: 11px; font-style: italic; transition: color 0.3s; }
         
         .emoji-picker {
             position: absolute;
@@ -631,9 +539,11 @@
             z-index: 1000;
             max-height: 300px;
             overflow-y: auto;
+            transition: background 0.3s;
         }
         .emoji-picker.show { display: grid; }
-        .emoji { cursor: pointer; font-size: 28px; padding: 5px; text-align: center; }
+        .emoji { cursor: pointer; font-size: 28px; padding: 5px; text-align: center; transition: transform 0.1s; }
+        .emoji:hover { transform: scale(1.2); }
         
         .gif-picker {
             position: absolute;
@@ -648,6 +558,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             z-index: 1000;
+            transition: background 0.3s;
         }
         .gif-picker.show { display: grid; }
         .gif-item {
@@ -656,6 +567,7 @@
             padding: 12px;
             border-radius: 12px;
             background: #f0f2f5;
+            transition: background 0.2s;
         }
         .gif-item:hover { background: #e4e6eb; }
         
@@ -672,6 +584,7 @@
             z-index: 5000;
             display: none;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: background 0.3s;
         }
         .schedule-picker input, .translation-picker select, .poll-creator input {
             width: 100%;
@@ -720,6 +633,7 @@
             padding: 25px;
             text-align: center;
             width: 280px;
+            transition: background 0.3s;
         }
         .profile-pic-large {
             width: 100px;
@@ -746,6 +660,7 @@
             width: 90%;
             left: 5%;
             top: 60px;
+            transition: background 0.3s;
         }
         
         /* Video Call */
@@ -780,6 +695,7 @@
             align-items: center;
             justify-content: space-between;
             z-index: 4000;
+            transition: background 0.3s;
         }
         .accept-call { background: #4caf50; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
         .reject-call { background: #ff4444; color: white; padding: 8px 20px; border: none; border-radius: 25px; cursor: pointer; }
@@ -792,10 +708,7 @@
             align-items: center;
             margin: 15px 0;
         }
-        .theme-colors {
-            display: flex;
-            gap: 10px;
-        }
+        .theme-colors { display: flex; gap: 10px; }
         .theme-color {
             width: 35px;
             height: 35px;
@@ -805,7 +718,7 @@
         }
         .theme-color:hover { transform: scale(1.1); }
         
-        /* Dark Mode */
+        /* Dark Mode - Complete */
         .dark-mode {
             background: #1a1a1a;
         }
@@ -819,6 +732,16 @@
         }
         .dark-mode .message.sent {
             background: linear-gradient(135deg, #4c669f 0%, #3b4b8a 100%);
+            color: #e4e6eb;
+        }
+        .dark-mode .message .text {
+            color: #e4e6eb;
+        }
+        .dark-mode .message .time {
+            color: #aaa;
+        }
+        .dark-mode .message .user span {
+            color: #e4e6eb;
         }
         .dark-mode .sidebar,
         .dark-mode .preview-container,
@@ -830,7 +753,10 @@
         .dark-mode .poll-creator,
         .dark-mode .settings-modal,
         .dark-mode .profile-modal-content,
-        .dark-mode .search-results {
+        .dark-mode .search-results,
+        .dark-mode .reply-indicator,
+        .dark-mode .message-actions,
+        .dark-mode .seen-by {
             background: #2d2d2d;
             color: #e4e6eb;
         }
@@ -843,12 +769,21 @@
             color: #e4e6eb;
             border-color: #4e4e4e;
         }
+        .dark-mode #message-input::placeholder {
+            color: #aaa;
+        }
         .dark-mode .user-item {
             background: #3e3e3e;
             color: #e4e6eb;
         }
         .dark-mode .user-item:hover {
             background: #4e4e4e;
+        }
+        .dark-mode .user-name {
+            color: #e4e6eb;
+        }
+        .dark-mode .user-status {
+            color: #aaa;
         }
         .dark-mode .sidebar-header,
         .dark-mode .chat-header {
@@ -865,24 +800,26 @@
         .dark-mode .typing-indicator {
             color: #999;
         }
-        .dark-mode .user-status {
-            color: #aaa;
-        }
         .dark-mode .reply-indicator {
             background: #3e3e3e;
         }
         .dark-mode .gif-item {
             background: #3e3e3e;
+            color: #e4e6eb;
         }
         .dark-mode .gif-item:hover {
             background: #4e4e4e;
+        }
+        .dark-mode .read-receipt .read {
+            color: #4caf50;
         }
         
         @media (min-width: 768px) {
             .app-container { display: flex !important; flex-direction: row; }
             .sidebar { position: relative; left: 0; width: 300px; height: 100%; }
             .menu-btn { display: none; }
-            .chat-container, .reels-container { flex: 1; }
+            .chat-container { flex: 1; }
+            .message { max-width: 60%; }
         }
     </style>
 </head>
@@ -891,7 +828,7 @@
     <div class="login-container" id="login-screen">
         <div class="login-card">
             <h2>✨ Ultimate Messenger</h2>
-            <p>Chat & Watch Short Videos</p>
+            <p>Connect with friends in real-time</p>
             <input type="text" id="username-input" placeholder="Enter username">
             <button id="join-button">Join →</button>
             <div id="error-message" class="error"></div>
@@ -973,9 +910,11 @@
             </div>
         </div>
         
-        <!-- Reels Section - REAL SHORT VIDEOS -->
-        <div class="reels-container" id="reels-container">
-            <!-- Reels will be dynamically loaded -->
+        <!-- Reels Section (placeholder, can be extended later) -->
+        <div class="reels-container" id="reels-container" style="display: none;">
+            <div style="height: 100vh; display: flex; align-items: center; justify-content: center; color: white; background: black;">
+                <p>Reels coming soon...</p>
+            </div>
         </div>
     </div>
     
@@ -1009,7 +948,7 @@
     <div class="schedule-picker" id="schedule-picker">
         <h4>📅 Schedule Message</h4>
         <input type="datetime-local" id="schedule-time">
-        <input type="text" id="schedule-text" placeholder="Message to send later">
+        <input type="text" id="schedule-text" placeholder="Message">
         <button id="schedule-submit" style="background: #667eea; color: white;">Schedule</button>
         <button id="schedule-cancel">Cancel</button>
     </div>
@@ -1030,8 +969,8 @@
         <h3>📊 Create Poll</h3>
         <input type="text" id="poll-question" placeholder="Question">
         <div id="poll-options-container">
-            <input type="text" placeholder="Option 1" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
-            <input type="text" placeholder="Option 2" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+            <input type="text" placeholder="Option 1" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+            <input type="text" placeholder="Option 2" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
         </div>
         <button id="add-poll-option" style="background: #e4e6eb;">+ Add Option</button>
         <button id="poll-submit" style="background: #667eea; color: white; margin-top: 10px;">Create Poll</button>
@@ -1056,10 +995,6 @@
                     <option value="16" selected>Medium</option>
                     <option value="18">Large</option>
                 </select>
-            </div>
-            <div class="setting-item">
-                <label>Auto-play Reels</label>
-                <input type="checkbox" id="auto-play-reels" checked>
             </div>
             <button id="settings-close" style="margin-top: 20px; padding: 12px; background: #667eea; color: white; border: none; border-radius: 25px; width: 100%;">Apply & Close</button>
         </div>
@@ -1088,20 +1023,6 @@
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // ============ SHORT VIDEOS DATA (YouTube Shorts) ============
-        const reelsData = [
-            { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', views: '15M', user: 'Rick Astley', avatar: '🎵', duration: '0:15' },
-            { id: 'jNQXAC9IVRw', title: 'Me at the zoo', views: '25M', user: 'Jawed', avatar: '🐘', duration: '0:18' },
-            { id: 'YQHsXMglC9A', title: 'Dance Challenge', views: '8.5M', user: 'Dancer', avatar: '💃', duration: '0:12' },
-            { id: 'kJQP7kiw5Fk', title: 'Music Vibes', views: '12M', user: 'MusicPro', avatar: '🎶', duration: '0:20' },
-            { id: 'JGwWNGJdvx8', title: 'Motivation', views: '22M', user: 'Motivator', avatar: '💪', duration: '0:10' },
-            { id: 'ZbZSe6N_BXs', title: 'Funny Cat', views: '45M', user: 'CatLover', avatar: '🐱', duration: '0:08' },
-            { id: '9bZkp7q19f0', title: 'Gangnam Style', views: '4.5B', user: 'PSY', avatar: '🕺', duration: '0:15' },
-            { id: 'OPf0YbXqDm0', title: 'Epic Fail', views: '6.8M', user: 'FailArmy', avatar: '😱', duration: '0:12' },
-            { id: 'CevxZvSJLk8', title: 'Dance Tutorial', views: '3.2M', user: 'DanceMaster', avatar: '💃', duration: '0:25' },
-            { id: 'fJ9rUzIMcZQ', title: 'Art Hack', views: '2.1M', user: 'Artist', avatar: '🎨', duration: '0:14' }
-        ];
-        
         // ============ AUTHENTICATION ============
         let currentUser = null;
         let currentSession = localStorage.getItem('currentSession');
@@ -1199,86 +1120,16 @@
                 tab.classList.add('active');
                 const mode = tab.dataset.mode;
                 if (mode === 'chat') {
-                    chatContainer.classList.add('active');
-                    reelsContainer.classList.remove('active');
+                    chatContainer.style.display = 'flex';
+                    reelsContainer.style.display = 'none';
                 } else {
-                    chatContainer.classList.remove('active');
-                    reelsContainer.classList.add('active');
-                    loadReels();
+                    chatContainer.style.display = 'none';
+                    reelsContainer.style.display = 'block';
                 }
             };
         });
         
-        // ============ LOAD SHORT VIDEOS (REELS) ============
-        function loadReels() {
-            reelsContainer.innerHTML = '';
-            reelsData.forEach((reel, index) => {
-                const reelDiv = document.createElement('div');
-                reelDiv.className = 'reel-item';
-                // Using YouTube Shorts URL format
-                const shortsUrl = `https://www.youtube.com/embed/${reel.id}?autoplay=${index === 0 ? 1 : 0}&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&loop=1&playlist=${reel.id}`;
-                reelDiv.innerHTML = `
-                    <div class="reel-video">
-                        <iframe src="${shortsUrl}" allow="autoplay; encrypted-media; picture-in-picture" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <div class="reel-overlay">
-                        <button class="reel-action like-btn" onclick="likeReel(${index})">❤️ <span class="like-count">${Math.floor(Math.random() * 50000)}</span></button>
-                        <button class="reel-action comment-btn" onclick="commentOnReel(${index})">💬 <span>${Math.floor(Math.random() * 2000)}</span></button>
-                        <button class="reel-action share-btn" onclick="shareReel(${index})">↗️</button>
-                    </div>
-                    <div class="reel-info">
-                        <div class="reel-title">${reel.title}</div>
-                        <div class="reel-views">👁️ ${reel.views} views • ${reel.duration}</div>
-                        <div class="reel-user">
-                            <div class="reel-user-avatar">${reel.avatar}</div>
-                            <span>${reel.user}</span>
-                        </div>
-                    </div>
-                `;
-                reelsContainer.appendChild(reelDiv);
-            });
-            
-            // Add scroll listener for auto-play
-            reelsContainer.onscroll = () => {
-                const reels = document.querySelectorAll('.reel-item');
-                reels.forEach((reel, i) => {
-                    const rect = reel.getBoundingClientRect();
-                    const iframe = reel.querySelector('iframe');
-                    if (iframe && rect.top >= -100 && rect.top <= window.innerHeight / 2) {
-                        const videoId = reelsData[i].id;
-                        if (!iframe.src.includes(`autoplay=1`)) {
-                            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&loop=1&playlist=${videoId}`;
-                        }
-                    } else if (iframe && iframe.src.includes('autoplay=1')) {
-                        const videoId = reelsData[i].id;
-                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&loop=1&playlist=${videoId}`;
-                    }
-                });
-            };
-        }
-        
-        function likeReel(index) {
-            const btn = document.querySelectorAll('.like-btn')[index];
-            const countSpan = btn.querySelector('.like-count');
-            let count = parseInt(countSpan.textContent);
-            count++;
-            countSpan.textContent = count;
-            btn.style.transform = 'scale(1.2)';
-            setTimeout(() => btn.style.transform = '', 200);
-        }
-        
-        function commentOnReel(index) {
-            const comment = prompt('Add a comment:');
-            if (comment) alert('💬 Comment added: ' + comment);
-        }
-        
-        function shareReel(index) {
-            const reel = reelsData[index];
-            navigator.clipboard.writeText(`https://youtube.com/shorts/${reel.id}`);
-            alert('🔗 Link copied to clipboard!');
-        }
-        
-        // ============ SETTINGS - FIXED ============
+        // ============ SETTINGS - WORKING ============
         function openSettings() { 
             settingsModal.style.display = 'flex'; 
         }
@@ -1300,7 +1151,7 @@
                 orange: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)'
             };
             const gradient = gradients[theme];
-            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .call-btn-small, .mode-tab.active').forEach(el => {
+            document.querySelectorAll('.sidebar-header, .chat-header, #send-button, .mode-tab.active').forEach(el => {
                 if (el.style) el.style.background = gradient;
             });
         }
@@ -1372,8 +1223,8 @@
             pollCreator.style.display = 'none';
             document.getElementById('poll-question').value = '';
             document.getElementById('poll-options-container').innerHTML = `
-                <input type="text" placeholder="Option 1" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
-                <input type="text" placeholder="Option 2" class="poll-opt" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+                <input type="text" placeholder="Option 1" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
+                <input type="text" placeholder="Option 2" style="margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;">
             `;
         };
         
@@ -1382,7 +1233,6 @@
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = `Option ${container.children.length + 1}`;
-            input.className = 'poll-opt';
             input.style.cssText = 'margin: 5px 0; width:100%; padding:10px; border-radius:12px; border:1px solid #ddd;';
             container.appendChild(input);
         };
@@ -1585,10 +1435,11 @@
             if (avatar) {
                 html += `<div class="message-avatar" style="background-image: url(${avatar}); background-size: cover;"></div>`;
             } else {
-                html += `<div class="message-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center;">${username.charAt(0)}</div>`;
+                html += `<div class="message-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center;">${username.charAt(0).toUpperCase()}</div>`;
             }
             html += `<span>${escapeHtml(username)}</span>`;
             
+            // Translate button for received messages
             if (!isSent && msg.text && msg.type === 'text') {
                 html += `<span onclick="openTranslationForMessage('${msg.id}', '${escapeHtml(msg.text).replace(/'/g, "\\'")}')" style="font-size: 10px; margin-left: 5px; cursor: pointer; opacity: 0.6;">🌐</span>`;
             }
@@ -1706,7 +1557,7 @@
                 const div = document.createElement('div'); div.className = 'user-item';
                 if (currentChat.type === 'private' && currentChat.username === user) div.classList.add('active');
                 const avatar = getUserAvatar(user);
-                div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover;` : ''}">${avatar ? '' : user.charAt(0)}</div><div class="user-info"><div class="user-name">${escapeHtml(user)}</div><div class="user-status">Online</div></div><button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>`;
+                div.innerHTML = `<div class="user-avatar" style="${avatar ? `background-image: url(${avatar}); background-size: cover;` : ''}">${avatar ? '' : user.charAt(0).toUpperCase()}</div><div class="user-info"><div class="user-name">${escapeHtml(user)}</div><div class="user-status">Online</div></div><button class="call-btn-small" onclick="event.stopPropagation(); callUser('${user}', false)">📹</button>`;
                 div.onclick = (e) => { if (!e.target.classList.contains('call-btn-small')) startPrivateChat(user); };
                 usersList.appendChild(div);
             });
@@ -1923,9 +1774,6 @@
         window.scrollToMessage = scrollToMessage;
         window.votePoll = votePoll;
         window.openTranslationForMessage = openTranslationForMessage;
-        window.likeReel = likeReel;
-        window.commentOnReel = commentOnReel;
-        window.shareReel = shareReel;
         window.openSettings = openSettings;
         window.closeSettings = closeSettings;
     </script>
